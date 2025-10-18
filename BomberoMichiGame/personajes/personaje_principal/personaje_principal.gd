@@ -59,6 +59,7 @@ func _ready():
 func _physics_process(delta):
 	#movimiendo WASD
 	mover_personaje(delta)
+<<<<<<< HEAD
 	# Actualizar timer de parry
 	if current_axe_state == AxeState.PARRYING:
 		parry_timer -= delta
@@ -293,3 +294,13 @@ func set_hose_charge(value: float):
 func reduce_hose_charge(amount: float):
 	"""Reduce la carga de la manguera al usarla"""
 	set_hose_charge(hose_charge - amount)
+=======
+	
+	# Girar el sprite horizontalmente según la dirección
+	if velocity.x < 0:
+		$Sprite2D.scale.x = -1  # Mirar a la izquierda
+		print("Izquierda")
+	elif velocity.x > 0:
+		$Sprite2D.scale.x = 1   # Mirar a la derecha
+		print("Derecha")
+>>>>>>> 4f2016ef07b4016f76dfff8e296d090f0d533b5f
