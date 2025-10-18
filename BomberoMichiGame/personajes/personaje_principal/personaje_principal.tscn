@@ -24,14 +24,12 @@ metadata/_edit_group_ = true
 texture = ExtResource("2_qh03m")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-visible = false
 position = Vector2(1, -1)
 shape = SubResource("RectangleShape2D_jy0aa")
 
 [node name="AttackCooldownTimer" type="Timer" parent="."]
 
 [node name="Axe" type="Sprite2D" parent="."]
-visible = false
 position = Vector2(58.450726, 5.6239014)
 scale = Vector2(0.10028106, 0.70001954)
 texture = ExtResource("2_qh03m")
@@ -43,6 +41,7 @@ offset = Vector2(-8.662811, -53.667313)
 shape = SubResource("CapsuleShape2D_yy08j")
 
 [node name="hose" type="Sprite2D" parent="."]
+visible = false
 position = Vector2(65.36329, 13.758562)
 scale = Vector2(0.6927214, 0.097085826)
 texture = ExtResource("2_qh03m")

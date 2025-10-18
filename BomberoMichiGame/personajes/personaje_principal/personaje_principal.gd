@@ -323,3 +323,4 @@ func set_hose_charge(value: float):
 func reduce_hose_charge(amount: float):
 	"""Reduce la carga de la manguera al usarla"""
 	set_hose_charge(hose_charge - amount)
+	# (Merged) sprite flip handled earlier via `character_sprite` when available
