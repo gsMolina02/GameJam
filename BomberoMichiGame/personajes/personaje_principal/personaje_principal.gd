@@ -127,7 +127,7 @@ func _handle_input():
 	var dash_pressed = false
 	if Input.is_action_just_pressed("dash"):
 		dash_pressed = true
-	elif Input.is_key_pressed(Key.SPACE):
+	elif Input.is_key_pressed(KEY_SPACE):
 		dash_pressed = true
 
 	if dash_pressed and can_dash:
