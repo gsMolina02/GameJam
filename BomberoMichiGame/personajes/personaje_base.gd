@@ -2,6 +2,7 @@ extends CharacterBody2D
 
 @export var speed = 400
 @export var screen_margin: int = 16
+@export var clamp_to_viewport := true
 
 func mover_personaje(_delta):
 	var input_vector = Input.get_vector("left", "right", "up", "down")
@@ -9,6 +10,8 @@ func mover_personaje(_delta):
 	move_and_slide()
 
 func keep_in_viewport(margin := screen_margin):
+	if not clamp_to_viewport:
+		return
 	# Limita la posición global del personaje al rectángulo visible del viewport menos un margen
 	var vp = get_viewport()
 	if vp == null:

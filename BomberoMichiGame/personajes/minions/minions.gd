@@ -7,14 +7,11 @@ var tiempo_disparo := 0.0
 var tiempo_desde_disparo := 0.0
 var FireballScene: PackedScene = null
 
-func _ready():
-	# no se usan disparos en minions ahora
-	pass
-
 var can_shoot = true
 var fireball_scene = preload("res://Scenes/Entities/FireBall.tscn")
 
 func _ready():
+	# no se usan disparos en minions ahora, pero conectamos el timer por si se re-activa
 	$AttackTimer.timeout.connect(_on_AttackTimer_timeout)
 
 func _on_AttackTimer_timeout():
@@ -45,15 +42,56 @@ func shoot():
 		can_shoot = false
 		$AttackTimer.start()
 		var fireball = fireball_scene.instantiate()
-		# Posicionar la bola de fuego justo delante del minion en la dirección calculada
-		var offset = target_dir * 100
-		fireball.global_position = global_position + offset
-		fireball.set_direction(target_dir)
-		var root_scene = get_tree().get_current_scene()
-		if root_scene:
-			root_scene.add_child(fireball)
+		# Determinar un pequeño offset hacia adelante para que no colisione con el propio minion
+		var spawn_offset = 20.0
+		var spawn_pos = global_position + target_dir * spawn_offset
+		print_debug("Minion shooting from:", global_position)
+		print_debug("Target dir:", target_dir, "spawn offset:", spawn_offset)
+		# Establecer la dirección correctamente en la instancia (API pública preferida)
+		if fireball.has_method("set_direction"):
+			fireball.set_direction(target_dir)
 		else:
-			get_parent().add_child(fireball)
+			# Intentar asignar 'direction' si existe
+			var existing_dir = fireball.get("direction")
+			if existing_dir != null:
+				fireball.set("direction", target_dir)
+			else:
+				# Fallback: asignar 'velocity' usando 'speed' si está definido en la instancia, si no usar 600
+				var fb_speed = 600
+				var s = fireball.get("speed")
+				if s != null:
+					fb_speed = s
+				fireball.set("velocity", target_dir * fb_speed)
+		var root_scene = get_tree().get_current_scene()
+		# If the fireball is an Area2D, temporarily disable monitoring to avoid instant self-collision
+		var was_area := false
+		if fireball is Area2D:
+			was_area = true
+			# disable monitoring if available
+			if fireball.has_method("set"):
+				fireball.set("monitoring", false)
+
+		# Add fireball deferred and set position/collision exceptions deferred to avoid instant collision
+		if root_scene:
+			# Ensure monitoring is off before adding (if supported)
+			if was_area and fireball.has_method("set"):
+				fireball.set("monitoring", false)
+			root_scene.call_deferred("add_child", fireball)
+			# set global position, add collision exception and re-enable monitoring on next idle
+			fireball.call_deferred("set", "global_position", spawn_pos)
+			if fireball.has_method("add_collision_exception_with"):
+				fireball.call_deferred("add_collision_exception_with", self)
+			if was_area and fireball.has_method("set"):
+				fireball.call_deferred("set", "monitoring", true)
+		else:
+			if was_area and fireball.has_method("set"):
+				fireball.set("monitoring", false)
+			get_parent().call_deferred("add_child", fireball)
+			fireball.call_deferred("set", "global_position", spawn_pos)
+			if fireball.has_method("add_collision_exception_with"):
+				fireball.call_deferred("add_collision_exception_with", self)
+			if was_area and fireball.has_method("set"):
+				fireball.call_deferred("set", "monitoring", true)
 
 func mover_personaje(delta):
 	tiempo_actual += delta
@@ -64,7 +102,7 @@ func mover_personaje(delta):
 	move_and_slide()
 	shoot()
 	# Ensure minion stays inside viewport/world bounds
-	_clamp_to_viewport()
+	keep_in_viewport()
 
 func _physics_process(delta):
 	mover_personaje(delta)

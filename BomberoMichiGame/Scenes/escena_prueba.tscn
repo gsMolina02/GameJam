@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="4_minions"]
 
 [node name="escenaPrueba" type="Node2D"]
-position = Vector2(439, 345)
+position = Vector2(439, 348)
 
 [node name="mascota" parent="." instance=ExtResource("1_uapuf")]
 position = Vector2(-4, -1)
