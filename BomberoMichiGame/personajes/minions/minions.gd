@@ -7,8 +7,43 @@ var tiempo_actual := 0.0
 var can_shoot = true
 var fireball_scene = preload("res://Scenes/Entities/FireBall.tscn")
 
+var anim_player: AnimatedSprite2D = null
+
 func _ready():
 	$AttackTimer.timeout.connect(_on_AttackTimer_timeout)
+	anim_player = $AnimatedSprite2D
+	_setup_animation_frames()
+
+func _setup_animation_frames():
+	# Busca imágenes en res://Assets/minions/ (carpeta opcional)
+	var dir_path = "res://Assets/minions/"
+	var fs = DirAccess.open(dir_path)
+	if not fs:
+		return
+	
+	var frames = []
+	fs.list_dir_begin()
+	var fname = fs.get_next()
+	while fname != "":
+		if not fs.current_is_dir():
+			if fname.to_lower().ends_with(".png") or fname.to_lower().ends_with(".webp") or fname.to_lower().ends_with(".jpg"):
+				frames.append(dir_path + fname)
+		fname = fs.get_next()
+	fs.list_dir_end()
+	frames.sort()
+	if frames.size() == 0:
+		return
+	var sf = SpriteFrames.new()
+	sf.add_animation("walk")
+	for f in frames:
+		var tex = load(f)
+		sf.add_frame("walk", tex)
+	anim_player.frames = sf
+	anim_player.frames = sf
+	anim_player.animation = "walk"
+	anim_player.play()
+	# Aumenta velocidad por defecto (multiplicador)
+	anim_player.speed_scale = 1.5
 
 func _on_AttackTimer_timeout():
 	can_shoot = true
@@ -58,6 +93,13 @@ func mover_personaje(delta):
 	shoot()
 	# Ensure minion stays inside viewport/world bounds
 	_clamp_to_viewport()
+
+	# Flip sprite depending on movement direction
+	if anim_player:
+		if direccion.x < 0:
+			anim_player.flip_h = true
+		elif direccion.x > 0:
+			anim_player.flip_h = false
 
 func _physics_process(delta):
 	mover_personaje(delta)
