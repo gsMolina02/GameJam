@@ -121,6 +121,49 @@ func _handle_input():
 	elif Input.is_action_just_pressed("parry"):
 		parry()
 
+	# Dash: detectar tecla de dash (acción 'dash' o tecla espacio)
+	# Se ejecuta aquí para capturar el evento y delegar al mover_personaje
+	if (Input.is_action_just_pressed("dash") or Input.is_key_pressed(32)) and can_dash:
+		# start dash only if there's movement input
+		var iv = Input.get_vector("left", "right", "up", "down")
+		if iv.length() > 0:
+			_start_dash(iv)
+
+
+func mover_personaje(delta):
+	# Si está haciendo dash, manejar el movimiento del dash
+	if is_dashing:
+		_handle_dash(delta)
+		return
+
+	# Usar la implementación base para movimiento normal
+	.mover_personaje(delta)
+
+
+func _start_dash(direction: Vector2):
+	"""Inicia el dash en la dirección especificada"""
+	if not can_dash:
+		return
+	is_dashing = true
+	can_dash = false
+	dash_direction = direction.normalized()
+	dash_timer = dash_duration
+
+
+func _handle_dash(delta):
+	"""Maneja el movimiento durante el dash"""
+	dash_timer -= delta
+	if dash_timer <= 0:
+		# Terminar el dash
+		is_dashing = false
+		velocity = Vector2.ZERO
+		# iniciar cooldown antes de permitir otro dash
+		await get_tree().create_timer(dash_cooldown).timeout
+		can_dash = true
+	else:
+		velocity = dash_direction * dash_speed
+		move_and_slide()
+
 # ============================================
 # 3.6.1 - SISTEMA DE ATAQUE CON HACHA
 # ============================================
