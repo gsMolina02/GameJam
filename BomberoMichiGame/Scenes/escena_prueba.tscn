@@ -3,9 +3,10 @@
 [ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="1_uapuf"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_1in75"]
 [ext_resource type="PackedScene" uid="uid://upe8nkwx2xwf" path="res://personajes/jefe/jefe.tscn" id="3_1in75"]
-[ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="4_qjma3"]
+[ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="4_minions"]
 
 [node name="escenaPrueba" type="Node2D"]
+position = Vector2(439, 348)
 
 [node name="mascota" parent="." instance=ExtResource("1_uapuf")]
 position = Vector2(-4, -1)
@@ -15,9 +16,20 @@ objetivo = NodePath("../personajePrincipal")
 [node name="personajePrincipal" parent="." instance=ExtResource("2_1in75")]
 position = Vector2(172, -13)
 scale = Vector2(1.0000006, 1.0237389)
+min_x = null
+max_x = null
+min_y = null
+max_y = null
+enforce_bounds = null
+speed = null
+screen_margin = null
+clamp_to_viewport = null
 
 [node name="jefe" parent="." instance=ExtResource("3_1in75")]
-position = Vector2(442.00003, 139)
+position = Vector2(478, -76)
 
-[node name="minions" parent="." instance=ExtResource("4_qjma3")]
-position = Vector2(606, 514)
+[node name="minion_test" parent="." instance=ExtResource("4_minions")]
+position = Vector2(300, 0)
+speed = null
+screen_margin = null
+clamp_to_viewport = null

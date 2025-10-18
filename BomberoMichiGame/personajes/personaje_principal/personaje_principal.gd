@@ -2,7 +2,6 @@ extends "res://personajes/personaje_base.gd"
 class_name Bomber
 
 
-
 # Propiedades exportadas
 @export var gravity = 100
 @export var axe_damage = 2
@@ -24,12 +23,12 @@ var parry_timer = 0.0
 var can_attack = true
 var hose_charge = 100.0  # Carga de la manguera (0-100%)
 
-# Referencias a nodos
-@onready var axe_hitbox = $Axe/AxeHitbox  # El hitbox es hijo del hacha
-@onready var axe_sprite = $Axe  # Sprite del hacha (Sprite2D o Node2D)
-@onready var attack_cooldown_timer = $AttackCooldownTimer
-@onready var animation_player = $AnimationPlayer  # Para animaciones
-@onready var character_sprite = $Sprite2D  # Sprite del bombero para detectar dirección
+# Referencias a nodos (guardadas con get_node_or_null para evitar errores en escenas de prueba)
+@onready var axe_hitbox = get_node_or_null("Axe/AxeHitbox")
+@onready var axe_sprite = get_node_or_null("Axe")
+@onready var attack_cooldown_timer = get_node_or_null("AttackCooldownTimer")
+@onready var animation_player = get_node_or_null("AnimationPlayer")  # Para animaciones
+@onready var character_sprite = get_node_or_null("Sprite2D")  # Sprite del bombero para detectar dirección
 
 # Señales
 signal hose_recharged(new_charge)
@@ -37,27 +36,39 @@ signal extinguisher_box_broken
 signal parry_successful
 signal attack_performed
 
+@export var min_x := -1000.0
+@export var max_x := 1000.0
+@export var min_y := -1000.0
+@export var max_y := 1000.0
+@export var enforce_bounds := false # set true to enable min/max clamping
+
 func _ready():
 	# Configurar timer de cooldown
 	if not attack_cooldown_timer:
 		attack_cooldown_timer = Timer.new()
 		attack_cooldown_timer.one_shot = true
 		add_child(attack_cooldown_timer)
-	attack_cooldown_timer.timeout.connect(_on_attack_cooldown_timeout)
-	
+	if attack_cooldown_timer:
+		attack_cooldown_timer.timeout.connect(_on_attack_cooldown_timeout)
+
 	# Configurar hitbox del hacha
 	if axe_hitbox:
 		axe_hitbox.monitoring = false
-		axe_hitbox.body_entered.connect(_on_axe_hit)
-		axe_hitbox.area_entered.connect(_on_axe_area_hit)
-	
+		if axe_hitbox.has_signal("body_entered"):
+			axe_hitbox.body_entered.connect(_on_axe_hit)
+		if axe_hitbox.has_signal("area_entered"):
+			axe_hitbox.area_entered.connect(_on_axe_area_hit)
+
 	# Asegurarse de que el hacha esté en posición inicial
 	if axe_sprite:
 		axe_sprite.rotation_degrees = 0
-		print("Hacha inicializada en rotación: ", axe_sprite.rotation_degrees)
+
+	# Desactivar clamp al viewport para el jugador (una sola vez)
+	clamp_to_viewport = false
+
 
 func _physics_process(delta):
-	#movimiendo WASD
+	# Movimiento estándar (mover_personaje en la base maneja dash internamente)
 	mover_personaje(delta)
 
 	# Actualizar timer de parry
@@ -65,10 +76,40 @@ func _physics_process(delta):
 		parry_timer -= delta
 		if parry_timer <= 0:
 			current_axe_state = AxeState.IDLE
-	
+
 	# Input de acciones
 	_handle_input()
-	
+
+	# Limitar posición dentro del campo definido (se puede desactivar con enforce_bounds)
+	var x = global_position.x
+	var y = global_position.y
+	if enforce_bounds:
+		var minx = (min_x if min_x != null else -1000.0)
+		var maxx = (max_x if max_x != null else 1000.0)
+		var miny = (min_y if min_y != null else -1000.0)
+		var maxy = (max_y if max_y != null else 1000.0)
+		x = clamp(global_position.x, float(minx), float(maxx))
+		y = clamp(global_position.y, float(miny), float(maxy))
+
+	# Debug: imprimir cuando el jugador intenta moverse horizontalmente
+	if abs(velocity.x) > 0:
+		if enforce_bounds:
+			print_debug("Player attempt move -> pos:", global_position, "vel.x:", velocity.x, "clamped_x:", x, "bounds_enabled")
+		else:
+			print_debug("Player attempt move -> pos:", global_position, "vel.x:", velocity.x, "clamped_x:", x, "(bounds disabled)")
+
+	global_position = Vector2(x, y)
+
+	# Girar el sprite horizontalmente según la dirección
+	if character_sprite:
+		if velocity.x < 0:
+			character_sprite.scale.x = -1  # Mirar a la izquierda
+		elif velocity.x > 0:
+			character_sprite.scale.x = 1   # Mirar a la derecha
+
+	# adicionalmente asegurar que el personaje no salga del viewport
+	# (no-op porque clamp_to_viewport está desactivado para el jugador)
+	# keep_in_viewport()
 
 
 func _handle_input():
@@ -79,6 +120,27 @@ func _handle_input():
 	# 3.6.2 - Sistema de parry
 	elif Input.is_action_just_pressed("parry"):
 		parry()
+
+	# Dash: usar Shift ('ui_shift') como en el comportamiento original
+	var shift_pressed := false
+	if InputMap.has_action("ui_shift"):
+		shift_pressed = Input.is_action_just_pressed("ui_shift")
+	else:
+		# Fallback a tecla Space si no existe la acción
+		shift_pressed = Input.is_key_pressed(KEY_SPACE) and not Input.is_action_pressed("attack")
+
+	if shift_pressed and can_dash:
+		# Determinar dirección de dash: preferir input vector, caer a dirección mirando
+		var dir = Input.get_vector("left", "right", "up", "down")
+		if dir == Vector2.ZERO:
+			# Si no hay input, dash hacia donde mira el sprite
+			if character_sprite:
+				dir = Vector2(1, 0) if character_sprite.scale.x > 0 else Vector2(-1, 0)
+			else:
+				dir = Vector2(1, 0)
+
+		# Llamar al dash implementado en la base
+		_start_dash(dir)
 
 # ============================================
 # 3.6.1 - SISTEMA DE ATAQUE CON HACHA
@@ -122,8 +184,6 @@ func _animate_axe_swing():
 		print("ERROR: No se encontró el sprite del hacha!")
 		return
 	
-	print("Iniciando animación del hacha...")
-	
 	# Crear un tween para animar la rotación
 	var tween = create_tween()
 	tween.set_ease(Tween.EASE_OUT)
@@ -134,16 +194,9 @@ func _animate_axe_swing():
 	if character_sprite and character_sprite.flip_h:
 		direction = -1
 	
-	print("Dirección del swing: ", direction)
-	print("Rotación inicial: ", axe_sprite.rotation_degrees)
-	
 	# Animación del swing: de vertical a horizontal
-	# Primera parte: girar el hacha hacia adelante
 	tween.tween_property(axe_sprite, "rotation_degrees", 90 * direction, 0.15)
-	# Segunda parte: regresar a posición inicial
 	tween.tween_property(axe_sprite, "rotation_degrees", 0, 0.15)
-	
-	print("Tween creado y configurado")
 
 func _reset_axe_position():
 	"""Resetea la posición y rotación del hacha"""
@@ -154,10 +207,21 @@ func _reset_axe_position():
 func _perform_axe_attack():
 	if not axe_hitbox:
 		return
-	
 	# Obtener todos los cuerpos en el área de ataque
+	# Si el Area2D está con monitoring desactivado, activarlo temporalmente para poder leer overlaps
+	var was_monitoring = true
+	if not axe_hitbox.monitoring:
+		was_monitoring = false
+		axe_hitbox.monitoring = true
+		# Esperar un frame de física para que el motor actualice las colisiones
+		await get_tree().process_frame
+
 	var overlapping_bodies = axe_hitbox.get_overlapping_bodies()
 	var overlapping_areas = axe_hitbox.get_overlapping_areas()
+
+	# Restaurar el estado de monitoring si estaba desactivado
+	if not was_monitoring:
+		axe_hitbox.monitoring = false
 	
 	# Procesar cuerpos (enemigos, cajas físicas)
 	for body in overlapping_bodies:
@@ -232,9 +296,7 @@ func _break_extinguisher_box(box):
 	# Recargar manguera
 	var old_charge = hose_charge
 	hose_charge = min(hose_charge + 25.0, 100.0)
-	var actual_recharge = hose_charge - old_charge
-	
-	print("Caja rota! Manguera recargada: +", actual_recharge, "% (Total: ", hose_charge, "%)")
+	var _actual_recharge = hose_charge - old_charge
 	
 	# Emitir señales
 	emit_signal("hose_recharged", hose_charge)
@@ -249,9 +311,8 @@ func _break_extinguisher_box(box):
 	else:
 		box.queue_free()
 
-func _play_box_break_effect(box):
-	# Efectos visuales y sonoros al romper la caja
-	# Podrías instanciar partículas, reproducir sonidos, etc.
+func _play_box_break_effect(_box):
+	# Efectos visuales y sonoros al romper la caja (implementar si se desea)
 	pass
 
 # ============================================
@@ -294,10 +355,4 @@ func set_hose_charge(value: float):
 func reduce_hose_charge(amount: float):
 	"""Reduce la carga de la manguera al usarla"""
 	set_hose_charge(hose_charge - amount)
-	# Girar el sprite horizontalmente según la dirección
-	if velocity.x < 0:
-		$Sprite2D.scale.x = -1  # Mirar a la izquierda
-		print("Izquierda")
-	elif velocity.x > 0:
-		$Sprite2D.scale.x = 1   # Mirar a la derecha
-		print("Derecha")
+	# (Merged) sprite flip handled earlier via `character_sprite` when available
