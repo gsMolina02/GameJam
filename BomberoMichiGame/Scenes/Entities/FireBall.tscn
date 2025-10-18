@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3 uid="uid://cfto2w6gq1qf7"]
+
+[ext_resource type="Script" path="res://Scripts/FireBall.gd" id="1_v04a4"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_wsm8p"]
+radius = 20.0
+
+[node name="FireBall" type="Area2D"]
+script = ExtResource("1_v04a4")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_wsm8p")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+color = Color(1, 0.3, 0, 1)
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+
+

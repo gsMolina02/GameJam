@@ -7,6 +7,7 @@
 size = Vector2(128, 130)
 
 [node name="minions" type="CharacterBody2D"]
+position = Vector2(253, 458)
 rotation = -0.00036524187
 script = ExtResource("1_g41pb")
 metadata/_edit_group_ = true
@@ -17,3 +18,7 @@ texture = ExtResource("2_l7018")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(1, -1)
 shape = SubResource("RectangleShape2D_jy0aa")
+
+[node name="AttackTimer" type="Timer" parent="."]
+wait_time = 2.0
+autostart = true
