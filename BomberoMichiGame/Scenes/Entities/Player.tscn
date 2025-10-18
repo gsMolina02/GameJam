@@ -1,0 +1,19 @@
+[gd_scene load_steps=2 format=3 uid="uid://c55yo68fk4a67"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0rwas"]
+size = Vector2(47, 38)
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Player" type="CharacterBody2D" parent="."]
+
+[node name="PlayerHitbox" type="Area2D" parent="Player"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player/PlayerHitbox"]
+position = Vector2(99.5, -10)
+shape = SubResource("RectangleShape2D_0rwas")
+
+[node name="Polygon2D" type="Polygon2D" parent="Player"]
+position = Vector2(-2, -13)
+polygon = PackedVector2Array(-40.5, -34, 33.5, -31, 32, 40, -37, 42)
+uv = PackedVector2Array(-40.5, -34, 33.5, -31, 31.5, 33, -35.5, 30)

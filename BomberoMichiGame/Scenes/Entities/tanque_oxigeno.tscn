@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://bwg0w8g826tus"]
+
+[ext_resource type="Script" uid="uid://bivbhvssdtfb4" path="res://Scripts/tanque_oxigeno.gd" id="1_oo87y"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bpka1"]
+size = Vector2(83, 76)
+
+[node name="TanqueOxigeno" type="Area2D"]
+script = ExtResource("1_oo87y")
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+color = Color(0.6434097, 0.9836648, 0.61557835, 1)
+polygon = PackedVector2Array(466, 209, 466, 284, 550, 284, 550, 208)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(507.5, 246)
+shape = SubResource("RectangleShape2D_bpka1")

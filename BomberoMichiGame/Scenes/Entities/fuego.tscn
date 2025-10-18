@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=3 uid="uid://b2isyrlrybvoh"]
+
+[sub_resource type="GDScript" id="GDScript_6ypja"]
+script/source = "# fuego.gd
+extends Area2D
+
+func _ready():
+	# Tarea 5.1: Identificar esta área como \"fuego\".
+	# El script 'player.gd' buscará este grupo.
+	add_to_group(\"fuego\")
+"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_28qvi"]
+size = Vector2(96, 73)
+
+[node name="Fuego" type="Area2D"]
+script = SubResource("GDScript_6ypja")
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+color = Color(0.866582, 0.552471, 0.58790916, 1)
+polygon = PackedVector2Array(47, -25, 2, 49, 98, 49)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(50, 12.5)
+shape = SubResource("RectangleShape2D_28qvi")
