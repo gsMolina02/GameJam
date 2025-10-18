@@ -4,7 +4,7 @@ extends "res://personajes/personaje_base.gd"
 @export var distancia_minima := 120  
 
 func mover_personaje(_delta):
-	var principal = get_node(objetivo)
+	var principal = get_node_or_null(objetivo)
 	if principal:
 		var distancia = global_position.distance_to(principal.global_position)
 		if distancia > distancia_minima:
