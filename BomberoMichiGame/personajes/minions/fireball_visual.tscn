@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://vpqs7x32qqr3"]
+
+[ext_resource type="Script" uid="uid://geu5qwmj10pm" path="res://personajes/minions/fireball_visual.gd" id="1"]
+
+[node name="FireballVisual" type="Node2D"]
+position = Vector2(397, 244)
+script = ExtResource("1")
