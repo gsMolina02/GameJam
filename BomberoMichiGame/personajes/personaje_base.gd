@@ -23,6 +23,33 @@ func mover_personaje(_delta):
 	velocity = input_vector * spd
 	move_and_slide()
 
+
+func _start_dash(direction: Vector2):
+	"""Inicia el dash en la dirección especificada (implementación base)."""
+	if not can_dash:
+		return
+	is_dashing = true
+	can_dash = false
+	dash_direction = direction.normalized()
+	dash_timer = dash_duration
+	print_debug("[base] _start_dash called. direction:", dash_direction, "dash_timer:", dash_timer, "dash_speed:", dash_speed)
+
+
+func _handle_dash(delta):
+	"""Maneja el movimiento durante el dash (implementación base)."""
+	dash_timer -= delta
+	if dash_timer <= 0:
+		# Terminar el dash
+		is_dashing = false
+		velocity = Vector2.ZERO
+		# iniciar cooldown antes de permitir otro dash
+		await get_tree().create_timer(dash_cooldown).timeout
+		can_dash = true
+	else:
+		velocity = dash_direction * dash_speed
+		move_and_slide()
+		print_debug("[base] _handle_dash running. remaining:", dash_timer, "velocity:", velocity)
+
 func keep_in_viewport(margin := screen_margin):
 	if not clamp_to_viewport:
 		return
