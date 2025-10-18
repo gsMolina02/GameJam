@@ -143,8 +143,11 @@ func mover_personaje(delta):
 		_handle_dash(delta)
 		return
 
-	# Usar la implementación base para movimiento normal
-	.mover_personaje(delta)
+	# Movimiento normal (copia de la implementación en personaje_base.gd)
+	var input_vector = Input.get_vector("left", "right", "up", "down")
+	var spd = speed if speed != null else 400
+	velocity = input_vector * spd
+	move_and_slide()
 
 
 func _start_dash(direction: Vector2):
