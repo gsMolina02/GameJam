@@ -1,27 +1,31 @@
 extends CharacterBody2D
 
 @export var speed = 400
-@export var screen_margin: int = 16
+@export var screen_margin: int = 8
 @export var clamp_to_viewport := true
 
-# Dash exports (origin/main additions) — keep them available for characters that want dash
+# Dash exports (original behavior requested)
 @export var dash_speed = 1200  # Velocidad del dash
 @export var dash_duration = 0.25  # Duración del dash en segundos
 @export var dash_cooldown = 0.5  # Tiempo de espera entre dashes
 
-# Variables de control del dash (por defecto inactivas; los hijos pueden habilitarlas)
+# Variables de control del dash
 var is_dashing = false
 var can_dash = true
 var dash_direction = Vector2.ZERO
 var dash_timer = 0.0
 
 func mover_personaje(_delta):
-	# Movimiento por defecto: input vector simple
-	# Si un hijo implementa dash, puede usar/overridear estas variables
+	# Movimiento normal por defecto
 	var input_vector = Input.get_vector("left", "right", "up", "down")
 	var spd = speed if speed != null else 400
 	velocity = input_vector * spd
 	move_and_slide()
+
+	# Si está haciendo dash, manejar el dash por frame (espera usada dentro del handler)
+	if is_dashing:
+		_handle_dash(_delta)
+		return
 
 
 func _start_dash(direction: Vector2):
@@ -36,19 +40,22 @@ func _start_dash(direction: Vector2):
 
 
 func _handle_dash(delta):
-	"""Maneja el movimiento durante el dash (implementación base)."""
+	"""Maneja el movimiento durante el dash"""
 	dash_timer -= delta
+
 	if dash_timer <= 0:
 		# Terminar el dash
 		is_dashing = false
 		velocity = Vector2.ZERO
-		# iniciar cooldown antes de permitir otro dash
+
+		# Iniciar cooldown
+		can_dash = false
 		await get_tree().create_timer(dash_cooldown).timeout
 		can_dash = true
 	else:
+		# Mantener la velocidad del dash
 		velocity = dash_direction * dash_speed
 		move_and_slide()
-		print_debug("[base] _handle_dash running. remaining:", dash_timer, "velocity:", velocity)
 
 func keep_in_viewport(margin := screen_margin):
 	if not clamp_to_viewport:
