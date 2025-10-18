@@ -1,0 +1,15 @@
+# Archivos de caché del editor (generados automáticamente, ignorar)
+.godot/
+.mono/
+# Archivos temporales de exportación
+export.cfg
+export_presets.cfg
+# Archivos de compilación o resultados de exportación
+*.exe
+*.zip
+*.apk
+*.dylib
+*.so
+*.a
+*.lib
+*.dll
