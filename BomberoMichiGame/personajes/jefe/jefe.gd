@@ -144,8 +144,18 @@ func _lanzar_orbita():
 		var angle_offset = lerp(-ls, ls, t)
 		# aplicar rotación para dispersar la dirección
 		dir = dir.rotated(deg_to_rad(angle_offset))
-		# aplicar multiplicador de velocidad
-		fb.velocity = dir * fb.speed * launch_speed_multiplier
+		# asignar shooter si existe (para que la fireball ignore colisiones iniciales)
+		if fb.has_method("set_shooter"):
+			fb.set_shooter(self)
+		# aplicar multiplicador de velocidad, preferir set_direction si existe
+		if fb.has_method("set_direction"):
+			fb.set_direction(dir.rotated(0) )
+			# si además tiene propiedad 'velocity', actualizarla mediante set/get
+			var try_vel = fb.get("velocity")
+			if try_vel != null:
+				fb.set("velocity", dir * (fb.get("speed") if fb.get("speed") != null else fb.speed) * launch_speed_multiplier)
+		else:
+			fb.set("velocity", dir * (fb.get("speed") if fb.get("speed") != null else fb.speed) * launch_speed_multiplier)
 	# vaciar la lista (las instancias siguen en escena pero ya tienen velocidad)
 	orbit_fireballs.clear()
 	orbit_angles.clear()
