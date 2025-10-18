@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://e2osxgcrxydp"]
+
+[ext_resource type="Script" uid="uid://diee8lr62csv3" path="res://personajes/mascota/mascota.gd" id="1_frh65"]
+[ext_resource type="Texture2D" uid="uid://o6ngfpcesb0w" path="res://icon.svg" id="2_dp1b8"]
+
+[node name="mascota" type="CharacterBody2D"]
+rotation = -0.00036524187
+collision_layer = 2
+script = ExtResource("1_frh65")
+metadata/_edit_group_ = true
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_dp1b8")

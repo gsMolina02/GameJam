@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=3 uid="uid://doh2qtc1kjvpm"]
+
+[ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="1_uapuf"]
+[ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_1in75"]
+[ext_resource type="PackedScene" uid="uid://upe8nkwx2xwf" path="res://personajes/jefe/jefe.tscn" id="3_1in75"]
+[ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="4_qjma3"]
+
+[node name="escenaPrueba" type="Node2D"]
+
+[node name="mascota" parent="." instance=ExtResource("1_uapuf")]
+position = Vector2(-4, -1)
+scale = Vector2(1.0224254, 0.9807179)
+objetivo = NodePath("../personajePrincipal")
+
+[node name="personajePrincipal" parent="." instance=ExtResource("2_1in75")]
+position = Vector2(172, -13)
+scale = Vector2(1.0000006, 1.0237389)
+
+[node name="jefe" parent="." instance=ExtResource("3_1in75")]
+position = Vector2(442.00003, 139)
+
+[node name="minions" parent="." instance=ExtResource("4_qjma3")]
+position = Vector2(606, 514)
