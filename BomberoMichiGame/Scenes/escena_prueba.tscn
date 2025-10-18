@@ -16,9 +16,20 @@ objetivo = NodePath("../personajePrincipal")
 [node name="personajePrincipal" parent="." instance=ExtResource("2_1in75")]
 position = Vector2(172, -13)
 scale = Vector2(1.0000006, 1.0237389)
+min_x = null
+max_x = null
+min_y = null
+max_y = null
+enforce_bounds = null
+speed = null
+screen_margin = null
+clamp_to_viewport = null
 
 [node name="jefe" parent="." instance=ExtResource("3_1in75")]
 position = Vector2(478, -76)
 
 [node name="minion_test" parent="." instance=ExtResource("4_minions")]
 position = Vector2(300, 0)
+speed = null
+screen_margin = null
+clamp_to_viewport = null
