@@ -5,7 +5,7 @@ class_name Bomber
 
 # Propiedades exportadas
 @export var gravity = 100
-@export var axe_damage = 10
+@export var axe_damage = 2
 @export var parry_window = 0.2  # Ventana de tiempo para parry
 @export var attack_cooldown_time = 0.2
 @export var parry_cooldown_time = 0.3
