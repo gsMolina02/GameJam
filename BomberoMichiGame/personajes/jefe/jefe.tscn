@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://upe8nkwx2xwf"]
+
+[ext_resource type="Script" uid="uid://3u2rdn1ti13m" path="res://personajes/jefe/jefe.gd" id="1_l41yb"]
+[ext_resource type="Texture2D" uid="uid://o6ngfpcesb0w" path="res://icon.svg" id="2_cmhy2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jy0aa"]
+size = Vector2(128, 130)
+
+[node name="jefe" type="CharacterBody2D"]
+rotation = -0.00036524187
+script = ExtResource("1_l41yb")
+metadata/_edit_group_ = true
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_cmhy2")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(1, -1)
+shape = SubResource("RectangleShape2D_jy0aa")
