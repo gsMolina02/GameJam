@@ -15,7 +15,7 @@ var can_dash = true
 var dash_direction = Vector2.ZERO
 var dash_timer = 0.0
 
-func mover_personaje(delta):
+func mover_personaje(_delta):
 	# Movimiento por defecto: input vector simple
 	# Si un hijo implementa dash, puede usar/overridear estas variables
 	var input_vector = Input.get_vector("left", "right", "up", "down")

@@ -264,7 +264,7 @@ func _break_extinguisher_box(box):
 	# Recargar manguera
 	var old_charge = hose_charge
 	hose_charge = min(hose_charge + 25.0, 100.0)
-	var actual_recharge = hose_charge - old_charge
+	var _actual_recharge = hose_charge - old_charge
 	
 	# Emitir señales
 	emit_signal("hose_recharged", hose_charge)
@@ -279,8 +279,8 @@ func _break_extinguisher_box(box):
 	else:
 		box.queue_free()
 
-func _play_box_break_effect(box):
-	# Efectos visuales y sonoros al romper la caja
+func _play_box_break_effect(_box):
+	# Efectos visuales y sonoros al romper la caja (implementar si se desea)
 	pass
 
 # ============================================
