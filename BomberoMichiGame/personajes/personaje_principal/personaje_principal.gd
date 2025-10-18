@@ -123,9 +123,16 @@ func _handle_input():
 
 	# Dash: detectar tecla de dash (acción 'dash' o tecla espacio)
 	# Se ejecuta aquí para capturar el evento y delegar al mover_personaje
-	if (Input.is_action_just_pressed("dash") or Input.is_key_pressed(32)) and can_dash:
-		# start dash only if there's movement input
+	# Detectar dash: preferir la acción 'dash', fallback a tecla SPACE
+	var dash_pressed = false
+	if Input.is_action_just_pressed("dash"):
+		dash_pressed = true
+	elif Input.is_key_pressed(Key.SPACE):
+		dash_pressed = true
+
+	if dash_pressed and can_dash:
 		var iv = Input.get_vector("left", "right", "up", "down")
+		print_debug("dash input detected, move vector:", iv, "can_dash:", can_dash)
 		if iv.length() > 0:
 			_start_dash(iv)
 
