@@ -19,7 +19,8 @@ func mover_personaje(delta):
 	# Movimiento por defecto: input vector simple
 	# Si un hijo implementa dash, puede usar/overridear estas variables
 	var input_vector = Input.get_vector("left", "right", "up", "down")
-	velocity = input_vector * speed
+	var spd = speed if speed != null else 400
+	velocity = input_vector * spd
 	move_and_slide()
 
 func keep_in_viewport(margin := screen_margin):
