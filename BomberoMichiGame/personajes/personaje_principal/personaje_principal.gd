@@ -186,10 +186,21 @@ func _reset_axe_position():
 func _perform_axe_attack():
 	if not axe_hitbox:
 		return
-	
 	# Obtener todos los cuerpos en el área de ataque
+	# Si el Area2D está con monitoring desactivado, activarlo temporalmente para poder leer overlaps
+	var was_monitoring = true
+	if not axe_hitbox.monitoring:
+		was_monitoring = false
+		axe_hitbox.monitoring = true
+		# Esperar un frame de física para que el motor actualice las colisiones
+		await get_tree().process_frame
+
 	var overlapping_bodies = axe_hitbox.get_overlapping_bodies()
 	var overlapping_areas = axe_hitbox.get_overlapping_areas()
+
+	# Restaurar el estado de monitoring si estaba desactivado
+	if not was_monitoring:
+		axe_hitbox.monitoring = false
 	
 	# Procesar cuerpos (enemigos, cajas físicas)
 	for body in overlapping_bodies:
