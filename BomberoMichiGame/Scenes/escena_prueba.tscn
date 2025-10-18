@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3 uid="uid://doh2qtc1kjvpm"]
+[gd_scene load_steps=6 format=3 uid="uid://c2fcfdi28gc84"]
 
 [ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="1_uapuf"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_1in75"]
 [ext_resource type="PackedScene" uid="uid://upe8nkwx2xwf" path="res://personajes/jefe/jefe.tscn" id="3_1in75"]
+[ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/Entities/fuego.tscn" id="4_gdsp3"]
+[ext_resource type="PackedScene" uid="uid://bwg0w8g826tus" path="res://Scenes/Entities/tanque_oxigeno.tscn" id="5_qjlt0"]
 
 [node name="escenaPrueba" type="Node2D"]
 
@@ -17,3 +19,9 @@ scale = Vector2(1.0000006, 1.0237389)
 
 [node name="jefe" parent="." instance=ExtResource("3_1in75")]
 position = Vector2(478, -76)
+
+[node name="Fuego" parent="." instance=ExtResource("4_gdsp3")]
+position = Vector2(246, 155)
+
+[node name="TanqueOxigeno" parent="." instance=ExtResource("5_qjlt0")]
+position = Vector2(-423, 108)
