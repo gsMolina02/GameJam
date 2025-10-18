@@ -9,6 +9,7 @@ size = Vector2(128, 130)
 [node name="jefe" type="CharacterBody2D"]
 rotation = -0.00036524187
 script = ExtResource("1_l41yb")
+vida_maxima = 50
 metadata/_edit_group_ = true
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
