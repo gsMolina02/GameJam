@@ -68,7 +68,7 @@ func _ready():
 
 
 func _physics_process(delta):
-	# Movimiento estándar
+	# Movimiento estándar (mover_personaje en la base maneja dash internamente)
 	mover_personaje(delta)
 
 	# Actualizar timer de parry
@@ -121,58 +121,26 @@ func _handle_input():
 	elif Input.is_action_just_pressed("parry"):
 		parry()
 
-	# Dash: detectar tecla de dash (acción 'dash' o tecla espacio)
-	# Se ejecuta aquí para capturar el evento y delegar al mover_personaje
-	# Detectar dash: preferir la acción 'dash', fallback a tecla SPACE
-	var dash_pressed = false
-	if Input.is_action_just_pressed("dash"):
-		dash_pressed = true
-	elif Input.is_key_pressed(KEY_SPACE):
-		dash_pressed = true
-
-	if dash_pressed and can_dash:
-		var iv = Input.get_vector("left", "right", "up", "down")
-		print_debug("dash input detected, move vector:", iv, "can_dash:", can_dash)
-		if iv.length() > 0:
-			_start_dash(iv)
-
-
-func mover_personaje(delta):
-	# Si está haciendo dash, manejar el movimiento del dash
-	if is_dashing:
-		_handle_dash(delta)
-		return
-
-	# Movimiento normal (copia de la implementación en personaje_base.gd)
-	var input_vector = Input.get_vector("left", "right", "up", "down")
-	var spd = speed if speed != null else 400
-	velocity = input_vector * spd
-	move_and_slide()
-
-
-func _start_dash(direction: Vector2):
-	"""Inicia el dash en la dirección especificada"""
-	if not can_dash:
-		return
-	is_dashing = true
-	can_dash = false
-	dash_direction = direction.normalized()
-	dash_timer = dash_duration
-
-
-func _handle_dash(delta):
-	"""Maneja el movimiento durante el dash"""
-	dash_timer -= delta
-	if dash_timer <= 0:
-		# Terminar el dash
-		is_dashing = false
-		velocity = Vector2.ZERO
-		# iniciar cooldown antes de permitir otro dash
-		await get_tree().create_timer(dash_cooldown).timeout
-		can_dash = true
+	# Dash: usar Shift ('ui_shift') como en el comportamiento original
+	var shift_pressed := false
+	if InputMap.has_action("ui_shift"):
+		shift_pressed = Input.is_action_just_pressed("ui_shift")
 	else:
-		velocity = dash_direction * dash_speed
-		move_and_slide()
+		# Fallback a tecla Space si no existe la acción
+		shift_pressed = Input.is_key_pressed(KEY_SPACE) and not Input.is_action_pressed("attack")
+
+	if shift_pressed and can_dash:
+		# Determinar dirección de dash: preferir input vector, caer a dirección mirando
+		var dir = Input.get_vector("left", "right", "up", "down")
+		if dir == Vector2.ZERO:
+			# Si no hay input, dash hacia donde mira el sprite
+			if character_sprite:
+				dir = Vector2(1, 0) if character_sprite.scale.x > 0 else Vector2(-1, 0)
+			else:
+				dir = Vector2(1, 0)
+
+		# Llamar al dash implementado en la base
+		_start_dash(dir)
 
 # ============================================
 # 3.6.1 - SISTEMA DE ATAQUE CON HACHA
