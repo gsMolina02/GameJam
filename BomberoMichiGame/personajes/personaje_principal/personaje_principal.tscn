@@ -194,7 +194,8 @@ position = Vector2(290, 115.99999)
 rotation = -0.00036524187
 scale = Vector2(1.0015259, 0.9999777)
 script = ExtResource("1_yy08j")
-vida_maxima = 3
+vida_maxima = 5
+metadata/_edit_group_ = true
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
 position = Vector2(3.868063, -1.5517578)

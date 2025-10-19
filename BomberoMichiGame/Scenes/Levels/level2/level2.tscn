@@ -1,7 +1,13 @@
-[gd_scene load_steps=11 format=3 uid="uid://b14whoaid4kvx"]
+[gd_scene load_steps=17 format=3 uid="uid://b14whoaid4kvx"]
 
 [ext_resource type="Texture2D" uid="uid://clv4ndi43ieoa" path="res://Scenes/Levels/level2/level2.jpg" id="1_0ai1i"]
-[ext_resource type="PackedScene" uid="uid://upe8nkwx2xwf" path="res://personajes/jefe/jefe.tscn" id="2_nkdak"]
+[ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="2_s43nd"]
+[ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="3_gu04i"]
+[ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/fuego.tscn" id="4_02sxl"]
+[ext_resource type="PackedScene" uid="uid://bh08j56ukxtp" path="res://Hub/hub.tscn" id="5_gu04i"]
+[ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="6_02sxl"]
+[ext_resource type="PackedScene" uid="uid://bmhb6a78qs4n" path="res://Objects/Boxes/box.tscn" id="7_psv0m"]
+[ext_resource type="PackedScene" uid="uid://bwg0w8g826tus" path="res://Scenes/Entities/tanque_oxigeno.tscn" id="8_3he5m"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_s43nd"]
 size = Vector2(633, 186)
@@ -59,9 +65,6 @@ position = Vector2(1445.0178, 544.55994)
 rotation = -0.0023522556
 shape = SubResource("RectangleShape2D_6cnr2")
 
-[node name="jefe" parent="Wall_right2" instance=ExtResource("2_nkdak")]
-position = Vector2(1274, 310)
-
 [node name="Wall_righ_above" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above"]
@@ -87,3 +90,37 @@ shape = SubResource("RectangleShape2D_twbf5")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above4"]
 position = Vector2(397, 856)
 shape = SubResource("RectangleShape2D_inn2q")
+
+[node name="minions" parent="." instance=ExtResource("2_s43nd")]
+position = Vector2(1256, 549)
+
+[node name="personajePrincipal" parent="." instance=ExtResource("3_gu04i")]
+position = Vector2(773.99994, 169)
+
+[node name="minions2" parent="." instance=ExtResource("2_s43nd")]
+position = Vector2(290, 647)
+
+[node name="Fuego" parent="." instance=ExtResource("4_02sxl")]
+position = Vector2(532, 119)
+
+[node name="Fuego2" parent="." instance=ExtResource("4_02sxl")]
+position = Vector2(166, 453)
+
+[node name="Fuego3" parent="." instance=ExtResource("4_02sxl")]
+position = Vector2(629, 473)
+
+[node name="Fuego4" parent="." instance=ExtResource("4_02sxl")]
+position = Vector2(-162, 524)
+
+[node name="Hub" parent="." instance=ExtResource("5_gu04i")]
+
+[node name="HUD" parent="." instance=ExtResource("6_02sxl")]
+
+[node name="Box" parent="." instance=ExtResource("7_psv0m")]
+position = Vector2(1042, 214)
+
+[node name="TanqueOxigeno" parent="." instance=ExtResource("8_3he5m")]
+position = Vector2(708, 451)
+
+[node name="minions3" parent="." instance=ExtResource("2_s43nd")]
+position = Vector2(303, 444.99994)
