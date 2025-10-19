@@ -41,10 +41,10 @@ offset = Vector2(-8.662811, -53.667313)
 shape = SubResource("CapsuleShape2D_yy08j")
 
 [node name="hose" type="Sprite2D" parent="."]
-visible = false
-position = Vector2(65.36329, 13.758562)
+position = Vector2(64.23964, 12.915037)
 scale = Vector2(0.6927214, 0.097085826)
 texture = ExtResource("2_qh03m")
+offset = Vector2(1.6220856, 8.688446)
 
 [node name="hoseHitbox" type="Area2D" parent="hose"]
 
@@ -52,3 +52,5 @@ texture = ExtResource("2_qh03m")
 position = Vector2(0.045387268, -2.413742)
 scale = Vector2(1.0000001, 1.0000002)
 shape = SubResource("RectangleShape2D_yy08j")
+
+[node name="HoseRaycast" type="RayCast2D" parent="hose"]
