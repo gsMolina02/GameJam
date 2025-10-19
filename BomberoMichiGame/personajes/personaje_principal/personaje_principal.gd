@@ -224,6 +224,10 @@ func _setup_hose_system():
 		water_particles.position = safe_hose_nozzle_offset
 
 func _physics_process(delta):
+	# Si el personaje está muerto, no procesar nada
+	if not vivo:
+		return
+	
 	# Movimiento estándar (mover_personaje en la base maneja dash internamente)
 	mover_personaje(delta)
 	
@@ -275,15 +279,8 @@ func _physics_process(delta):
 	# keep_in_viewport()
 
 func _unhandled_input(event):
-	# Si el jugador está muerto, cualquier tecla reinicia la escena
-	if is_dead and event is InputEventKey and event.pressed:
-		get_tree().paused = false
-		var err = get_tree().reload_current_scene()
-		if err != OK:
-			# Fallback por si falla
-			var current = get_tree().get_current_scene()
-			if current and current.has_method("get_scene_file_path"):
-				get_tree().change_scene_to_file(current.get_scene_file_path())
+	# Si el jugador está muerto, no procesar ningún input (el menú de muerte maneja todo)
+	if not vivo:
 		return
 
 	# Detectar scroll del mouse para cambiar arma
@@ -293,6 +290,10 @@ func _unhandled_input(event):
 				switch_weapon()
 
 func _handle_input():
+	# Si el personaje está muerto, no procesar input
+	if not vivo:
+		return
+	
 	# Intercambiar arma con Q
 	if Input.is_action_just_pressed("ui_focus_next"):  # Q por defecto
 		switch_weapon()
@@ -783,8 +784,10 @@ func _break_extinguisher_box(box):
 	# Recarga la manguera al romper la caja
 	var old_charge = hose_charge
 	hose_charge = min(hose_charge + 25.0, 100.0)
-	var _actual_recharge = hose_charge - old_charge
+	var actual_recharge = hose_charge - old_charge
 
+	print("¡Caja rota! Agua recargada: +", actual_recharge, "% (", old_charge, "% → ", hose_charge, "%)")
+	
 	emit_signal("hose_recharged", hose_charge)
 	emit_signal("extinguisher_box_broken")
 
