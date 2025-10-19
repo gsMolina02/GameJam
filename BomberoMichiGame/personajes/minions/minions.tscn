@@ -12,6 +12,8 @@ radius = 16.0
 [node name="minions" type="CharacterBody2D"]
 position = Vector2(253, 458)
 rotation = -0.00036524187
+collision_layer = 2
+collision_mask = 3
 script = ExtResource("1_g41pb")
 metadata/_edit_group_ = true
 
@@ -30,6 +32,8 @@ wait_time = 2.0
 autostart = true
 
 [node name="HitArea" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 1
 
 [node name="HitShape" type="CollisionShape2D" parent="HitArea"]
 shape = SubResource("CircleShape2D_hit")

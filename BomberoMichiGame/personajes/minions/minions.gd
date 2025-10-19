@@ -11,8 +11,9 @@ var can_shoot = true
 var fireball_scene = preload("res://Scenes/Entities/FireBall.tscn")
 
 var anim_player: AnimatedSprite2D = null
-var max_health: float = 5.0
-var health: float = 5.0
+var max_health: float = 10.0  # Vida máxima del minion (ajustado para 1 segundo con water_pressure = 10)
+var health: float = 10.0
+var is_being_extinguished: bool = false
 
 func _ready():
 	# no se usan disparos en minions ahora, pero conectamos el timer por si se re-activa
@@ -145,7 +146,7 @@ func mover_personaje(delta):
 		direccion = Vector2(randf_range(-1, 1), randf_range(-1, 1)).normalized()
 		tiempo_actual = 0.0
 	# Proteger en caso de que `speed` sea null (algunas escenas de prueba pueden no exportarlo)
-	var spd = speed if speed != null else 200
+	var spd = speed if speed != null else 200.0
 	velocity = direccion * spd
 	move_and_slide()
 	shoot()
@@ -164,20 +165,65 @@ func _physics_process(delta):
 
 	# Mantener dentro del viewport
 	keep_in_viewport()
+	
+	# Actualizar efectos visuales si está siendo apagado
+	if is_being_extinguished:
+		_update_extinguish_effects()
 
 # ==============================
 # Damage & Death handling
 # ==============================
 func take_damage(amount: float) -> void:
 	health -= amount
+	print("Minion recibiendo daño. Vida restante: ", health, "/", max_health)
+	
+	# Efectos visuales cuando recibe daño
+	if health > 0:
+		_flash_damage()
+	
 	if health <= 0:
 		die()
 
 func apply_water(amount: float) -> void:
-	# Recibe daño por agua (p. ej., 5 de agua para matar)
-	take_damage(amount)
+	"""Aplica agua al minion, apagándolo gradualmente"""
+	is_being_extinguished = true
+	
+	# El agua hace daño al minion
+	health -= amount
+	
+	print("Minion siendo apagado con agua. Vida restante: ", health, "/", max_health)
+	
+	if health <= 0:
+		die()
+
+func _update_extinguish_effects() -> void:
+	"""Actualiza efectos visuales mientras el minion se apaga"""
+	if anim_player:
+		# Hacer el minion más transparente a medida que pierde vida
+		var alpha = health / max_health
+		anim_player.modulate.a = clamp(alpha, 0.3, 1.0)
+		
+		# Hacer el minion más pequeño a medida que se apaga
+		var scale_factor = 0.7 + (health / max_health) * 0.3
+		anim_player.scale = anim_player.scale.normalized() * scale_factor * 0.1
+
+func _flash_damage() -> void:
+	"""Efecto de flash cuando recibe daño"""
+	if anim_player:
+		# Flash rojo al recibir daño
+		anim_player.modulate = Color(1.5, 0.5, 0.5, 1.0)
+		# Crear un tween para volver al color normal
+		var tween = create_tween()
+		tween.tween_property(anim_player, "modulate", Color(1, 1, 1, anim_player.modulate.a), 0.15)
 
 func die() -> void:
+	"""Minion muere"""
+	print("¡Minion eliminado!")
+	
+	# Llamar al LootManager para posible drop
+	if LootManager and LootManager.has_method("al_morir_minion"):
+		LootManager.al_morir_minion(global_position)
+	
 	# Efectos de muerte, sonidos, etc., pueden agregarse aquí
 	queue_free()
 
