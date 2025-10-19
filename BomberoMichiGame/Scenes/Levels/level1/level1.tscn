@@ -1,24 +1,20 @@
-[gd_scene load_steps=12 format=3 uid="uid://dgooxxoch0lkq"]
+[gd_scene load_steps=11 format=3 uid="uid://dgooxxoch0lkq"]
 
 [ext_resource type="Texture2D" uid="uid://c0py88gnwk54y" path="res://Scenes/Levels/level1/unnamed.jpg" id="1_5rljr"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_5rljr"]
 [ext_resource type="PackedScene" uid="uid://upe8nkwx2xwf" path="res://personajes/jefe/jefe.tscn" id="4_xfvig"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7103a"]
-size = Vector2(650, 186)
+size = Vector2(650, 249)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fdvuu"]
 size = Vector2(104, 694)
-
-[sub_resource type="SegmentShape2D" id="SegmentShape2D_fdvuu"]
-a = Vector2(710, 194)
-b = Vector2(127, 187)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5rljr"]
 size = Vector2(103, 701)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bpvnq"]
-size = Vector2(716.0249, 188.2124)
+size = Vector2(716.0249, 272.90033)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_opdyy"]
 size = Vector2(546, 35)
@@ -39,8 +35,11 @@ texture = ExtResource("1_5rljr")
 [node name="Wall_top" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_top"]
-position = Vector2(1197, 97)
+position = Vector2(1197, 128.5)
 shape = SubResource("RectangleShape2D_7103a")
+
+[node name="jefe" parent="Wall_top" instance=ExtResource("4_xfvig")]
+position = Vector2(1051, 515.9999)
 
 [node name="Wall_right" type="StaticBody2D" parent="."]
 
@@ -50,9 +49,6 @@ shape = SubResource("RectangleShape2D_fdvuu")
 
 [node name="Wall_top2" type="StaticBody2D" parent="."]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_top2"]
-shape = SubResource("SegmentShape2D_fdvuu")
-
 [node name="Wall_right2" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_right2"]
@@ -60,15 +56,12 @@ position = Vector2(1470.5, 544.5)
 rotation = -0.0023522556
 shape = SubResource("RectangleShape2D_5rljr")
 
-[node name="jefe" parent="Wall_right2" instance=ExtResource("4_xfvig")]
-position = Vector2(1274, 310)
-
 [node name="Wall_righ_above" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above"]
-position = Vector2(368.16476, 99.081764)
+position = Vector2(368.54138, 141.42404)
 rotation = -0.008894312
-scale = Vector2(0.9999998, 0.9999998)
+scale = Vector2(0.99999976, 0.99999976)
 shape = SubResource("RectangleShape2D_bpvnq")
 
 [node name="Wall_righ_above2" type="StaticBody2D" parent="."]
@@ -91,4 +84,3 @@ shape = SubResource("RectangleShape2D_a4g0f")
 
 [node name="personajePrincipal" parent="." instance=ExtResource("2_5rljr")]
 position = Vector2(597, 511)
-collision_mask = 1

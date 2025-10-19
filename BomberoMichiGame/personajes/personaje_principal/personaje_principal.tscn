@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://c13ihlyh4xher" path="res://personajes/personaje_principal/personaje_principal.gd" id="1_yy08j"]
 [ext_resource type="Texture2D" uid="uid://c7q2emm2xfnqf" path="res://Assets/personaje/frente/frente_1.png" id="2_ju04v"]
-[ext_resource type="Texture2D" uid="uid://o6ngfpcesb0w" path="res://icon.svg" id="2_qh03m"]
 [ext_resource type="Texture2D" uid="uid://blec1dgc5mmxj" path="res://Assets/personaje/frente/frente_2.png" id="3_wnx32"]
 [ext_resource type="Texture2D" uid="uid://dep5bn3r5rrrf" path="res://Assets/personaje/frente/frente_3.png" id="4_anfnr"]
 [ext_resource type="Texture2D" uid="uid://c474bwdicyri6" path="res://Assets/personaje/lat_inf_der/lat_inf_der_1.png" id="5_sevtj"]
@@ -30,6 +29,7 @@
 [ext_resource type="Texture2D" uid="uid://btjyvfbsggh64" path="res://Assets/animacionHacha/final-0047.png" id="27_q6kox"]
 [ext_resource type="Texture2D" uid="uid://bjmfbfwngfdq2" path="res://Assets/animacionHacha/final-0048.png" id="28_noqa5"]
 [ext_resource type="Texture2D" uid="uid://bup0fo832dt4r" path="res://Assets/animacionHacha/final-0049.png" id="29_lolw0"]
+[ext_resource type="Texture2D" uid="uid://dmah2u034ojvf" path="res://Assets/Objetos/hose.png" id="30_q6kox"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_acmdk"]
 animations = [{
@@ -190,12 +190,11 @@ size = Vector2(50, 50)
 size = Vector2(64, 56)
 
 [node name="personajePrincipal" type="CharacterBody2D" groups=["player_main"]]
-position = Vector2(206, 122.99999)
+position = Vector2(290, 115.99999)
 rotation = -0.00036524187
 scale = Vector2(1.0015259, 0.9999777)
 script = ExtResource("1_yy08j")
 vida_maxima = 3
-metadata/_edit_group_ = true
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
 position = Vector2(3.868063, -1.5517578)
@@ -239,9 +238,9 @@ scale = Vector2(1.0000004, 1.0000001)
 shape = SubResource("RectangleShape2D_m8rjq")
 
 [node name="hose" type="Sprite2D" parent="."]
-position = Vector2(84.86172, 24.001099)
-scale = Vector2(0.35, 0.05)
-texture = ExtResource("2_qh03m")
+position = Vector2(52.922913, -9.980855)
+scale = Vector2(0.04970612, 0.033241626)
+texture = ExtResource("30_q6kox")
 offset = Vector2(1.6220856, 8.688446)
 
 [node name="hoseHitbox" type="Area2D" parent="hose"]
