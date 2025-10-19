@@ -122,8 +122,9 @@ func _vencer():
 	vivo = false
 	emit_signal("personaje_muerto")
 	print(self.name, " - Ha muerto. Movilidad desactivada.")
+	# Usar call_deferred para evitar modificar colisiones durante physics query
 	if has_node("CollisionShape2D"):
-		$CollisionShape2D.disabled = true
+		$CollisionShape2D.set_deferred("disabled", true)
 
 # --- Detección por Hitbox ---
 func _on_Hitbox_area_entered(area):
