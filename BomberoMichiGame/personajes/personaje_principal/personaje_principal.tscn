@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 [gd_scene load_steps=31 format=3 uid="uid://bfra7nxi2wetn"]
+=======
+[gd_scene load_steps=7 format=3 uid="uid://bfra7nxi2wetn"]
+>>>>>>> 3c66b2e0ab1dcc00817a16f96d46bb2c4dad8d6e
 
 [ext_resource type="Script" uid="uid://c13ihlyh4xher" path="res://personajes/personaje_principal/personaje_principal.gd" id="1_yy08j"]
 [ext_resource type="Texture2D" uid="uid://c7q2emm2xfnqf" path="res://Assets/personaje/frente/frente_1.png" id="2_ju04v"]
@@ -157,6 +161,9 @@ radius = 38.0605
 radius = 53.183533
 height = 122.75363
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qh03m"]
+size = Vector2(99.59326, 125.14642)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yy08j"]
 size = Vector2(128.28198, 113.300545)
 
@@ -197,11 +204,16 @@ position = Vector2(-3491.5725, 511.81085)
 position = Vector2(3479.3677, -576.77094)
 shape = SubResource("CapsuleShape2D_yy08j")
 
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Axe/AxeHitbox"]
+position = Vector2(-5.366577, -52.57322)
+scale = Vector2(1.0000002, 1.0000001)
+shape = SubResource("RectangleShape2D_qh03m")
+
 [node name="hose" type="Sprite2D" parent="."]
-visible = false
-position = Vector2(65.36329, 13.758562)
+position = Vector2(64.23964, 12.915037)
 scale = Vector2(0.6927214, 0.097085826)
 texture = ExtResource("2_qh03m")
+offset = Vector2(1.6220856, 8.688446)
 
 [node name="hoseHitbox" type="Area2D" parent="hose"]
 
@@ -209,3 +221,5 @@ texture = ExtResource("2_qh03m")
 position = Vector2(0.045387268, -2.413742)
 scale = Vector2(1.0000001, 1.0000002)
 shape = SubResource("RectangleShape2D_yy08j")
+
+[node name="HoseRaycast" type="RayCast2D" parent="hose"]
