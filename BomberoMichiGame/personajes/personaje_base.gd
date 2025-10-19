@@ -281,11 +281,11 @@ func keep_in_viewport(margin := screen_margin) -> void:
 		var max_y_cam = world_pos.y + world_size.y - margin
 		
 		# Clampar y asignar todo de una vez
-		var clamped_pos = Vector2(
+		var clamped_pos_cam = Vector2(
 			clamp(global_position.x, min_x_cam, max_x_cam),
 			clamp(global_position.y, min_y_cam, max_y_cam)
 		)
-		global_position = clamped_pos
+		global_position = clamped_pos_cam
 		return
 
 	# Fallback a viewport rect
@@ -296,11 +296,11 @@ func keep_in_viewport(margin := screen_margin) -> void:
 	var max_y = rect.position.y + rect.size.y - screen_margin
 	
 	# Clampar y asignar todo de una vez
-	var clamped_pos = Vector2(
+	var clamped_pos_rect = Vector2(
 		clamp(global_position.x, min_x, max_x),
 		clamp(global_position.y, min_y, max_y)
 	)
-	global_position = clamped_pos
+	global_position = clamped_pos_rect
 
 func _update_animation(input_vector: Vector2):
 	"""Selecciona animación según la dirección (8 direcciones con fallbacks)"""

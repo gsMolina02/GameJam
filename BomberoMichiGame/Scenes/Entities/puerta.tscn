@@ -4,16 +4,16 @@
 [ext_resource type="Texture2D" uid="uid://c2sbxrutsdryc" path="res://Assets/fondos/puerta.png" id="2_wjbh2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mesff"]
-size = Vector2(66, 78)
+size = Vector2(145, 176)
 
 [node name="Puerta" type="Area2D"]
 script = ExtResource("1_drj33")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(151.25, 89.25)
-scale = Vector2(0.22796473, 0.20973559)
+position = Vector2(195, 121)
+scale = Vector2(0.5, 0.46)
 texture = ExtResource("2_wjbh2")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(143, 90)
+position = Vector2(176.5, 119)
 shape = SubResource("RectangleShape2D_mesff")
