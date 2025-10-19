@@ -1,0 +1,159 @@
+[gd_scene load_steps=6 format=3 uid="uid://c2sp2pfpjhyid"]
+
+[ext_resource type="Script" uid="uid://c0a1j6hkx7dq2" path="res://Interfaces/story_intro.gd" id="1_story"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_textbox"]
+bg_color = Color(0.05, 0.05, 0.1, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.9, 0.7, 0.3, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="Animation" id="Animation_fade_in"]
+resource_name = "fade_in"
+length = 0.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("HBoxContainer/StoryImage:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_fade_out"]
+resource_name = "fade_out"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("HBoxContainer/StoryImage:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_story"]
+_data = {
+&"fade_in": SubResource("Animation_fade_in"),
+&"fade_out": SubResource("Animation_fade_out")
+}
+
+[node name="StoryIntro" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_story")
+story_pages = Array[Dictionary]([{
+"image": "res://Assets/fondos/story1.png",
+"text": "Kala, un pueblo acunado por el fuego cerca del ecuador, producto de ser el destino preferido para los piromaniacos, tenía en las llamas su himno eterno. Sus noches, teñidas de humo y reflejos anaranjados, habían visto arder templos, mercados y sueños. En esa tierra devorada por el calor, solo los bomberos, sacerdotes de las cenizas, podían negociar con el incendio.. Y entre ellos, Josué, de origen campesino, cumplía su deber civil sin mirar atrás, forjado en el fuego que todo lo consume."
+}, {
+"image": "res://Assets/fondos/story2.png",
+"text": "¿Puede el hombre culparse por perder lo que ama, cuando lo hace cumpliendo su deber? ¿Puede culparse por ser desconocido en su propio hogar, por mirar la ciudad con más ternura que a sus hijos? Navidades pasaban sin su sombra, cumpleaños sin su voz. Una madrugada, el fuego decidió visitarlo con rostro propio. Una fuga, una chispa, una ráfaga bastaron. El espacio que alguna vez consideró su hogar, el aire aún olía a su vida, porque el espacio donde dormía su humanidad, era ceniza, la lejanía rural del hogar había evitado cualquier reporte y atención suya mientras no perdonó alma alguna."
+}, {
+"image": "res://Assets/fondos/story3.png",
+"text": "Entre los restos, solo un alma esperó, Osiris, un gato que algun dia solo conocio la calle, fue durante días su propio refugio en su propio hogar, ahora, era el único refugio que en realidad le quedaba  A pesar de los homenajes y las promesas, Josué, a sus 40 años, había perdido su hogar y con él, un pedazo de su alma. Por más que amara al animal, este no podría llenar el vacío de sus pérdidas, ni sustituir el recuerdo de lo que, para siempre, se había quedado atrás."
+}])
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LeftPanel" type="PanelContainer" parent="HBoxContainer"]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.45
+theme_override_styles/panel = SubResource("StyleBoxFlat_textbox")
+
+[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/LeftPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 40
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/LeftPanel/MarginContainer"]
+layout_mode = 2
+
+[node name="StoryText" type="RichTextLabel" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/normal_font_size = 20
+bbcode_enabled = true
+text = "Texto de la historia..."
+fit_content = true
+scroll_active = false
+
+[node name="Spacer" type="Control" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="ContinueHint" type="Label" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 0.7)
+theme_override_font_sizes/font_size = 16
+text = "Presiona cualquier tecla para continuar..."
+horizontal_alignment = 2
+
+[node name="StoryImage" type="TextureRect" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.55
+expand_mode = 1
+stretch_mode = 6
+
+[node name="PageIndicator" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -100.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 50.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.9, 0.7, 0.3, 0.8)
+theme_override_font_sizes/font_size = 18
+text = "1/3"
+horizontal_alignment = 2
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_story")
+}
+
+[node name="Timer" type="Timer" parent="."]
+one_shot = true
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
