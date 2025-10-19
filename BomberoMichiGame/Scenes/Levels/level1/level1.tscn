@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://dgooxxoch0lkq"]
+
+[ext_resource type="Texture2D" uid="uid://1gtqwgldjx8b" path="res://Scenes/Levels/level1/level1.jpg" id="1_7103a"]
+
+[node name="FondoSala" type="Node2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(576.99994, 316.75)
+scale = Vector2(1.3164061, 1.0739385)
+texture = ExtResource("1_7103a")
