@@ -1,42 +1,18 @@
-[gd_scene load_steps=8 format=3 uid="uid://615vh1g7fw4f"]
+[gd_scene load_steps=11 format=3 uid="uid://615vh1g7fw4f"]
 
 [ext_resource type="Script" uid="uid://x61ygptspjb6" path="res://Interfaces/main_menu.gd" id="1_1flvb"]
-[ext_resource type="Texture2D" uid="uid://b7mrjatlhw00a" path="res://Assets/fondos/fondo.jpg" id="1_m685c"]
-[ext_resource type="FontFile" uid="uid://svpcl760do82" path="res://Resources/fonts/Breathe Fire II.otf" id="2_d52uh"]
+[ext_resource type="Texture2D" uid="uid://do52ny3gouv1r" path="res://Assets/menu/mrnu1.png" id="2_e7qul"]
+[ext_resource type="Texture2D" uid="uid://drl8q6f737wma" path="res://Assets/menu/NuevoJuegoSin.png" id="3_ivpc4"]
+[ext_resource type="Texture2D" uid="uid://rs1i1xbfmpau" path="res://Assets/menu/NuevoJuego.png" id="4_w5yeb"]
+[ext_resource type="Texture2D" uid="uid://dkw0xq1ow7tbk" path="res://Assets/menu/OpcionesSin.png" id="5_lky5c"]
+[ext_resource type="Texture2D" uid="uid://c8mjelmvdkxwn" path="res://Assets/menu/OpcionesEscoger.png" id="6_qclh8"]
+[ext_resource type="Texture2D" uid="uid://dynj7d1cli1t6" path="res://Assets/menu/titulo.png" id="6_vo04r"]
+[ext_resource type="Texture2D" uid="uid://csoagln611h5b" path="res://Assets/menu/salirSin.png" id="7_d5ba2"]
+[ext_resource type="Texture2D" uid="uid://o06xfu4s1m3c" path="res://Assets/menu/salirEscoger.png" id="8_wdg32"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_m685c"]
-texture = ExtResource("1_m685c")
+texture = ExtResource("2_e7qul")
 modulate_color = Color(0.66656864, 0.6665687, 0.66656864, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nul1a"]
-bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(0, 0, 0, 0.23137255)
-shadow_size = 5
-shadow_offset = Vector2(0, 3.41)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_d52uh"]
-bg_color = Color(0.23031491, 0.23031494, 0.23031494, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(0, 0, 0, 0.23137255)
-shadow_size = 5
-shadow_offset = Vector2(0, 3.41)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1flvb"]
-bg_color = Color(0.39688927, 0.39688927, 0.39688924, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(0, 0, 0, 0.23137255)
-shadow_size = 5
-shadow_offset = Vector2(0, 3.41)
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -56,76 +32,38 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_m685c")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -154.5
-offset_top = -127.0
-offset_right = 154.5
-offset_bottom = 127.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 15
-
-[node name="Button" type="Button" parent="VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_fonts/font = ExtResource("2_d52uh")
-theme_override_font_sizes/font_size = 50
-theme_override_styles/normal = SubResource("StyleBoxFlat_nul1a")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_d52uh")
-theme_override_styles/hover = SubResource("StyleBoxFlat_1flvb")
-text = "Iniciar Juego"
-
-[node name="Button2" type="Button" parent="VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_fonts/font = ExtResource("2_d52uh")
-theme_override_font_sizes/font_size = 50
-theme_override_styles/normal = SubResource("StyleBoxFlat_nul1a")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_d52uh")
-theme_override_styles/hover = SubResource("StyleBoxFlat_1flvb")
-text = "Opciones"
-
-[node name="Button3" type="Button" parent="VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_fonts/font = ExtResource("2_d52uh")
-theme_override_font_sizes/font_size = 50
-theme_override_styles/normal = SubResource("StyleBoxFlat_nul1a")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_d52uh")
-theme_override_styles/hover = SubResource("StyleBoxFlat_1flvb")
-text = "Salir
-"
-
-[node name="Label" type="Label" parent="."]
+[node name="btnNewGame" type="TextureButton" parent="Panel"]
 layout_mode = 0
-offset_left = 402.0
-offset_top = 88.0
-offset_right = 779.0
-offset_bottom = 187.0
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_offset_y = 6
-theme_override_fonts/font = ExtResource("2_d52uh")
-theme_override_font_sizes/font_size = 80
-text = "MISHI GAME"
+offset_left = 238.0
+offset_top = 180.0
+offset_right = 1176.0
+offset_bottom = 326.0
+texture_normal = ExtResource("3_ivpc4")
+texture_hover = ExtResource("4_w5yeb")
 
-[connection signal="pressed" from="VBoxContainer/Button" to="." method="_on_start_pressed"]
-[connection signal="pressed" from="VBoxContainer/Button2" to="." method="_on_settings_pressed"]
-[connection signal="pressed" from="VBoxContainer/Button3" to="." method="_on_exit_pressed"]
+[node name="btnOptions" type="TextureButton" parent="Panel"]
+layout_mode = 0
+offset_left = 238.0
+offset_top = 290.0
+offset_right = 1176.0
+offset_bottom = 436.0
+texture_normal = ExtResource("5_lky5c")
+texture_hover = ExtResource("6_qclh8")
+
+[node name="btnExit" type="TextureButton" parent="Panel"]
+layout_mode = 0
+offset_left = 235.0
+offset_top = 385.0
+offset_right = 1173.0
+offset_bottom = 531.0
+texture_normal = ExtResource("7_d5ba2")
+texture_hover = ExtResource("8_wdg32")
+
+[node name="Titulo" type="Sprite2D" parent="."]
+position = Vector2(776, 82)
+scale = Vector2(0.5218801, 0.41984734)
+texture = ExtResource("6_vo04r")
+
+[connection signal="pressed" from="Panel/btnNewGame" to="." method="_on_btnNewGame_pressed"]
+[connection signal="pressed" from="Panel/btnOptions" to="." method="_on_btnOptions_pressed"]
+[connection signal="pressed" from="Panel/btnExit" to="." method="_on_btnExit_pressed"]
