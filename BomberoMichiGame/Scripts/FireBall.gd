@@ -12,6 +12,13 @@ func _ready():
 	add_child(timer)
 	timer.start()
 
+	# Marcar como fuego para filtros y depuración
+	add_to_group("Fire")
+
+	# Ensure collision signal is connected
+	if not is_connected("body_entered", Callable(self, "_on_body_entered")):
+		body_entered.connect(_on_body_entered)
+
 func _physics_process(delta):
 	position += direction.normalized() * speed * delta
 
@@ -19,10 +26,20 @@ func set_direction(dir):
 	direction = dir
 
 func _on_body_entered(body):
-	# Assuming the player character is in the "player" group
+	# If collides with player, kill the player and stop the game for now
 	if body.is_in_group("player"):
-		# Here you can add logic to damage the player
-		pass
+		if body.has_method("die"):
+			body.die()
+		else:
+			# Fallback: pause the tree
+			get_tree().paused = true
 	# The fireball should be destroyed on impact with anything other than another enemy
 	if not body.is_in_group("enemy"):
 		queue_free()
+
+# Permite ser destruida por agua de la manguera
+func apply_water(_amount: float) -> void:
+	queue_free()
+
+func extinguish() -> void:
+	queue_free()
