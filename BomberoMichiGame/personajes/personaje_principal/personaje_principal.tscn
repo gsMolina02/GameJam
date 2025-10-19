@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3 uid="uid://bfra7nxi2wetn"]
+[gd_scene load_steps=36 format=3 uid="uid://bfra7nxi2wetn"]
 
 [ext_resource type="Script" uid="uid://c13ihlyh4xher" path="res://personajes/personaje_principal/personaje_principal.gd" id="1_yy08j"]
 [ext_resource type="Texture2D" uid="uid://c7q2emm2xfnqf" path="res://Assets/personaje/frente/frente_1.png" id="2_ju04v"]
@@ -26,6 +26,10 @@
 [ext_resource type="Texture2D" uid="uid://qijby34m7s66" path="res://Assets/personaje/atras/atras_2.png" id="15_wldme"]
 [ext_resource type="Texture2D" uid="uid://degy0w5p1jar7" path="res://Assets/personaje/lat_sup_izq/lat_3.png" id="16_noqa5"]
 [ext_resource type="Texture2D" uid="uid://b3o0wuku584go" path="res://Assets/personaje/atras/atras_3.png" id="16_x00xr"]
+[ext_resource type="Texture2D" uid="uid://cfbfnu4tm4an1" path="res://Assets/Hacha y bola de fuego/hacha.png" id="26_wldme"]
+[ext_resource type="Texture2D" uid="uid://btjyvfbsggh64" path="res://Assets/animacionHacha/final-0047.png" id="27_q6kox"]
+[ext_resource type="Texture2D" uid="uid://bjmfbfwngfdq2" path="res://Assets/animacionHacha/final-0048.png" id="28_noqa5"]
+[ext_resource type="Texture2D" uid="uid://bup0fo832dt4r" path="res://Assets/animacionHacha/final-0049.png" id="29_lolw0"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_acmdk"]
 animations = [{
@@ -154,6 +158,31 @@ animations = [{
 radius = 20.0
 height = 80.0
 
+[sub_resource type="SpriteFrames" id="SpriteFrames_8x6mv"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("27_q6kox")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_noqa5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_lolw0")
+}],
+"loop": true,
+"name": &"animacionHacha",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("26_wldme")
+}],
+"loop": true,
+"name": &"hacha",
+"speed": 5.0
+}]
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_m8rjq"]
 size = Vector2(50, 50)
 
@@ -161,7 +190,7 @@ size = Vector2(50, 50)
 size = Vector2(64, 56)
 
 [node name="personajePrincipal" type="CharacterBody2D" groups=["player_main"]]
-position = Vector2(135.99997, 104.99999)
+position = Vector2(206, 122.99999)
 rotation = -0.00036524187
 scale = Vector2(1.0015259, 0.9999777)
 script = ExtResource("1_yy08j")
@@ -191,10 +220,12 @@ shape = SubResource("CapsuleShape2D_m8rjq")
 
 [node name="AttackCooldownTimer" type="Timer" parent="."]
 
-[node name="Axe" type="Sprite2D" parent="."]
-position = Vector2(50.933186, 12.992798)
-scale = Vector2(0.08, 0.35)
-texture = ExtResource("2_qh03m")
+[node name="Axe" type="AnimatedSprite2D" parent="."]
+position = Vector2(30.95861, -15.989021)
+scale = Vector2(0.059978906, 0.041156124)
+sprite_frames = SubResource("SpriteFrames_8x6mv")
+animation = &"hacha"
+autoplay = "hacha"
 offset = Vector2(-8.662811, -53.667313)
 metadata/_edit_group_ = true
 
@@ -203,8 +234,8 @@ position = Vector2(-3491.5725, 511.81085)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Axe/AxeHitbox"]
-position = Vector2(3480.486, -564.6727)
-scale = Vector2(0.9999997, 1)
+position = Vector2(3495.6409, -851.9685)
+scale = Vector2(1.0000004, 1.0000001)
 shape = SubResource("RectangleShape2D_m8rjq")
 
 [node name="hose" type="Sprite2D" parent="."]
