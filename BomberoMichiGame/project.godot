@@ -22,6 +22,7 @@ LootManager="*res://Scripts/LootManager.gd"
 [global_group]
 
 player_main="es el personaje principal"
+hud="interfaz de usuario"
 
 [input]
 
