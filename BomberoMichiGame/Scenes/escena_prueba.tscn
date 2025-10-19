@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://c2fcfdi28gc84"]
+[gd_scene load_steps=10 format=3 uid="uid://c2fcfdi28gc84"]
 
 [ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="1_uapuf"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_1in75"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://bmhb6a78qs4n" path="res://Objects/Boxes/box.tscn" id="5_gdsp3"]
 [ext_resource type="PackedScene" uid="uid://bwg0w8g826tus" path="res://Scenes/Entities/tanque_oxigeno.tscn" id="5_qjlt0"]
 [ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="6_qjlt0"]
+[ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="7_pause"]
 
 [node name="escenaPrueba" type="Node2D"]
 position = Vector2(439, 348)
@@ -77,3 +78,7 @@ dash_cooldown = null
 
 [node name="Box" parent="." instance=ExtResource("5_gdsp3")]
 position = Vector2(341, -295)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="PuseMenu" parent="CanvasLayer" instance=ExtResource("7_pause")]

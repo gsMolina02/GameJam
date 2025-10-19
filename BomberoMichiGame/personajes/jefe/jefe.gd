@@ -194,6 +194,9 @@ func _spawn_minion():
 	var scene = get_tree().current_scene
 	if scene == null:
 		return
+
+	# Predeclare instance variable to avoid confusable redeclaration warnings
+	var m: Node2D = null
 	
 	# Buscar al bombero (firefighter)
 	var bombero: Node = null
@@ -204,10 +207,10 @@ func _spawn_minion():
 	
 	if bombero == null:
 		# Si no hay bombero, spawn cerca del jefe
-		var minion = minion_scene.instantiate()
+		m = minion_scene.instantiate()
 		var offset = Vector2(randf_range(-100, 100), randf_range(-100, 100))
-		minion.global_position = global_position + offset
-		scene.call_deferred("add_child", minion)
+		m.global_position = global_position + offset
+		scene.call_deferred("add_child", m)
 		return
 	
 	# Calcular posición de spawn lejos del bombero
@@ -229,9 +232,9 @@ func _spawn_minion():
 		attempts += 1
 	
 	# Instanciar el minion
-	var minion = minion_scene.instantiate()
-	minion.global_position = spawn_pos
-	scene.call_deferred("add_child", minion)
+	m = minion_scene.instantiate()
+	m.global_position = spawn_pos
+	scene.call_deferred("add_child", m)
 	print_debug("Jefe spawned minion at:", spawn_pos, "distance from bombero:", spawn_pos.distance_to(bombero.global_position))
 
 

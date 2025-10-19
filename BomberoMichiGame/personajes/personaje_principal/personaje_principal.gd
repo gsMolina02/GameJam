@@ -15,7 +15,7 @@ class_name Bomber
 @export var hose_drain_rate = 10.0  # Carga consumida por segundo
 @export var water_pressure = 5.0  # Daño/efecto por segundo al fuego
 @export var hose_origin_offset = Vector2(50, 0)  # Punto de origen del agua
-@export var hose_nozzle_offset = Vector2(80, 0)  # Punta de la manguera (boquilla)
+@export var hose_nozzle_offset = Vector2(130, 30)  # Punta de la manguera (boquilla)
 
 # Estados del hacha
 enum AxeState {
@@ -118,6 +118,12 @@ func _ready():
 
 func _setup_hose_system():
 	"""Configura los nodos necesarios para el sistema de manguera"""
+	# Asegurar que las variables tengan valores por defecto válidos
+	var safe_hose_range = hose_range if hose_range != null else 50
+	var safe_tile_size = tile_size if tile_size != null else 20
+	var safe_hose_width = hose_width if hose_width != null else 40
+	var safe_hose_nozzle_offset = hose_nozzle_offset if hose_nozzle_offset != null else Vector2(80, 0)
+	
 	# Si no existen los nodos, crearlos
 	if not hose_area:
 		hose_area = Area2D.new()
@@ -126,9 +132,9 @@ func _setup_hose_system():
 		
 		var collision = CollisionShape2D.new()
 		var shape = RectangleShape2D.new()
-		shape.size = Vector2(hose_range * tile_size, hose_width)
+		shape.size = Vector2(safe_hose_range * safe_tile_size, safe_hose_width)
 		collision.shape = shape
-		collision.position = Vector2((hose_range * tile_size) / 2.0, 0) + hose_nozzle_offset
+		collision.position = Vector2((safe_hose_range * safe_tile_size) / 2.0, 0) + safe_hose_nozzle_offset
 		collision.disabled = true  # Desactivar la colisión por defecto
 		hose_area.add_child(collision)
 		
@@ -138,20 +144,20 @@ func _setup_hose_system():
 		if hose_area.get_child_count() > 0:
 			var collision = hose_area.get_child(0)
 			if collision.shape:
-				collision.shape.size = Vector2(hose_range * tile_size, hose_width)
-				collision.position = Vector2((hose_range * tile_size) / 2.0, 0) + hose_nozzle_offset
+				collision.shape.size = Vector2(safe_hose_range * safe_tile_size, safe_hose_width)
+				collision.position = Vector2((safe_hose_range * safe_tile_size) / 2.0, 0) + safe_hose_nozzle_offset
 	
 	if not hose_raycast:
 		hose_raycast = RayCast2D.new()
 		hose_raycast.name = "HoseRaycast"
-		hose_raycast.position = hose_nozzle_offset
-		hose_raycast.target_position = Vector2(hose_range * tile_size, 0)
+		hose_raycast.position = safe_hose_nozzle_offset
+		hose_raycast.target_position = Vector2(safe_hose_range * safe_tile_size, 0)
 		hose_raycast.enabled = false
 		add_child(hose_raycast)
 	else:
 		# Actualizar raycast existente
-		hose_raycast.position = hose_nozzle_offset
-		hose_raycast.target_position = Vector2(hose_range * tile_size, 0)
+		hose_raycast.position = safe_hose_nozzle_offset
+		hose_raycast.target_position = Vector2(safe_hose_range * safe_tile_size, 0)
 	
 	# Crear partículas de agua si no existen
 	if not water_particles:
@@ -187,7 +193,7 @@ func _setup_hose_system():
 		water_particles.emission_rect_extents = Vector2(2, 4)
 		
 		# Posición inicial en la boquilla de la manguera
-		water_particles.position = hose_nozzle_offset
+		water_particles.position = safe_hose_nozzle_offset
 		water_particles.visible = true  # Visible al inicio (manguera equipada)
 		
 		print("Partículas de agua creadas automáticamente")
@@ -202,7 +208,7 @@ func _setup_hose_system():
 		water_particles.damping_min = 6.0
 		water_particles.damping_max = 12.0
 		water_particles.emission_rect_extents = Vector2(2, 4)
-		water_particles.position = hose_nozzle_offset
+		water_particles.position = safe_hose_nozzle_offset
 
 func _physics_process(delta):
 	# Movimiento estándar (mover_personaje en la base maneja dash internamente)
@@ -391,7 +397,9 @@ func _activate_hose():
 		print("Partículas activadas en posición: ", water_particles.position)
 		print("Partículas emitting: ", water_particles.emitting)
 		print("Partículas visible: ", water_particles.visible)
-		print("Alcance de manguera: ", hose_range * tile_size, " píxeles")
+		var safe_hose_range = hose_range if hose_range != null else 50
+		var safe_tile_size = tile_size if tile_size != null else 20
+		print("Alcance de manguera: ", safe_hose_range * safe_tile_size, " píxeles")
 	else:
 		print("ERROR: WaterParticles no encontrado!")
 	
@@ -422,7 +430,8 @@ func _deactivate_hose():
 func _update_hose(delta):
 	"""Actualiza el sistema de manguera mientras está activa"""
 	# Consumir carga y usar esa misma cantidad como "daño de agua"
-	var water_used: float = hose_drain_rate * delta
+	var safe_drain_rate = hose_drain_rate if hose_drain_rate != null else 10.0
+	var water_used: float = safe_drain_rate * delta
 	reduce_hose_charge(water_used)
 	
 	# Actualizar dirección de la manguera según hacia dónde mira el personaje
@@ -438,6 +447,11 @@ func _update_hose(delta):
 
 func _update_hose_direction():
 	"""Actualiza la dirección de la manguera según la orientación del personaje"""
+	# Valores seguros para evitar operaciones con null
+	var safe_hose_range = hose_range if hose_range != null else 50
+	var safe_tile_size = tile_size if tile_size != null else 20
+	var safe_hose_nozzle_offset = hose_nozzle_offset if hose_nozzle_offset != null else Vector2(80, 0)
+	
 	var direction = 1
 	if character_sprite and character_sprite.flip_h:
 		direction = -1
@@ -445,18 +459,18 @@ func _update_hose_direction():
 	# Actualizar posición del área de colisión
 	if hose_area and hose_area.get_child_count() > 0:
 		var collision = hose_area.get_child(0)
-		var base_offset = (hose_range * tile_size) / 2.0
-		collision.position = Vector2(base_offset * direction, 0) + Vector2(hose_nozzle_offset.x * direction, hose_nozzle_offset.y)
+		var base_offset = (safe_hose_range * safe_tile_size) / 2.0
+		collision.position = Vector2(base_offset * direction, 0) + Vector2(safe_hose_nozzle_offset.x * direction, safe_hose_nozzle_offset.y)
 	
 	# Actualizar dirección del raycast
 	if hose_raycast:
-		hose_raycast.position = Vector2(hose_nozzle_offset.x * direction, hose_nozzle_offset.y)
-		hose_raycast.target_position = Vector2((hose_range * tile_size) * direction, 0)
+		hose_raycast.position = Vector2(safe_hose_nozzle_offset.x * direction, safe_hose_nozzle_offset.y)
+		hose_raycast.target_position = Vector2((safe_hose_range * safe_tile_size) * direction, 0)
 	
 	# Actualizar dirección de las partículas
 	if water_particles:
 		water_particles.direction = Vector2(direction, 0)
-		water_particles.position = Vector2(hose_nozzle_offset.x * direction, hose_nozzle_offset.y)
+		water_particles.position = Vector2(safe_hose_nozzle_offset.x * direction, safe_hose_nozzle_offset.y)
 
 func _detect_and_extinguish_fire(water_amount: float):
 	"""Detecta y apaga el fuego en el área de la manguera"""
@@ -543,7 +557,8 @@ func attack():
 			axe_hitbox.monitoring = false
 		
 		_reset_axe_position()
-		attack_cooldown_timer.start(attack_cooldown_time)
+		var safe_cooldown = attack_cooldown_time if attack_cooldown_time != null else 0.2
+		attack_cooldown_timer.start(safe_cooldown)
 
 func _animate_axe_swing():
 	if not axe_sprite:
@@ -612,7 +627,8 @@ func _process_attack_target(target):
 	if target.is_in_group("ExtinguisherBox"):
 		_break_extinguisher_box(target)
 	elif target.has_method("take_damage"):
-		target.take_damage(axe_damage)
+		var safe_axe_damage = axe_damage if axe_damage != null else 5
+		target.take_damage(safe_axe_damage)
 	elif target.has_method("break_object"):
 		target.break_object()
 
@@ -622,7 +638,8 @@ func _process_attack_target(target):
 func parry():
 	if can_attack and current_axe_state == AxeState.IDLE:
 		current_axe_state = AxeState.PARRYING
-		parry_timer = parry_window
+		var safe_parry_window = parry_window if parry_window != null else 0.4
+		parry_timer = safe_parry_window
 		can_attack = false
 		
 		if animation_player and animation_player.has_animation("axe_parry"):
@@ -631,7 +648,8 @@ func parry():
 		if axe_hitbox:
 			axe_hitbox.monitoring = true
 		
-		attack_cooldown_timer.start(parry_cooldown_time)
+		var safe_parry_cooldown = parry_cooldown_time if parry_cooldown_time != null else 0.1
+		attack_cooldown_timer.start(safe_parry_cooldown)
 
 func attempt_parry(incoming_attack):
 	if current_axe_state == AxeState.PARRYING:

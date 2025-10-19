@@ -1,0 +1,56 @@
+[gd_scene load_steps=2 format=3 uid="uid://bkxihhd4v43qm"]
+
+[ext_resource type="Script" uid="uid://e207ydkqsa1m" path="res://Interfaces/puse_menu.gd" id="1_5cwiv"]
+
+[node name="PuseMenu" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_5cwiv")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -122.0
+offset_top = -70.5
+offset_right = 122.0
+offset_bottom = 70.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="btnContinue" type="Button" parent="Panel/VBoxContainer"]
+layout_mode = 2
+text = "CONTINUAR"
+
+[node name="btnExit" type="Button" parent="Panel/VBoxContainer"]
+layout_mode = 2
+text = "SALIR AL MENÚ"
+
+[node name="Label" type="Label" parent="Panel"]
+layout_mode = 0
+offset_left = 453.0
+offset_top = 139.0
+offset_right = 697.0
+offset_bottom = 162.0
+text = "PAUSA"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="pressed" from="Panel/VBoxContainer/btnContinue" to="." method="_on_btn_continue_pressed"]
+[connection signal="pressed" from="Panel/VBoxContainer/btnExit" to="." method="_on_btn_exit_pressed"]
