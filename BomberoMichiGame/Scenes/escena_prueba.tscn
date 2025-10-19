@@ -1,16 +1,17 @@
-[gd_scene load_steps=6 format=3 uid="uid://doh2qtc1kjvpm"]
+[gd_scene load_steps=7 format=3 uid="uid://doh2qtc1kjvpm"]
 
 [ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="1_uapuf"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_1in75"]
 [ext_resource type="PackedScene" uid="uid://upe8nkwx2xwf" path="res://personajes/jefe/jefe.tscn" id="3_1in75"]
 [ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="4_minions"]
 [ext_resource type="PackedScene" uid="uid://bmhb6a78qs4n" path="res://Objects/Boxes/box.tscn" id="5_gdsp3"]
+[ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="6_qjlt0"]
 
 [node name="escenaPrueba" type="Node2D"]
 position = Vector2(439, 348)
 
 [node name="mascota" parent="." instance=ExtResource("1_uapuf")]
-position = Vector2(-302, -207)
+position = Vector2(-303, -199.99997)
 scale = Vector2(1.0224254, 0.9807179)
 objetivo = NodePath("../personajePrincipal")
 
@@ -27,3 +28,7 @@ position = Vector2(482, 173)
 
 [node name="Box" parent="." instance=ExtResource("5_gdsp3")]
 position = Vector2(341, -295)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="PuseMenu" parent="CanvasLayer" instance=ExtResource("6_qjlt0")]
