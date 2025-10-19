@@ -122,9 +122,9 @@ func _vencer():
 	vivo = false
 	emit_signal("personaje_muerto")
 	print(self.name, " - Ha muerto. Movilidad desactivada.")
+	# Usar set_deferred para evitar modificar colisiones durante physics query
 	if has_node("CollisionShape2D"):
-		# Usar call_deferred para evitar modificar durante consulta de física
-		$CollisionShape2D.call_deferred("set", "disabled", true)
+		$CollisionShape2D.set_deferred("disabled", true)
 	
 	# Si es el personaje principal, mostrar pantalla de Game Over
 	if is_in_group("player_main"):
