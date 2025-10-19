@@ -1,7 +1,7 @@
-[gd_scene load_steps=13 format=3 uid="uid://c2fcfdi28gc84"]
+[gd_scene load_steps=14 format=3 uid="uid://c2fcfdi28gc84"]
 
 [ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="1_uapuf"]
-[ext_resource type="Script" path="res://Scripts/escena_prueba.gd" id="1_v2ygx"]
+[ext_resource type="Script" uid="uid://crbjxxa8mctqn" path="res://Scripts/escena_prueba.gd" id="1_v2ygx"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_1in75"]
 [ext_resource type="PackedScene" uid="uid://upe8nkwx2xwf" path="res://personajes/jefe/jefe.tscn" id="3_1in75"]
 [ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/Entities/fuego.tscn" id="4_gdsp3"]
@@ -11,7 +11,8 @@
 [ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="6_qjlt0"]
 [ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="7_pause"]
 [ext_resource type="PackedScene" uid="uid://oysdlu64rb7d" path="res://Scenes/Entities/puerta.tscn" id="11_p5njm"]
-[ext_resource type="Script" path="res://Scripts/room_manager.gd" id="12_p5njm"]
+[ext_resource type="Script" uid="uid://bmi6b0xff8sy" path="res://Scripts/room_manager.gd" id="12_p5njm"]
+[ext_resource type="PackedScene" uid="uid://bh08j56ukxtp" path="res://Hub/hub.tscn" id="13_u1sv6"]
 
 [node name="escenaPrueba" type="Node2D"]
 position = Vector2(428, 355)
@@ -58,3 +59,5 @@ script = ExtResource("12_p5njm")
 vida_maxima_habitacion = 120.0
 enemigos_requeridos = 2
 fuegos_requeridos = 1
+
+[node name="Hub" parent="." instance=ExtResource("13_u1sv6")]
