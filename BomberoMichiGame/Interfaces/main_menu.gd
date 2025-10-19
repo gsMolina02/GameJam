@@ -12,7 +12,8 @@ func _process(delta: float) -> void:
 
 
 func _on_btnNewGame_pressed() -> void:
-	get_tree().change_scene_to_file("res://Scenes/escena_prueba.tscn") 
+	# Ir a la intro de historia antes de iniciar el juego
+	get_tree().change_scene_to_file("res://Interfaces/story_intro.tscn") 
 
 
 func _on_btnOptions_pressed() -> void:

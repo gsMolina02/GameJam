@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="BomberoMichiGame"
-run/main_scene="uid://615vh1g7fw4f"
+run/main_scene="res://Interfaces/intro.tscn"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
