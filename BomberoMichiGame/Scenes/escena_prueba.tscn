@@ -1,34 +1,84 @@
-[gd_scene load_steps=7 format=3 uid="uid://doh2qtc1kjvpm"]
+[gd_scene load_steps=10 format=3 uid="uid://c2fcfdi28gc84"]
 
 [ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="1_uapuf"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_1in75"]
 [ext_resource type="PackedScene" uid="uid://upe8nkwx2xwf" path="res://personajes/jefe/jefe.tscn" id="3_1in75"]
+[ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/Entities/fuego.tscn" id="4_gdsp3"]
 [ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="4_minions"]
 [ext_resource type="PackedScene" uid="uid://bmhb6a78qs4n" path="res://Objects/Boxes/box.tscn" id="5_gdsp3"]
-[ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="6_qjlt0"]
+[ext_resource type="PackedScene" uid="uid://bwg0w8g826tus" path="res://Scenes/Entities/tanque_oxigeno.tscn" id="5_qjlt0"]
+[ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="6_qjlt0"]
+[ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="7_pause"]
 
 [node name="escenaPrueba" type="Node2D"]
 position = Vector2(439, 348)
 
 [node name="mascota" parent="." instance=ExtResource("1_uapuf")]
-position = Vector2(-303, -199.99997)
+position = Vector2(305.00003, 466.00006)
 scale = Vector2(1.0224254, 0.9807179)
 objetivo = NodePath("../personajePrincipal")
+distancia_minima = null
+speed = null
+screen_margin = null
+clamp_to_viewport = null
+knockback_duration = null
+knockback_strength = null
+penetration_push = null
+dash_speed = null
+dash_duration = null
+dash_cooldown = null
 
 [node name="personajePrincipal" parent="." instance=ExtResource("2_1in75")]
-position = Vector2(73.000015, -215.99998)
-rotation = 0.011365662
+position = Vector2(512, 395.00006)
 scale = Vector2(1.0000006, 1.0237389)
 
 [node name="jefe" parent="." instance=ExtResource("3_1in75")]
-position = Vector2(610, 164)
+position = Vector2(478, -76)
+direccion = null
+orbit_count = null
+orbit_radius = null
+orbit_angular_speed = null
+fire_rate = null
+respawn_delay = null
+launch_spread_deg = null
+launch_speed_multiplier = null
+max_health = null
+minion_spawn_interval = null
+min_spawn_distance = null
+speed = null
+screen_margin = null
+clamp_to_viewport = null
+knockback_duration = null
+knockback_strength = null
+penetration_push = null
+dash_speed = null
+dash_duration = null
+dash_cooldown = null
+
+[node name="Fuego" parent="." instance=ExtResource("4_gdsp3")]
+position = Vector2(74, -120)
+
+[node name="TanqueOxigeno" parent="." instance=ExtResource("5_qjlt0")]
+position = Vector2(-660, -220)
+
+[node name="HUD" parent="." instance=ExtResource("6_qjlt0")]
 
 [node name="minion_test" parent="." instance=ExtResource("4_minions")]
 position = Vector2(482, 173)
+speed = null
+screen_margin = null
+clamp_to_viewport = null
+vida_maxima = null
+knockback_duration = null
+knockback_strength = null
+penetration_push = null
+dash_speed = null
+dash_duration = null
+dash_cooldown = null
 
 [node name="Box" parent="." instance=ExtResource("5_gdsp3")]
 position = Vector2(341, -295)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="PuseMenu" parent="CanvasLayer" instance=ExtResource("6_qjlt0")]
+[node name="PuseMenu" parent="CanvasLayer" instance=ExtResource("7_pause")]

@@ -1,5 +1,5 @@
 extends "res://personajes/personaje_base.gd"
-
+@export ""
 var direccion := Vector2.ZERO
 var tiempo_cambio := 0.5
 var tiempo_actual := 0.0
