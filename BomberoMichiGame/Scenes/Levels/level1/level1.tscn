@@ -1,8 +1,12 @@
-[gd_scene load_steps=12 format=3 uid="uid://dgooxxoch0lkq"]
+[gd_scene load_steps=16 format=3 uid="uid://dgooxxoch0lkq"]
 
 [ext_resource type="Texture2D" uid="uid://c0py88gnwk54y" path="res://Scenes/Levels/level1/unnamed.jpg" id="1_5rljr"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_5rljr"]
-[ext_resource type="PackedScene" uid="uid://upe8nkwx2xwf" path="res://personajes/jefe/jefe.tscn" id="4_xfvig"]
+[ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/fuego.tscn" id="3_xfvig"]
+[ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="4_fdvuu"]
+[ext_resource type="PackedScene" uid="uid://bh08j56ukxtp" path="res://Hub/hub.tscn" id="5_a4g0f"]
+[ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="6_w2im6"]
+[ext_resource type="PackedScene" uid="uid://bmhb6a78qs4n" path="res://Objects/Boxes/box.tscn" id="7_4aogg"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7103a"]
 size = Vector2(650, 186)
@@ -60,9 +64,6 @@ position = Vector2(1470.5, 544.5)
 rotation = -0.0023522556
 shape = SubResource("RectangleShape2D_5rljr")
 
-[node name="jefe" parent="Wall_right2" instance=ExtResource("4_xfvig")]
-position = Vector2(1274, 310)
-
 [node name="Wall_righ_above" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above"]
@@ -90,5 +91,35 @@ position = Vector2(422.5, 872)
 shape = SubResource("RectangleShape2D_a4g0f")
 
 [node name="personajePrincipal" parent="." instance=ExtResource("2_5rljr")]
-position = Vector2(597, 511)
-collision_mask = 1
+position = Vector2(792, 207.99994)
+
+[node name="Fuego" parent="." instance=ExtResource("3_xfvig")]
+position = Vector2(214, 421)
+
+[node name="Fuego2" parent="." instance=ExtResource("3_xfvig")]
+position = Vector2(177, 442)
+
+[node name="Fuego3" parent="." instance=ExtResource("3_xfvig")]
+position = Vector2(156, 174)
+
+[node name="Fuego4" parent="." instance=ExtResource("3_xfvig")]
+position = Vector2(127, 150)
+
+[node name="Fuego5" parent="." instance=ExtResource("3_xfvig")]
+position = Vector2(686, 362)
+
+[node name="Fuego6" parent="." instance=ExtResource("3_xfvig")]
+position = Vector2(587, 158)
+
+[node name="minions" parent="." instance=ExtResource("4_fdvuu")]
+position = Vector2(1290.9999, 513)
+
+[node name="minions2" parent="." instance=ExtResource("4_fdvuu")]
+position = Vector2(288, 717)
+
+[node name="Hub" parent="." instance=ExtResource("5_a4g0f")]
+
+[node name="HUD" parent="." instance=ExtResource("6_w2im6")]
+
+[node name="Box" parent="." instance=ExtResource("7_4aogg")]
+position = Vector2(991, -18)

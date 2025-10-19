@@ -122,6 +122,9 @@ func _ready():
 	
 	# Emitir valores iniciales para que el HUD se actualice
 	emit_signal("hose_recharged", hose_charge)  # Emitir carga inicial de agua
+	emit_signal("vida_actualizada", vida_actual)  # Emitir vida inicial para que el HUD se actualice
+	
+	print("✓ Vida inicial emitida:", vida_actual, "/", vida_maxima)
 
 func _setup_hose_system():
 	"""Configura los nodos necesarios para el sistema de manguera"""
@@ -244,25 +247,21 @@ func _physics_process(delta):
 	# Input de acciones
 	_handle_input()
 
-	# Limitar posición dentro del campo definido (se puede desactivar con enforce_bounds)
-	var x = global_position.x
-	var y = global_position.y
+	# Limitar posición dentro del campo definido (SOLO si enforce_bounds está activo)
 	if enforce_bounds:
 		var minx = (min_x if min_x != null else -1000.0)
 		var maxx = (max_x if max_x != null else 1000.0)
 		var miny = (min_y if min_y != null else -1000.0)
 		var maxy = (max_y if max_y != null else 1000.0)
-		x = clamp(global_position.x, float(minx), float(maxx))
-		y = clamp(global_position.y, float(miny), float(maxy))
-
-	# Debug: imprimir cuando el jugador intenta moverse horizontalmente
-	if abs(velocity.x) > 0:
-		if enforce_bounds:
-			print_debug("Player attempt move -> pos:", global_position, "vel.x:", velocity.x, "clamped_x:", x, "bounds_enabled")
-		else:
-			print_debug("Player attempt move -> pos:", global_position, "vel.x:", velocity.x, "clamped_x:", x, "(bounds disabled)")
-
-	global_position = Vector2(x, y)
+		
+		# Aplicar clamp y actualizar posición
+		var clamped_x = clamp(global_position.x, float(minx), float(maxx))
+		var clamped_y = clamp(global_position.y, float(miny), float(maxy))
+		global_position = Vector2(clamped_x, clamped_y)
+		
+		# Debug solo si está activo el clamp
+		if abs(velocity.x) > 0 or abs(velocity.y) > 0:
+			print_debug("Player clamped -> pos:", global_position, "vel:", velocity)
 
 	# Girar el sprite horizontalmente según la dirección
 	if character_sprite:
@@ -616,8 +615,8 @@ func _play_water_hit_effect(_hit_position: Vector2):
 func take_damage(amount: float) -> void:
 	"""Recibe daño de enemigos - usa el sistema de vida heredado"""
 	print_debug("Bombero recibió", amount, "de daño!")
-	# Usar el sistema de vida del padre (personaje_base)
-	recibir_dano(int(amount))
+	# Usar el sistema de vida del padre (personaje_base) - ahora acepta float
+	recibir_dano(amount)
 
 func die() -> void:
 	# Detener el juego cuando la vida llega a 0

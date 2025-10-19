@@ -77,6 +77,10 @@ func _ready():
 	hit_area.name = "HitArea"
 	add_child(hit_area)
 	
+	# IMPORTANTE: Configurar en la capa 2 para que el Hitbox del jugador (mask=2) lo detecte
+	hit_area.collision_layer = 2
+	hit_area.collision_mask = 1  # Detectar capa 1 (jugador)
+	
 	# Agregar el HitArea al grupo para que el Hitbox del jugador lo detecte
 	hit_area.add_to_group("ataque_jefe")
 	
@@ -90,6 +94,24 @@ func _ready():
 	# Conectar señales
 	if hit_area.has_signal("area_entered"):
 		hit_area.area_entered.connect(_on_hit_area_area_entered)
+
+	# Crear DamageArea para recibir daño de la manguera
+	var damage_area = Area2D.new()
+	damage_area.name = "DamageArea"
+	add_child(damage_area)
+	
+	# Configurar en la capa 2 para que la manguera (mask=2) lo detecte
+	damage_area.collision_layer = 2
+	damage_area.collision_mask = 0  # No necesita detectar nada
+	
+	# Crear CollisionShape para el DamageArea (más grande para facilitar el disparo)
+	var damage_shape = CollisionShape2D.new()
+	var damage_circle = CircleShape2D.new()
+	damage_circle.radius = 100.0  # Radio generoso para recibir agua
+	damage_shape.shape = damage_circle
+	damage_area.add_child(damage_shape)
+	
+	print("✓ Jefe inicializado con HitArea (ataque) y DamageArea (recibe agua)")
 
 	# inicialmente crear orbs para el jefe
 	_spawn_orbit_fireballs()
