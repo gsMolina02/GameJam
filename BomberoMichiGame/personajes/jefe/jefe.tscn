@@ -491,7 +491,7 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_s47dp"]
-radius = 219.3285
+radius = 128.01566
 
 [node name="jefe" type="CharacterBody2D"]
 position = Vector2(471, 268.99988)
