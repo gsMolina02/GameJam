@@ -10,6 +10,8 @@ class_name Bomber
 @export var attack_cooldown_time = 0.2
 @export var parry_cooldown_time = 0.3
 
+
+
 # Estados del hacha
 enum AxeState {
 	IDLE,
@@ -301,3 +303,7 @@ func reduce_hose_charge(amount: float):
 	elif velocity.x > 0:
 		$Sprite2D.scale.x = 1   # Mirar a la derecha
 		print("Derecha")
+		
+		
+
+		
