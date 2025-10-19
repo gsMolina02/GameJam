@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://b2isyrlrybvoh"]
+
+[ext_resource type="Script" uid="uid://dx332xajg8slu" path="res://Scripts/fuego.gd" id="1_fuego"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_28qvi"]
+size = Vector2(96, 73)
+
+[node name="Fuego" type="Area2D"]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_fuego")
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+color = Color(0.866582, 0.552471, 0.58790916, 1)
+polygon = PackedVector2Array(47, -25, 2, 49, 98, 49)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(50, 12.5)
+shape = SubResource("RectangleShape2D_28qvi")
