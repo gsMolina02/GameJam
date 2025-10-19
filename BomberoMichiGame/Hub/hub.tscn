@@ -1,0 +1,42 @@
+[gd_scene load_steps=5 format=3 uid="uid://bh08j56ukxtp"]
+
+[ext_resource type="Script" uid="uid://dwci2hamwcyo8" path="res://Hub/hub.gd" id="1_lcg3h"]
+[ext_resource type="Texture2D" uid="uid://c5dg1dtjddomr" path="res://Resources/hub/agua.png" id="2_n854u"]
+[ext_resource type="Texture2D" uid="uid://c6txxii6radrf" path="res://Resources/hub/CascoBombero_0006.png" id="3_n854u"]
+[ext_resource type="Texture2D" uid="uid://baifopy6ijjdf" path="res://Resources/hub/tanque de oxigeno.png" id="3_qjn6s"]
+
+[node name="Hub" type="CanvasLayer"]
+script = ExtResource("1_lcg3h")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="water" type="TextureRect" parent="Control"]
+layout_mode = 0
+offset_left = 54.0
+offset_top = 42.000008
+offset_right = 1134.0
+offset_bottom = 1122.0
+scale = Vector2(0.02899458, 0.028254714)
+texture = ExtResource("2_n854u")
+
+[node name="waepon" type="TextureRect" parent="Control"]
+layout_mode = 0
+offset_left = 31.0
+offset_top = 560.0
+offset_right = 1111.0
+offset_bottom = 1640.0
+scale = Vector2(0.056016937, 0.049943198)
+texture = ExtResource("3_n854u")
+
+[node name="vida" type="TextureRect" parent="Control"]
+layout_mode = 0
+offset_left = 54.0
+offset_top = 13.000001
+offset_right = 1134.0
+offset_bottom = 1093.0
+scale = Vector2(0.028113617, 0.023413971)
+texture = ExtResource("3_qjn6s")
