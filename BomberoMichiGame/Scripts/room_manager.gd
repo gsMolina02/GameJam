@@ -42,7 +42,16 @@ func _ready():
 	# Emitir valor inicial
 	emit_signal("vida_habitacion_actualizada", vida_habitacion, vida_maxima_habitacion)
 
+var _debug_timer := 0.0
+var _debug_interval := 2.0  # Imprimir cada 2 segundos
+
 func _process(delta: float) -> void:
+	# Debug temporal para verificar que _process se está ejecutando
+	_debug_timer += delta
+	if _debug_timer >= _debug_interval:
+		_debug_timer = 0.0
+		print("⏱️ RoomManager _process activo | Vida:", "%.1f" % vida_habitacion, "| Perdiendo:", perdiendo_vida, "| Completada:", habitacion_completada)
+	
 	if not perdiendo_vida or habitacion_completada:
 		return
 	
