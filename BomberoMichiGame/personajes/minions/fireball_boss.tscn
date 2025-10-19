@@ -1,0 +1,160 @@
+[gd_scene load_steps=35 format=3 uid="uid://fbg2ryy2ucpf"]
+
+[ext_resource type="Texture2D" uid="uid://cvd2dvteopnqu" path="res://Assets/Hacha y bola de fuego/bolaJefe.png" id="1_ci80o"]
+[ext_resource type="Script" uid="uid://geu5qwmj10pm" path="res://personajes/minions/fireball_visual.gd" id="1_hucrj"]
+[ext_resource type="Texture2D" uid="uid://tvswy63aq04q" path="res://Assets/bolasJefe/1.png" id="2_i1if2"]
+[ext_resource type="Texture2D" uid="uid://chm8mn72gqhu7" path="res://Assets/bolasJefe/2.png" id="3_u7ufi"]
+[ext_resource type="Texture2D" uid="uid://ct2rbe1oou4jr" path="res://Assets/bolasJefe/3.png" id="4_ojiq1"]
+[ext_resource type="Texture2D" uid="uid://b740a74otfy6d" path="res://Assets/bolasJefe/4.png" id="5_2bb8l"]
+[ext_resource type="Texture2D" uid="uid://b18djscxycwak" path="res://Assets/bolasJefe/5.png" id="6_hxbiw"]
+[ext_resource type="Texture2D" uid="uid://di0e4wgy7lf3k" path="res://Assets/bolasJefe/6.png" id="7_66fj7"]
+[ext_resource type="Texture2D" uid="uid://bl3ro3x5pr1s1" path="res://Assets/bolasJefe/7.png" id="8_00u2q"]
+[ext_resource type="Texture2D" uid="uid://brot2brtbyycu" path="res://Assets/bolasJefe/8.png" id="9_fs51b"]
+[ext_resource type="Texture2D" uid="uid://blyo6fkpb7b3u" path="res://Assets/bolasJefe/9.png" id="10_rujdn"]
+[ext_resource type="Texture2D" uid="uid://cyv8p5dpw4722" path="res://Assets/bolasJefe/10.png" id="11_w3ack"]
+[ext_resource type="Texture2D" uid="uid://bihgx68gninyj" path="res://Assets/bolasJefe/11.png" id="12_dpt4w"]
+[ext_resource type="Texture2D" uid="uid://cub0t3icjt0hy" path="res://Assets/bolasJefe/12.png" id="13_f3e2h"]
+[ext_resource type="Texture2D" uid="uid://doa6mmp613mfx" path="res://Assets/bolasJefe/13.png" id="14_lskvp"]
+[ext_resource type="Texture2D" uid="uid://drq5jtfsd0dvv" path="res://Assets/bolasJefe/14.png" id="15_mguod"]
+[ext_resource type="Texture2D" uid="uid://cghr4hy1pj750" path="res://Assets/bolasJefe/15.png" id="16_34vlv"]
+[ext_resource type="Texture2D" uid="uid://e1s0swfiu6ke" path="res://Assets/bolasJefe/16.png" id="17_wravy"]
+[ext_resource type="Texture2D" uid="uid://bhnb028t81qi3" path="res://Assets/bolasJefe/17.png" id="18_ej21o"]
+[ext_resource type="Texture2D" uid="uid://ojjqbxa3fhqi" path="res://Assets/bolasJefe/18.png" id="19_qfutx"]
+[ext_resource type="Texture2D" uid="uid://dqo2urdsh0re2" path="res://Assets/bolasJefe/19.png" id="20_1v3dx"]
+[ext_resource type="Texture2D" uid="uid://exmys20laggs" path="res://Assets/bolasJefe/20.png" id="21_gdwfm"]
+[ext_resource type="Texture2D" uid="uid://b0ho07u70rych" path="res://Assets/bolasJefe/21.png" id="22_atmqb"]
+[ext_resource type="Texture2D" uid="uid://d30hg0npof6nh" path="res://Assets/bolasJefe/22.png" id="23_hnrcs"]
+[ext_resource type="Texture2D" uid="uid://bkvdmcgs4xsfu" path="res://Assets/bolasJefe/23.png" id="24_qomdj"]
+[ext_resource type="Texture2D" uid="uid://dd0rnx36wf75x" path="res://Assets/bolasJefe/24.png" id="25_6pngn"]
+[ext_resource type="Texture2D" uid="uid://bjedr452acjqv" path="res://Assets/bolasJefe/25.png" id="26_ohr18"]
+[ext_resource type="Texture2D" uid="uid://o0i2yh7sibkw" path="res://Assets/bolasJefe/26.png" id="27_fgh87"]
+[ext_resource type="Texture2D" uid="uid://84w3hsyaldsr" path="res://Assets/bolasJefe/27.png" id="28_6rrb3"]
+[ext_resource type="Texture2D" uid="uid://cd67sc5lb116" path="res://Assets/bolasJefe/28.png" id="29_84oth"]
+[ext_resource type="Texture2D" uid="uid://svjrtva830ub" path="res://Assets/bolasJefe/29.png" id="30_lbaoo"]
+[ext_resource type="Texture2D" uid="uid://cu77febofk47p" path="res://Assets/bolasJefe/30.png" id="31_ar6gq"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_71ljy"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_ci80o")
+}],
+"loop": true,
+"name": &"bola_boss",
+"speed": 4.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_i1if2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_u7ufi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_ojiq1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_2bb8l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_hxbiw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_66fj7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_00u2q")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_fs51b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_rujdn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_w3ack")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_dpt4w")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_f3e2h")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_lskvp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_mguod")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_34vlv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_wravy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_ej21o")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_qfutx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_1v3dx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_gdwfm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_atmqb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_hnrcs")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_qomdj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_6pngn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_ohr18")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_fgh87")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_6rrb3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_84oth")
+}, {
+"duration": 1.0,
+"texture": ExtResource("30_lbaoo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("31_ar6gq")
+}],
+"loop": true,
+"name": &"bola_jefe",
+"speed": 20.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 99.08077
+
+[node name="FireballVisual" type="Area2D"]
+script = ExtResource("1_hucrj")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(437.99997, 243)
+scale = Vector2(1, 1)
+sprite_frames = SubResource("SpriteFrames_71ljy")
+animation = &"bola_boss"
+autoplay = "bola_jefe"
+frame_progress = 0.9869924
+metadata/_edit_group_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(444, 254)
+shape = SubResource("CircleShape2D_1")
+metadata/_edit_group_ = true

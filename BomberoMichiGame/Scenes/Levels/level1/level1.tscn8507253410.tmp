@@ -1,0 +1,53 @@
+[gd_scene load_steps=7 format=3 uid="uid://dgooxxoch0lkq"]
+
+[ext_resource type="Texture2D" uid="uid://c0py88gnwk54y" path="res://Scenes/Levels/level1/unnamed.jpg" id="1_5rljr"]
+[ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_5rljr"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5rljr"]
+size = Vector2(712.5, 22.5)
+
+[sub_resource type="SegmentShape2D" id="SegmentShape2D_5rljr"]
+a = Vector2(-435, -212)
+b = Vector2(-474, 448)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bpvnq"]
+size = Vector2(641, 20)
+
+[sub_resource type="SegmentShape2D" id="SegmentShape2D_bpvnq"]
+a = Vector2(1446, 863)
+b = Vector2(1406, 206)
+
+[node name="FondoSala" type="Node2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(755.00006, 448)
+scale = Vector2(2.0680575, 1.6672863)
+texture = ExtResource("1_5rljr")
+
+[node name="Wall_top" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_top"]
+position = Vector2(351.25, 167.75)
+shape = SubResource("RectangleShape2D_5rljr")
+one_way_collision = true
+debug_color = Color(0.9172793, 7.132977e-05, 0.70809925, 0.41960785)
+
+[node name="Wall_right" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_right"]
+position = Vector2(563, 406)
+shape = SubResource("SegmentShape2D_5rljr")
+
+[node name="Wall_top2" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_top2"]
+position = Vector2(1182.5, 177)
+shape = SubResource("RectangleShape2D_bpvnq")
+
+[node name="Wall_right2" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_right2"]
+shape = SubResource("SegmentShape2D_bpvnq")
+
+[node name="personajePrincipal" parent="." instance=ExtResource("2_5rljr")]
+position = Vector2(709, 593)
