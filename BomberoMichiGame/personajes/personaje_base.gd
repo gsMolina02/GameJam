@@ -6,9 +6,10 @@ extends CharacterBody2D
 @export var clamp_to_viewport := true
 
 # --- Vida / Knockback (from HEAD) ---
-# Salud (por defecto 1 -> ideal para minions)
-@export var vida_maxima: int = 1
-var vida_actual: int = 0
+# Salud (por defecto 5 -> personaje principal)
+# CAMBIADO A FLOAT para soportar daño de 0.5 de las bolas de minions
+@export var vida_maxima: float = 5.0
+var vida_actual: float = 0.0
 var vivo: bool = true
 
 # Knockback settings: al tocar fuego empujar al personaje fuera y aplicar daño
@@ -39,6 +40,10 @@ var animated_sprite: AnimatedSprite2D = null
 func _ready() -> void:
 	# Inicializar vida según la export var (puedes cambiarla en cada escena)
 	vida_actual = vida_maxima
+	print("🔍 DEBUG personaje_base - Inicializando vida:")
+	print("   - vida_maxima:", vida_maxima)
+	print("   - vida_actual:", vida_actual)
+	print("   - Personaje:", name)
 	emit_signal("vida_actualizada", vida_actual)
 
 	# Si el nodo hijo 'Hitbox' existe, conecta su señal para detectar areas
@@ -91,7 +96,23 @@ func mover_personaje(delta):
 	# Movimiento normal y lectura de input
 	var input_vector = Input.get_vector("left", "right", "up", "down")
 	velocity = input_vector * speed
+	
+	# Debug para diagonal arriba-izquierda
+	if input_vector.x < 0 and input_vector.y < 0:
+		print_debug("⬉ Movimiento diagonal arriba-izquierda detectado")
+		print_debug("  Input:", input_vector, "Speed:", speed)
+		print_debug("  Velocity ANTES:", velocity)
+		print_debug("  Position ANTES:", global_position)
+	
 	move_and_slide()
+	
+	# Debug DESPUÉS del move_and_slide
+	if input_vector.x < 0 and input_vector.y < 0:
+		print_debug("  Velocity DESPUÉS:", velocity)
+		print_debug("  Position DESPUÉS:", global_position)
+		print_debug("  is_on_wall():", is_on_wall())
+		print_debug("  is_on_floor():", is_on_floor())
+		print_debug("  is_on_ceiling():", is_on_ceiling())
 
 	# Actualizar animaciones basadas en el input (from main)
 	_update_animation(input_vector)
@@ -100,16 +121,16 @@ func mover_personaje(delta):
 	keep_in_viewport()
 
 # --- Vida ---
-func recibir_dano(cantidad: int):
+func recibir_dano(cantidad: float):
 	if not vivo:
 		return
-	vida_actual = max(0, vida_actual - cantidad)
+	vida_actual = max(0.0, vida_actual - cantidad)
 	emit_signal("vida_actualizada", vida_actual)
-	print(self.name, " - Daño recibido. Vida:", vida_actual)
-	if vida_actual == 0:
+	print(self.name, " - Daño recibido:", cantidad, " Vida:", vida_actual, "/", vida_maxima)
+	if vida_actual <= 0.0:
 		_vencer()
 
-func curar(cantidad: int):
+func curar(cantidad: float):
 	# Permitir curar si estaba vivo; si quieres que un pickup reviva, elimina la comprobación
 	if not vivo:
 		# Si quieres permitir curar desde 0 para revivir, comenta la siguiente línea
@@ -132,13 +153,21 @@ func _vencer():
 
 # --- Detección por Hitbox ---
 func _on_Hitbox_area_entered(area):
+	# DEBUG: Imprimir TODAS las colisiones con el Hitbox
+	print("🎯 HITBOX COLLISION DETECTED:")
+	print("   - area:", area.name)
+	print("   - area parent:", area.get_parent().name if area.get_parent() else "null")
+	print("   - area groups:", area.get_groups())
+	print("   - is player_main?:", is_in_group("player_main"))
+	
 	# SOLO procesar fuego/pickups si este personaje es el personaje principal
 	if not is_in_group("player_main"):
+		print("   ❌ NO ES PLAYER_MAIN, ignorando colisión")
 		return
 
 	# Daño por fuego (grupo 'fuego')
 	if area.is_in_group("fuego"):
-		recibir_dano(1)
+		recibir_dano(1.0)
 		var dir = (global_position - area.global_position).normalized()
 		if dir == Vector2.ZERO:
 			dir = Vector2.UP
@@ -150,36 +179,50 @@ func _on_Hitbox_area_entered(area):
 
 	# Daño por ataque de minion (grupo 'ataque_minion')
 	if area.is_in_group("ataque_minion"):
-		recibir_dano(1)
+		# Si el área tiene una propiedad 'damage', usarla; si no, usar 1
+		var damage_amount = 1.0
+		if area.has_method("get") and area.get("damage") != null:
+			damage_amount = area.get("damage")
+			print(self.name, " - 🔥 Golpeado por ataque de minion! Daño:", damage_amount)
+		else:
+			print(self.name, " - Golpeado por minion! Daño: 1")
+		
+		recibir_dano(damage_amount)
 		var dir = (global_position - area.global_position).normalized()
 		if dir == Vector2.ZERO:
 			dir = Vector2.UP
 		knockback_velocity = dir * knockback_strength
 		knockback_remaining = knockback_duration
-		print(self.name, " - Golpeado por minion! Daño: 1, Knockback aplicado")
 		return
 
 	# Daño por ataque de jefe (grupo 'ataque_jefe')
 	if area.is_in_group("ataque_jefe"):
-		recibir_dano(1)
+		# Si el área tiene una propiedad 'damage', usarla; si no, usar 1
+		var damage_amount = 1.0
+		if area.has_method("get") and area.get("damage") != null:
+			damage_amount = area.get("damage")
+			print(self.name, " - 💥 Golpeado por ataque de jefe! Daño:", damage_amount)
+		else:
+			print(self.name, " - Golpeado por jefe! Daño: 1")
+		
+		recibir_dano(damage_amount)
 		var dir = (global_position - area.global_position).normalized()
 		if dir == Vector2.ZERO:
 			dir = Vector2.UP
 		knockback_velocity = dir * knockback_strength * 1.5  # Jefe empuja más fuerte
 		knockback_remaining = knockback_duration
-		print(self.name, " - Golpeado por jefe! Daño: 1, Knockback fuerte aplicado")
 		return
 
 	# Si el area es 'ataque_enemigo' (genérico, si lo usáis)
 	if area.is_in_group("ataque_enemigo"):
-		recibir_dano(1)
+		recibir_dano(1.0)
 		return
 
 	# Pickup de vida (tanques de oxígeno)
 	if area.is_in_group("pickup_vida"):
 		# Solo recoger si la vida no está al máximo
 		if vida_actual < vida_maxima:
-			curar(1)
+			curar(1.0)
 			area.queue_free()
 			print(self.name, " - Tanque de oxígeno recogido. Vida: ", vida_actual, "/", vida_maxima)
 		else:
@@ -236,8 +279,13 @@ func keep_in_viewport(margin := screen_margin) -> void:
 		var min_y_cam = world_pos.y + margin
 		var max_x_cam = world_pos.x + world_size.x - margin
 		var max_y_cam = world_pos.y + world_size.y - margin
-		global_position.x = clamp(global_position.x, min_x_cam, max_x_cam)
-		global_position.y = clamp(global_position.y, min_y_cam, max_y_cam)
+		
+		# Clampar y asignar todo de una vez
+		var clamped_pos = Vector2(
+			clamp(global_position.x, min_x_cam, max_x_cam),
+			clamp(global_position.y, min_y_cam, max_y_cam)
+		)
+		global_position = clamped_pos
 		return
 
 	# Fallback a viewport rect
@@ -246,8 +294,13 @@ func keep_in_viewport(margin := screen_margin) -> void:
 	var min_y = rect.position.y + screen_margin
 	var max_x = rect.position.x + rect.size.x - screen_margin
 	var max_y = rect.position.y + rect.size.y - screen_margin
-	global_position.x = clamp(global_position.x, min_x, max_x)
-	global_position.y = clamp(global_position.y, min_y, max_y)
+	
+	# Clampar y asignar todo de una vez
+	var clamped_pos = Vector2(
+		clamp(global_position.x, min_x, max_x),
+		clamp(global_position.y, min_y, max_y)
+	)
+	global_position = clamped_pos
 
 func _update_animation(input_vector: Vector2):
 	"""Selecciona animación según la dirección (8 direcciones con fallbacks)"""
