@@ -1,17 +1,21 @@
-[gd_scene load_steps=3 format=3 uid="uid://bwg0w8g826tus"]
+[gd_scene load_steps=4 format=3 uid="uid://bwg0w8g826tus"]
 
 [ext_resource type="Script" uid="uid://bivbhvssdtfb4" path="res://Scripts/tanque_oxigeno.gd" id="1_oo87y"]
+[ext_resource type="Texture2D" uid="uid://5b6tmvbmeysv" path="res://Assets/Objetos/caja.png" id="2_4ug31"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_bpka1"]
-size = Vector2(83, 76)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6edww"]
+size = Vector2(46, 26)
 
 [node name="TanqueOxigeno" type="Area2D"]
 script = ExtResource("1_oo87y")
 
-[node name="Polygon2D" type="Polygon2D" parent="."]
-color = Color(0.6434097, 0.9836648, 0.61557835, 1)
-polygon = PackedVector2Array(466, 209, 466, 284, 550, 284, 550, 208)
+[node name="Polygon2D" type="Sprite2D" parent="."]
+position = Vector2(417, 243)
+scale = Vector2(0.052546337, 0.050462976)
+texture = ExtResource("2_4ug31")
+metadata/_edit_group_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(507.5, 246)
-shape = SubResource("RectangleShape2D_bpka1")
+position = Vector2(417, 243)
+shape = SubResource("RectangleShape2D_6edww")
+metadata/_edit_group_ = true

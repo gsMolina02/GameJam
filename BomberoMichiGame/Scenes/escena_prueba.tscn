@@ -8,7 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://bmhb6a78qs4n" path="res://Objects/Boxes/box.tscn" id="5_gdsp3"]
 [ext_resource type="PackedScene" uid="uid://bwg0w8g826tus" path="res://Scenes/Entities/tanque_oxigeno.tscn" id="5_qjlt0"]
 [ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="6_qjlt0"]
-[ext_resource type="PackedScene" path="res://Interfaces/puse_menu.tscn" id="7_pause"]
+[ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="7_pause"]
 
 [node name="escenaPrueba" type="Node2D"]
 position = Vector2(439, 348)
@@ -23,23 +23,26 @@ position = Vector2(101.99994, 153.99991)
 scale = Vector2(1.0000006, 1.0237389)
 
 [node name="jefe" parent="." instance=ExtResource("3_1in75")]
-position = Vector2(987, -636)
+position = Vector2(439.99994, -9)
 
 [node name="Fuego" parent="." instance=ExtResource("4_gdsp3")]
 position = Vector2(74, -120)
 
 [node name="TanqueOxigeno" parent="." instance=ExtResource("5_qjlt0")]
-position = Vector2(-660, -220)
+position = Vector2(-592, -161)
 
 [node name="HUD" parent="." instance=ExtResource("6_qjlt0")]
 
 [node name="minion_test" parent="." instance=ExtResource("4_minions")]
-position = Vector2(619, -185)
+position = Vector2(557, -123)
 
 [node name="Box" parent="." instance=ExtResource("5_gdsp3")]
-position = Vector2(341, -295)
+position = Vector2(27, -439)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 visible = false
 
 [node name="PuseMenu" parent="CanvasLayer" instance=ExtResource("7_pause")]
+
+[node name="Fuego2" parent="." instance=ExtResource("4_gdsp3")]
+position = Vector2(-213, -169)
