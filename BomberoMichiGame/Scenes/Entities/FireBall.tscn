@@ -1,25 +1,38 @@
-[gd_scene load_steps=3 format=3 uid="uid://cfto2w6gq1qf7"]
+[gd_scene load_steps=6 format=3 uid="uid://cfto2w6gq1qf7"]
 
-[ext_resource type="Script" path="res://Scripts/FireBall.gd" id="1_v04a4"]
+[ext_resource type="Script" uid="uid://cn7des8x0mgpb" path="res://Scripts/FireBall.gd" id="1_v04a4"]
+[ext_resource type="Texture2D" uid="uid://dg3wetlcrqer3" path="res://Assets/Hacha y bola de fuego/Bola de Fuego_1.png" id="2_oo1g1"]
+[ext_resource type="Texture2D" uid="uid://c6fqi26lpq52f" path="res://Assets/Hacha y bola de fuego/Bola de Fuego_2.png" id="3_5jx87"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_hli0r"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_oo1g1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_5jx87")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_wsm8p"]
-radius = 14.0
+radius = 392.1271
 
 [node name="FireBall" type="Area2D"]
 collision_layer = 2
-collision_mask = 1
 script = ExtResource("1_v04a4")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(409, 428)
+scale = Vector2(0.057407398, 0.048148155)
+sprite_frames = SubResource("SpriteFrames_hli0r")
+frame_progress = 0.14632449
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AnimatedSprite2D"]
+position = Vector2(0, 62.30774)
 shape = SubResource("CircleShape2D_wsm8p")
 
-[node name="ColorRect" type="ColorRect" parent="."]
-offset_left = -14.0
-offset_top = -14.0
-offset_right = 14.0
-offset_bottom = 14.0
-color = Color(1, 0.3, 0, 1)
-
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
-
-

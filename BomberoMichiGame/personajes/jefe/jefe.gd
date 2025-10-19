@@ -4,8 +4,7 @@ var direccion := Vector2.ZERO
 var tiempo_cambio := 0.5
 var tiempo_actual := 0.0
 var tiempo_desde_disparo := 0.0
-var FireballSceneBoss: PackedScene = null
-var FireballSceneMinion: PackedScene = null
+var FireballScene: PackedScene = null
 
 # Parámetros de las bolas de fuego orbitales
 @export var orbit_count := 5  # Cantidad de bolas en órbita
@@ -64,8 +63,7 @@ func _physics_process(delta):
 
 
 func _ready():
-	FireballSceneBoss = load("res://personajes/minions/fireball_boss.tscn")
-	FireballSceneMinion = load("res://personajes/minions/fireball_visual.tscn")
+	FireballScene = load("res://personajes/minions/fireball_visual.tscn")
 	minion_scene = load("res://personajes/minions/minions.tscn")
 	
 	# Agregar el jefe al grupo "enemy" y "boss"
@@ -132,9 +130,9 @@ func _disparar_triple():
 	var dirs = [base_dir.rotated(deg_to_rad(-spread_deg)), base_dir, base_dir.rotated(deg_to_rad(spread_deg))]
 
 	for d in dirs:
-		if FireballSceneBoss == null:
+		if FireballScene == null:
 			continue
-		var fb = FireballSceneBoss.instantiate()
+		var fb = FireballScene.instantiate()
 		if fb.has_method("set_shooter"):
 			fb.set_shooter(self)
 		# Instanciar como hijo del jefe y usar posición local
@@ -157,10 +155,10 @@ func _spawn_orbit_fireballs():
 			fb.queue_free()
 	orbit_fireballs.clear()
 	orbit_angles.clear()
-	if FireballSceneBoss == null:
+	if FireballScene == null:
 		return
 	for i in range(orbit_count):
-		var fb = FireballSceneBoss.instantiate()
+		var fb = FireballScene.instantiate()
 		if fb.has_method("set_shooter"):
 			fb.set_shooter(self)
 		fb.position = Vector2.ZERO

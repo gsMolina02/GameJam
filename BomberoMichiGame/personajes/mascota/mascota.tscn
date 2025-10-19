@@ -299,17 +299,17 @@ animations = [{
 }]
 
 [node name="mascota" type="CharacterBody2D"]
-position = Vector2(-45, -226)
+position = Vector2(633, 272)
 rotation = -0.00036524187
 collision_layer = 2
 script = ExtResource("1_frh65")
 vida_maxima = 1000
 metadata/_edit_group_ = true
 
-[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(441.32477, 491.91074)
+[node name="mishiMuerto" type="AnimatedSprite2D" parent="."]
+position = Vector2(6.0043945, -11.997799)
 scale = Vector2(0.09549637, 0.08749181)
 sprite_frames = SubResource("SpriteFrames_w0v5f")
 animation = &"GhostCat"
 autoplay = "GhostCat"
-frame_progress = 0.9246536
+frame_progress = 0.6281221

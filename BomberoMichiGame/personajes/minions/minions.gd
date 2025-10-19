@@ -5,7 +5,6 @@ var tiempo_cambio := 0.5
 var tiempo_actual := 0.0
 var tiempo_disparo := 0.0
 var tiempo_desde_disparo := 0.0
-var FireballScene: PackedScene = null
 
 var can_shoot = true
 var fireball_scene = preload("res://personajes/minions/fireball_visual.tscn")
