@@ -33,6 +33,9 @@ var can_advance: bool = false
 var full_text: String = ""
 
 func _ready():
+	# Mostrar el cursor del sistema en la intro de historia
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	
 	# Validar que tengamos páginas configuradas
 	if story_pages.is_empty():
 		push_error("No hay páginas de historia configuradas!")

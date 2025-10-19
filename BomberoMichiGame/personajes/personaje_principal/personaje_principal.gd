@@ -38,6 +38,8 @@ var can_attack = true
 var hose_charge = 100.0
 var is_using_hose = false
 var current_weapon = Weapon.HOSE  # Iniciar con MANGUERA equipada
+var apuntador = null
+var apuntador_offset = Vector2(130, 30)
 var is_dead: bool = false
 
 # Marcador calculado para la punta de la manguera
@@ -116,6 +118,19 @@ func _ready():
 
 	# Add to player group for collision filtering
 	add_to_group("player")
+
+	# Ocultar el cursor del sistema (Windows)
+	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+
+	# Instanciar apuntador visual
+	var apuntador_scene = preload("res://Assets/objetos/apuntador.tscn")
+	apuntador = apuntador_scene.instantiate()
+	apuntador.name = "Apuntador"
+	add_child(apuntador)
+	apuntador.z_index = 100 # Asegura que esté encima
+	apuntador.visible = true
+	# Offset para la punta de la manguera
+	apuntador_offset = hose_nozzle_offset if hose_nozzle_offset != null else Vector2(130, 30)
 
 	# Desactivar clamp al viewport para el jugador (una sola vez)
 	clamp_to_viewport = false
@@ -357,6 +372,11 @@ func _update_weapon_orientation():
 	
 	# Calcular el ángulo de la dirección
 	var angle = direction.angle()
+
+	# Actualizar posición y rotación del apuntador visual
+	if apuntador:
+		apuntador.global_position = global_position + direction * 80.0 + apuntador_offset.rotated(angle)
+		apuntador.rotation = angle
 	
 	# Actualizar orientación del hacha
 	if axe_sprite:
