@@ -3,18 +3,30 @@ extends "res://personajes/personaje_base.gd"
 var direccion := Vector2.ZERO
 var tiempo_cambio := 0.5
 var tiempo_actual := 0.0
-var tiempo_disparo := 0.6
 var tiempo_desde_disparo := 0.0
 var FireballScene: PackedScene = null
-@export var orbit_count := 7
+
+# Parámetros de las bolas de fuego orbitales
+@export var orbit_count := 5  # Cantidad de bolas en órbita
 @export var orbit_radius := 48.0
 @export var orbit_angular_speed := 2.0
+@export var fire_rate := 2.0  # Frecuencia de disparo (segundos entre disparos)
 @export var respawn_delay := 1.2
 @export var launch_spread_deg := 30.0
 @export var launch_speed_multiplier := 1.0
 
+# Sistema de vida del jefe
+@export var max_health := 100.0
+var health := 100.0
+
 var orbit_fireballs := []
 var orbit_angles := []
+
+# Minion spawning
+@export var minion_scene: PackedScene = null
+@export var minion_spawn_interval := 5.0  # Spawn minion cada 5 segundos
+@export var min_spawn_distance := 150.0  # Distancia mínima del bombero para spawn
+var minion_spawn_timer := 0.0
 
 func mover_personaje(delta):
 	tiempo_actual += delta
@@ -33,19 +45,30 @@ func _physics_process(delta):
 	# actualizar órbita de fireballs
 	_update_orbit(delta)
 
-	# Manejo de disparos: dispara cada tiempo_disparo segundos
+	# Manejo de disparos: dispara cada fire_rate segundos
 	tiempo_desde_disparo += delta
-	if tiempo_desde_disparo >= tiempo_disparo:
+	if tiempo_desde_disparo >= fire_rate:
 		tiempo_desde_disparo = 0.0
 		# si hay orbs listos, lanzarlas; si no, spawnearlas
 		if orbit_fireballs.size() == 0:
 			_spawn_orbit_fireballs()
 		else:
 			_lanzar_orbita()
+	
+	# Spawn minions periódicamente
+	minion_spawn_timer += delta
+	if minion_spawn_timer >= minion_spawn_interval:
+		minion_spawn_timer = 0.0
+		_spawn_minion()
 
 
 func _ready():
 	FireballScene = load("res://personajes/minions/fireball_visual.tscn")
+	minion_scene = load("res://personajes/minions/minions.tscn")
+	
+	# Agregar el jefe al grupo "enemy" y "boss"
+	add_to_group("enemy")
+	add_to_group("boss")
 
 	# inicialmente crear orbs para el jefe
 	_spawn_orbit_fireballs()
@@ -161,3 +184,73 @@ func _lanzar_orbita():
 	orbit_angles.clear()
 	# regenerar inmediatamente nuevas bolas para que el jefe siempre aparezca cargado
 	_spawn_orbit_fireballs()
+
+
+func _spawn_minion():
+	"""Spawns a minion away from the firefighter"""
+	if minion_scene == null:
+		return
+	
+	var scene = get_tree().current_scene
+	if scene == null:
+		return
+	
+	# Buscar al bombero (firefighter)
+	var bombero: Node = null
+	if scene.has_node("personajePrincipal"):
+		bombero = scene.get_node("personajePrincipal")
+	else:
+		bombero = scene.get_node_or_null("../personajePrincipal")
+	
+	if bombero == null:
+		# Si no hay bombero, spawn cerca del jefe
+		var minion = minion_scene.instantiate()
+		var offset = Vector2(randf_range(-100, 100), randf_range(-100, 100))
+		minion.global_position = global_position + offset
+		scene.call_deferred("add_child", minion)
+		return
+	
+	# Calcular posición de spawn lejos del bombero
+	var spawn_pos := Vector2.ZERO
+	var attempts := 0
+	var max_attempts := 10
+	
+	while attempts < max_attempts:
+		# Generar posición aleatoria alrededor del jefe
+		var angle = randf() * TAU
+		var distance = randf_range(100, 300)
+		spawn_pos = global_position + Vector2(cos(angle), sin(angle)) * distance
+		
+		# Verificar que esté lejos del bombero
+		var distance_to_bombero = spawn_pos.distance_to(bombero.global_position)
+		if distance_to_bombero >= min_spawn_distance:
+			break
+		
+		attempts += 1
+	
+	# Instanciar el minion
+	var minion = minion_scene.instantiate()
+	minion.global_position = spawn_pos
+	scene.call_deferred("add_child", minion)
+	print_debug("Jefe spawned minion at:", spawn_pos, "distance from bombero:", spawn_pos.distance_to(bombero.global_position))
+
+
+func take_damage(amount: float) -> void:
+	"""Recibe daño y verifica si muere"""
+	health -= amount
+	print_debug("Jefe took damage:", amount, "health remaining:", health)
+	
+	if health <= 0:
+		die()
+
+
+func apply_water(amount: float) -> void:
+	"""Recibe daño por agua de la manguera"""
+	take_damage(amount)
+
+
+func die() -> void:
+	"""Muerte del jefe"""
+	print("¡Jefe derrotado!")
+	# Aquí puedes agregar efectos de muerte, sonidos, etc.
+	queue_free()

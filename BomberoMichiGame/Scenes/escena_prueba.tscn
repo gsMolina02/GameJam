@@ -9,27 +9,16 @@
 position = Vector2(439, 348)
 
 [node name="mascota" parent="." instance=ExtResource("1_uapuf")]
-position = Vector2(-4, -1)
+position = Vector2(-265, -266.99997)
 scale = Vector2(1.0224254, 0.9807179)
 objetivo = NodePath("../personajePrincipal")
 
 [node name="personajePrincipal" parent="." instance=ExtResource("2_1in75")]
-position = Vector2(172, -13)
+position = Vector2(-94.00003, -176.99998)
 scale = Vector2(1.0000006, 1.0237389)
-min_x = null
-max_x = null
-min_y = null
-max_y = null
-enforce_bounds = null
-speed = null
-screen_margin = null
-clamp_to_viewport = null
 
 [node name="jefe" parent="." instance=ExtResource("3_1in75")]
-position = Vector2(478, -76)
+position = Vector2(610, 164)
 
 [node name="minion_test" parent="." instance=ExtResource("4_minions")]
-position = Vector2(300, 0)
-speed = null
-screen_margin = null
-clamp_to_viewport = null
+position = Vector2(482, 173)
