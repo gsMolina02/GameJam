@@ -34,7 +34,7 @@ var dash_timer: float = 0.0
 
 # Referencias para animación (from main)
 var last_direction = Vector2.ZERO
-@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite
+var animated_sprite: AnimatedSprite2D = null
 
 func _ready() -> void:
 	# Inicializar vida según la export var (puedes cambiarla en cada escena)
@@ -53,9 +53,19 @@ func _ready() -> void:
 	if not animated_sprite:
 		animated_sprite = get_node_or_null("AnimatedSprite2D")
 	if not animated_sprite:
+		# Buscar en los hijos por si tiene un nombre diferente
+		for child in get_children():
+			if child is AnimatedSprite2D:
+				animated_sprite = child
+				break
+	
+	if not animated_sprite:
 		print("Advertencia: No se encontró AnimatedSprite2D en ", name)
 	else:
-		print("AnimatedSprite2D encontrado! Animaciones disponibles: ", animated_sprite.sprite_frames.get_animation_names())
+		if animated_sprite.sprite_frames:
+			print("AnimatedSprite2D encontrado! Animaciones disponibles: ", animated_sprite.sprite_frames.get_animation_names())
+		else:
+			print("AnimatedSprite2D encontrado pero sin sprite_frames en ", name)
 		# Iniciar en idle frontal si existe
 		_play_idle_animation()
 

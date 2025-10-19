@@ -151,14 +151,14 @@ animations = [{
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_m8rjq"]
-radius = 35.944763
-height = 143.99808
+radius = 20.0
+height = 80.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_m8rjq"]
-size = Vector2(121.52948, 122.85681)
+size = Vector2(50.0, 50.0)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yy08j"]
-size = Vector2(128.28198, 113.300545)
+size = Vector2(64.0, 56.0)
 
 [node name="personajePrincipal" type="CharacterBody2D" groups=["player_main"]]
 position = Vector2(135.99997, 104.99999)
@@ -171,7 +171,7 @@ metadata/_edit_group_ = true
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
 position = Vector2(3.868063, -1.5517578)
-scale = Vector2(0.14393736, 0.14522253)
+scale = Vector2(0.08, 0.08)
 sprite_frames = SubResource("SpriteFrames_acmdk")
 animation = &"lat_inf_izq"
 autoplay = "idl_frente"
@@ -193,7 +193,7 @@ shape = SubResource("CapsuleShape2D_m8rjq")
 
 [node name="Axe" type="Sprite2D" parent="."]
 position = Vector2(50.933186, 12.992798)
-scale = Vector2(0.18074378, 0.70001954)
+scale = Vector2(0.08, 0.35)
 texture = ExtResource("2_qh03m")
 offset = Vector2(-8.662811, -53.667313)
 metadata/_edit_group_ = true
@@ -208,7 +208,7 @@ shape = SubResource("RectangleShape2D_m8rjq")
 
 [node name="hose" type="Sprite2D" parent="."]
 position = Vector2(84.86172, 24.001099)
-scale = Vector2(0.6927214, 0.097085826)
+scale = Vector2(0.35, 0.05)
 texture = ExtResource("2_qh03m")
 offset = Vector2(1.6220856, 8.688446)
 
