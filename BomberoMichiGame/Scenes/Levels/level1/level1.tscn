@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://dgooxxoch0lkq"]
+[gd_scene load_steps=3 format=3 uid="uid://dgooxxoch0lkq"]
 
 [ext_resource type="Texture2D" uid="uid://1gtqwgldjx8b" path="res://Scenes/Levels/level1/level1.jpg" id="1_7103a"]
+[ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_5rljr"]
 
 [node name="FondoSala" type="Node2D"]
 
@@ -8,3 +9,6 @@
 position = Vector2(576.99994, 316.75)
 scale = Vector2(1.3164061, 1.0739385)
 texture = ExtResource("1_7103a")
+
+[node name="personajePrincipal" parent="." instance=ExtResource("2_5rljr")]
+position = Vector2(541, 434)

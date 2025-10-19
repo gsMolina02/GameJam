@@ -8,25 +8,25 @@
 [ext_resource type="PackedScene" uid="uid://bmhb6a78qs4n" path="res://Objects/Boxes/box.tscn" id="5_gdsp3"]
 [ext_resource type="PackedScene" uid="uid://bwg0w8g826tus" path="res://Scenes/Entities/tanque_oxigeno.tscn" id="5_qjlt0"]
 [ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="6_qjlt0"]
-[ext_resource type="PackedScene" path="res://Interfaces/puse_menu.tscn" id="7_pause"]
+[ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="7_pause"]
 
 [node name="escenaPrueba" type="Node2D"]
 position = Vector2(439, 348)
 
 [node name="mascota" parent="." instance=ExtResource("1_uapuf")]
-position = Vector2(-91.00003, 265.9999)
+position = Vector2(-339.00003, -131.00003)
 scale = Vector2(1.0224254, 0.9807179)
 objetivo = NodePath("../personajePrincipal")
 
 [node name="personajePrincipal" parent="." instance=ExtResource("2_1in75")]
-position = Vector2(101.99994, 153.99991)
+position = Vector2(-313.99997, -4.9999924)
 scale = Vector2(1.0000006, 1.0237389)
 
 [node name="jefe" parent="." instance=ExtResource("3_1in75")]
-position = Vector2(987, -636)
+position = Vector2(973, -646)
 
 [node name="Fuego" parent="." instance=ExtResource("4_gdsp3")]
-position = Vector2(74, -120)
+position = Vector2(117, -100)
 
 [node name="TanqueOxigeno" parent="." instance=ExtResource("5_qjlt0")]
 position = Vector2(-660, -220)
