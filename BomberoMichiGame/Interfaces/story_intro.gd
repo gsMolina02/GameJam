@@ -18,7 +18,7 @@ extends Control
 ]
 
 # Escena a la que ir después de la intro (tu nivel o escena de juego)
-@export var next_scene: String = "res://Scenes/escena_prueba.tscn"
+@export var next_scene: String = "res://Scenes/Levels/level1/level1.tscn"
 
 # Velocidad del efecto de escritura
 @export var typing_speed: float = 40.0
@@ -122,4 +122,18 @@ func finish_story():
 	go_to_next_scene()
 
 func go_to_next_scene():
-	get_tree().change_scene_to_file(next_scene)
+	# Verificar que el SceneTree esté disponible
+	var tree = get_tree()
+	if tree == null:
+		push_error("SceneTree is null! Cannot change scene.")
+		return
+	
+	# Verificar que next_scene no esté vacío
+	if next_scene.is_empty():
+		push_error("next_scene is empty! Cannot change scene.")
+		return
+	
+	# Cambiar la escena
+	var error = tree.change_scene_to_file(next_scene)
+	if error != OK:
+		push_error("Failed to load scene: " + next_scene + " Error code: " + str(error))

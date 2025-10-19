@@ -53,6 +53,9 @@ func _ready():
 	# Conectar señales de colisión si tiene Area2D
 	if has_node("HitArea"):
 		var hit_area = get_node("HitArea")
+		# IMPORTANTE: Configurar en la capa 2 para que el Hitbox del jugador (mask=2) lo detecte
+		hit_area.collision_layer = 2
+		hit_area.collision_mask = 1  # Detectar capa 1 (jugador)
 		# Agregar el HitArea al grupo para que el Hitbox del jugador lo detecte
 		hit_area.add_to_group("ataque_minion")
 		if hit_area.has_signal("body_entered"):

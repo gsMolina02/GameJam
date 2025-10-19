@@ -40,13 +40,14 @@ func _register_player(player: Node) -> void:
 			player.disconnect("hose_recharged", Callable(self, "_on_player_hose_recharged"))
 		player.connect("hose_recharged", Callable(self, "_on_player_hose_recharged"))
 	
-	# Pedir la vida inicial (respeta diferentes nombres)
-	if "tanques_oxigeno" in player:
-		_on_player_vida_actualizada(player.tanques_oxigeno)
+	# Pedir la vida inicial (usar vida_actual como prioridad)
+	if "vida_actual" in player:
+		_on_player_vida_actualizada(player.vida_actual)
+		print("HUD: Vida inicial del player:", player.vida_actual, "/", player.vida_maxima if "vida_maxima" in player else "?")
 	elif player.has_method("get_vida_actual"):
 		_on_player_vida_actualizada(player.get_vida_actual())
-	elif "vida_actual" in player:
-		_on_player_vida_actualizada(player.vida_actual)
+	elif "tanques_oxigeno" in player:
+		_on_player_vida_actualizada(player.tanques_oxigeno)
 	
 	# Pedir el agua inicial
 	if "hose_charge" in player:
@@ -54,9 +55,13 @@ func _register_player(player: Node) -> void:
 	elif player.has_method("get_hose_charge"):
 		_on_player_hose_recharged(player.get_hose_charge())
 
-func _on_player_vida_actualizada(nueva_vida: int) -> void:
+func _on_player_vida_actualizada(nueva_vida: float) -> void:
 	if is_instance_valid(player_life_label):
-		player_life_label.text = "Oxi: x%d" % int(nueva_vida)
+		# Mostrar con 1 decimal si es necesario, si no, mostrar como entero
+		if fmod(nueva_vida, 1.0) == 0.0:
+			player_life_label.text = "Oxi: x%d" % int(nueva_vida)
+		else:
+			player_life_label.text = "Oxi: x%.1f" % nueva_vida
 
 func _on_player_hose_recharged(nuevo_porcentaje: float) -> void:
 	"""Actualiza el porcentaje de agua cuando cambia la carga de la manguera"""
