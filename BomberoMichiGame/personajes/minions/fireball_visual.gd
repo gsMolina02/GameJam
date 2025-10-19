@@ -15,6 +15,9 @@ func _ready():
 	if has_node("CollisionShape2D"):
 		pass
 	connect("body_entered", Callable(self, "_on_body_entered"))
+	# Agregar al grupo "Fire" para que la manguera pueda detectarla
+	add_to_group("Fire")
+	add_to_group("enemy")
 
 func _physics_process(delta):
 	position += velocity * delta
@@ -37,6 +40,31 @@ func _on_body_entered(body):
 		return
 	if _age < grace_time and shooter != null:
 		return
-	# If we hit the player, queue_free this fireball (damage handling added later)
+	# If we hit the player, cause damage and destroy the fireball
 	if body.is_in_group("player"):
+		if body.has_method("take_damage"):
+			body.take_damage(15.0)  # Las bolas de fuego del jefe causan 15 de daño
+			print_debug("Fireball hit player, dealing 15 damage")
+		elif body.has_method("die"):
+			body.die()
 		queue_free()
+	# Destroy fireball on collision with other things (except enemies)
+	elif not body.is_in_group("enemy"):
+		queue_free()
+
+
+# Métodos para ser destruida por la manguera del bombero
+func apply_water(amount: float) -> void:
+	"""Destruir la bola de fuego cuando recibe agua"""
+	print_debug("Fireball extinguished by water!")
+	queue_free()
+
+
+func extinguish() -> void:
+	"""Método alternativo para extinguir"""
+	queue_free()
+
+
+func take_damage(amount: float) -> void:
+	"""Recibir daño (de hacha u otros ataques)"""
+	queue_free()

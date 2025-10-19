@@ -1,10 +1,13 @@
-[gd_scene load_steps=4 format=3 uid="uid://ccbpd223shlq8"]
+[gd_scene load_steps=5 format=3 uid="uid://ccbpd223shlq8"]
 
 [ext_resource type="Script" uid="uid://cnmq25o7uo6hf" path="res://personajes/minions/minions.gd" id="1_g41pb"]
 [ext_resource type="Texture2D" uid="uid://o6ngfpcesb0w" path="res://icon.svg" id="2_l7018"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_jy0aa"]
 size = Vector2(32, 32)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hit"]
+radius = 16.0
 
 [node name="minions" type="CharacterBody2D"]
 position = Vector2(253, 458)
@@ -25,3 +28,8 @@ shape = SubResource("RectangleShape2D_jy0aa")
 [node name="AttackTimer" type="Timer" parent="."]
 wait_time = 2.0
 autostart = true
+
+[node name="HitArea" type="Area2D" parent="."]
+
+[node name="HitShape" type="CollisionShape2D" parent="HitArea"]
+shape = SubResource("CircleShape2D_hit")

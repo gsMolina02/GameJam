@@ -11,12 +11,23 @@ var can_shoot = true
 var fireball_scene = preload("res://Scenes/Entities/FireBall.tscn")
 
 var anim_player: AnimatedSprite2D = null
+var max_health: float = 5.0
+var health: float = 5.0
 
 func _ready():
 	# no se usan disparos en minions ahora, pero conectamos el timer por si se re-activa
 	$AttackTimer.timeout.connect(_on_AttackTimer_timeout)
 	anim_player = $AnimatedSprite2D
 	_setup_animation_frames()
+	# Ensure this node is recognized as an enemy for collisions/filters
+	add_to_group("enemy")
+	add_to_group("minion")
+	
+	# Conectar señales de colisión si tiene Area2D
+	if has_node("HitArea"):
+		var hit_area = get_node("HitArea")
+		if hit_area.has_signal("body_entered"):
+			hit_area.body_entered.connect(_on_hit_area_body_entered)
 
 func _setup_animation_frames():
 	# Busca imágenes en res://Assets/minions/ (carpeta opcional)
@@ -154,5 +165,32 @@ func _physics_process(delta):
 	# Mantener dentro del viewport
 	keep_in_viewport()
 
+# ==============================
+# Damage & Death handling
+# ==============================
+func take_damage(amount: float) -> void:
+	health -= amount
+	if health <= 0:
+		die()
 
-	
+func apply_water(amount: float) -> void:
+	# Recibe daño por agua (p. ej., 5 de agua para matar)
+	take_damage(amount)
+
+func die() -> void:
+	# Efectos de muerte, sonidos, etc., pueden agregarse aquí
+	queue_free()
+
+
+func _on_hit_area_body_entered(body: Node) -> void:
+	"""Cuando el minion colisiona con algo"""
+	# Si colisiona con el jugador, causar daño
+	if body.is_in_group("player"):
+		if body.has_method("take_damage"):
+			body.take_damage(10.0)  # El minion causa 10 de daño
+			print_debug("Minion hit player, dealing 10 damage")
+		elif body.has_method("die"):
+			body.die()
+		
+		# El minion se destruye al chocar con el jugador
+		die()
