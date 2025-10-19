@@ -19,7 +19,7 @@ position = Vector2(428, 355)
 script = ExtResource("1_v2ygx")
 
 [node name="mascota" parent="." instance=ExtResource("1_uapuf")]
-position = Vector2(-339.00003, -131.00003)
+position = Vector2(-17.000002, -104.99998)
 scale = Vector2(1.0224254, 0.9807179)
 objetivo = NodePath("../personajePrincipal")
 

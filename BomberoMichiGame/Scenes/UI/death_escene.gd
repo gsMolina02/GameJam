@@ -9,6 +9,9 @@ func _ready() -> void:
 	# Asegurarse de que esta UI funcione incluso cuando el juego está pausado
 
 	
+	# Mostrar el cursor del sistema en la pantalla de muerte
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	
 	# Ocultar el menú de pausa si estaba visible
 	_hide_pause_menu()
 	

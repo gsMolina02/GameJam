@@ -14,20 +14,16 @@
 [ext_resource type="AudioStream" uid="uid://b2ofh0vdfq8c5" path="res://Assets/musica/Niveles.ogg" id="12_2j1q4"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7103a"]
-size = Vector2(650, 186)
+size = Vector2(650, 249)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fdvuu"]
 size = Vector2(104, 694)
-
-[sub_resource type="SegmentShape2D" id="SegmentShape2D_fdvuu"]
-a = Vector2(710, 194)
-b = Vector2(127, 187)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5rljr"]
 size = Vector2(103, 701)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bpvnq"]
-size = Vector2(716.0249, 188.2124)
+size = Vector2(716.0249, 272.90033)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_opdyy"]
 size = Vector2(546, 35)
@@ -48,8 +44,11 @@ texture = ExtResource("1_5rljr")
 [node name="Wall_top" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_top"]
-position = Vector2(1197, 97)
+position = Vector2(1197, 128.5)
 shape = SubResource("RectangleShape2D_7103a")
+
+[node name="jefe" parent="Wall_top" instance=ExtResource("4_xfvig")]
+position = Vector2(1051, 515.9999)
 
 [node name="Wall_right" type="StaticBody2D" parent="."]
 
@@ -58,9 +57,6 @@ position = Vector2(67, 546)
 shape = SubResource("RectangleShape2D_fdvuu")
 
 [node name="Wall_top2" type="StaticBody2D" parent="."]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_top2"]
-shape = SubResource("SegmentShape2D_fdvuu")
 
 [node name="Wall_right2" type="StaticBody2D" parent="."]
 
@@ -72,9 +68,9 @@ shape = SubResource("RectangleShape2D_5rljr")
 [node name="Wall_righ_above" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above"]
-position = Vector2(368.16476, 99.081764)
+position = Vector2(368.54138, 141.42404)
 rotation = -0.008894312
-scale = Vector2(0.9999998, 0.9999998)
+scale = Vector2(0.99999976, 0.99999976)
 shape = SubResource("RectangleShape2D_bpvnq")
 
 [node name="Wall_righ_above2" type="StaticBody2D" parent="."]
