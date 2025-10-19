@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://dcemlagk1usuv"]
+[gd_scene load_steps=22 format=3 uid="uid://dcemlagk1usuv"]
 
 [ext_resource type="Script" uid="uid://c0tkcl7n8d7rs" path="res://Scripts/cuarto_3.gd" id="1_60aqv"]
 [ext_resource type="PackedScene" uid="uid://upe8nkwx2xwf" path="res://personajes/jefe/jefe.tscn" id="1_lpoki"]
@@ -14,7 +14,6 @@
 [ext_resource type="PackedScene" uid="uid://oysdlu64rb7d" path="res://Scenes/Entities/puerta.tscn" id="12_ctx4j"]
 [ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="13_kworg"]
 [ext_resource type="PackedScene" uid="uid://g6pr41r3rkwt" path="res://Scenes/UI/deathEscene.tscn" id="14_iopqe"]
-[ext_resource type="AudioStream" uid="uid://cbv76ab0p1ot8" path="res://Assets/musica/Boss Theme.ogg" id="15_lu4lr"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_u0t3m"]
 size = Vector2(143, 235)
@@ -65,7 +64,27 @@ shape = SubResource("RectangleShape2D_54dbs")
 
 [node name="jefe" parent="Wall_righ_above" instance=ExtResource("1_lpoki")]
 position = Vector2(1099, 513)
-vida_maxima = 5.0
+direccion = null
+orbit_count = null
+orbit_radius = null
+orbit_angular_speed = null
+fire_rate = null
+respawn_delay = null
+launch_spread_deg = null
+launch_speed_multiplier = null
+max_health = null
+minion_spawn_interval = null
+min_spawn_distance = null
+speed = null
+screen_margin = null
+clamp_to_viewport = null
+vida_maxima = 1.0
+knockback_duration = null
+knockback_strength = null
+penetration_push = null
+dash_speed = null
+dash_duration = null
+dash_cooldown = null
 
 [node name="Wall_righ_above2" type="StaticBody2D" parent="."]
 
@@ -177,8 +196,3 @@ position = Vector2(-20, 649)
 
 [node name="Box2" parent="CanvasLayer" instance=ExtResource("4_b2oma")]
 position = Vector2(-142, 15)
-
-[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
-stream = ExtResource("15_lu4lr")
-volume_db = 24.0
-autoplay = true

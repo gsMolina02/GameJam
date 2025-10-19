@@ -7,7 +7,7 @@ var buttons: Array = []
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	# Asegurarse de que esta UI funcione incluso cuando el juego está pausado
-	process_mode = Node.PROCESS_MODE_ALWAYS
+
 	
 	# Ocultar el menú de pausa si estaba visible
 	_hide_pause_menu()
