@@ -1,13 +1,16 @@
-[gd_scene load_steps=7 format=3 uid="uid://c2fcfdi28gc84"]
+[gd_scene load_steps=10 format=3 uid="uid://c2fcfdi28gc84"]
 
 [ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="1_uapuf"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_1in75"]
 [ext_resource type="PackedScene" uid="uid://upe8nkwx2xwf" path="res://personajes/jefe/jefe.tscn" id="3_1in75"]
 [ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/Entities/fuego.tscn" id="4_gdsp3"]
+[ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="4_minions"]
+[ext_resource type="PackedScene" uid="uid://bmhb6a78qs4n" path="res://Objects/Boxes/box.tscn" id="5_gdsp3"]
 [ext_resource type="PackedScene" uid="uid://bwg0w8g826tus" path="res://Scenes/Entities/tanque_oxigeno.tscn" id="5_qjlt0"]
 [ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="6_qjlt0"]
 
 [node name="escenaPrueba" type="Node2D"]
+position = Vector2(439, 348)
 
 [node name="mascota" parent="." instance=ExtResource("1_uapuf")]
 position = Vector2(305.00003, 466.00006)
@@ -28,3 +31,9 @@ position = Vector2(246, 155)
 position = Vector2(-423, 108)
 
 [node name="HUD" parent="." instance=ExtResource("6_qjlt0")]
+
+[node name="minion_test" parent="." instance=ExtResource("4_minions")]
+position = Vector2(482, 173)
+
+[node name="Box" parent="." instance=ExtResource("5_gdsp3")]
+position = Vector2(341, -295)
