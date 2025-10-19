@@ -18,9 +18,7 @@ func _ready() -> void:
 		$GameOver/PanelContainer/MarginContainer/VBoxContainer/botonera/botonNo
 	]
 	
-	# Conectar señales de los botones
-	buttons[0].connect("pressed", Callable(self, "_on_yes_pressed"))
-	buttons[1].connect("pressed", Callable(self, "_on_no_pressed"))
+	# Las señales ya están conectadas en el archivo .tscn, no es necesario conectarlas aquí
 	
 	# Dar foco al primer botón
 	_update_button_focus()
@@ -72,18 +70,14 @@ func _press_selected_button() -> void:
 
 
 func _on_no_pressed() -> void:
-	# Despausar el juego
+	# NO quiero continuar = Volver al menú principal
 	get_tree().paused = false
-	# Eliminar este menú antes de cambiar de escena
 	queue_free()
-	# Cambiar al menú principal
 	get_tree().change_scene_to_file("res://Interfaces/main_menu.tscn")
 
 
 func _on_yes_pressed() -> void:
-	# Despausar el juego
+	# SÍ quiero continuar = Reiniciar el nivel
 	get_tree().paused = false
-	# Eliminar este menú antes de reiniciar
 	queue_free()
-	# Reiniciar la escena actual
 	get_tree().reload_current_scene()
