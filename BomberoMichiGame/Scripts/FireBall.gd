@@ -17,8 +17,13 @@ func _ready():
 	print_debug("FireBall ready at global:", global_position, "parent:", get_parent())
 	_age = 0.0
 
+	# Configurar capas de colisión
+	collision_layer = 2  # Capa 2 para ser detectado por la manguera
+	collision_mask = 1   # Detectar capa 1 (jugador)
+
 	# Marcar como fuego para filtros y depuración
 	add_to_group("Fire")
+	add_to_group("enemy")
 
 	# Ensure collision signal is connected
 	if not is_connected("body_entered", Callable(self, "_on_body_entered")):
