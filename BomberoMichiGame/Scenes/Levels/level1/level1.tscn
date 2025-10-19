@@ -6,7 +6,7 @@
 [node name="FondoSala" type="Node2D"]
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(576.99994, 316.75)
+position = Vector2(576.99994, 319)
 scale = Vector2(1.3164061, 1.0739385)
 texture = ExtResource("1_7103a")
 
