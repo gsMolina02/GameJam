@@ -13,7 +13,7 @@ class_name Bomber
 @export var tile_size = 20  # Tamaño de cada cuadro en píxeles
 @export var hose_width = 40  # Ancho del chorro de agua
 @export var hose_drain_rate = 10.0  # Carga consumida por segundo
-@export var water_pressure = 5.0  # Daño/efecto por segundo al fuego
+@export var water_pressure = 10.0  # Daño por segundo al fuego (ajustado para apagar en 0.5s)
 @export var hose_origin_offset = Vector2(50, 0)  # Punto de origen del agua
 @export var hose_nozzle_offset = Vector2(130, 30)  # Punta de la manguera (boquilla)
 
@@ -49,7 +49,7 @@ var is_dead: bool = false
 @onready var hose_sprite = get_node_or_null("hose")
 @onready var attack_cooldown_timer = get_node_or_null("AttackCooldownTimer")
 @onready var animation_player = get_node_or_null("AnimationPlayer")  # Para animaciones
-@onready var character_sprite = get_node_or_null("Sprite2D")  # Sprite del bombero para detectar dirección
+@onready var character_sprite = get_node_or_null("AnimatedSprite")  # Sprite del bombero para detectar dirección
 
 # Nodos para la manguera (guardadas con get_node_or_null para evitar errores en escenas de prueba)
 @onready var hose_area = get_node_or_null("HoseArea")  # Area2D para detectar fuego
@@ -136,6 +136,12 @@ func _setup_hose_system():
 		hose_area = Area2D.new()
 		hose_area.name = "HoseArea"
 		add_child(hose_area)
+		
+		# Configurar la máscara de colisión para que NO detecte al jugador
+		# Asumiendo que el jugador está en la capa 1 (collision_layer = 1)
+		# El HoseArea debería detectar enemigos y fuego, no al jugador
+		hose_area.collision_mask = 0  # Resetear máscara
+		hose_area.set_collision_mask_value(2, true)  # Detectar capa 2 (enemigos/fuego)
 		
 		var collision = CollisionShape2D.new()
 		var shape = RectangleShape2D.new()
@@ -257,9 +263,12 @@ func _physics_process(delta):
 	# Girar el sprite horizontalmente según la dirección
 	if character_sprite:
 		if velocity.x < 0:
-			character_sprite.scale.x = -1  # Mirar a la izquierda
+			character_sprite.flip_h = true  # Mirar a la izquierda
 		elif velocity.x > 0:
-			character_sprite.scale.x = 1   # Mirar a la derecha
+			character_sprite.flip_h = false   # Mirar a la derecha
+
+	# Actualizar posición y rotación de las armas según la dirección de movimiento
+	_update_weapon_orientation()
 
 	# adicionalmente asegurar que el personaje no salga del viewport
 	# (no-op porque clamp_to_viewport está desactivado para el jugador)
@@ -323,12 +332,77 @@ func _handle_input():
 		if dir == Vector2.ZERO:
 			# Si no hay input, dash hacia donde mira el sprite
 			if character_sprite:
-				dir = Vector2(1, 0) if character_sprite.scale.x > 0 else Vector2(-1, 0)
+				dir = Vector2(-1, 0) if character_sprite.flip_h else Vector2(1, 0)
 			else:
 				dir = Vector2(1, 0)
 
 		# Llamar al dash implementado en la base
 		_start_dash(dir)
+
+# ============================================
+# SISTEMA DE ORIENTACIÓN DE ARMAS
+# ============================================
+
+func _update_weapon_orientation():
+	"""Actualiza la posición y rotación de las armas hacia la posición del mouse"""
+	# Obtener la posición del mouse en el mundo
+	var mouse_pos = get_global_mouse_position()
+	
+	# Calcular la dirección desde el personaje hacia el mouse
+	var direction = (mouse_pos - global_position).normalized()
+	
+	# Si el mouse está muy cerca del personaje, usar dirección por defecto
+	if (mouse_pos - global_position).length() < 10:
+		direction = Vector2.RIGHT
+	
+	# Calcular el ángulo de la dirección
+	var angle = direction.angle()
+	
+	# Actualizar orientación del hacha
+	if axe_sprite:
+		_orient_axe(direction, angle)
+	
+	# Actualizar orientación de la manguera
+	if hose_sprite:
+		_orient_hose(direction, angle)
+
+func _orient_axe(direction: Vector2, angle: float):
+	"""Orienta el hacha según la dirección de movimiento"""
+	var base_offset = 50.0  # Distancia desde el centro del personaje
+	
+	# Calcular posición del hacha alrededor del personaje
+	var axe_position = direction * base_offset
+	
+	# Ajustar la posición vertical para que no esté en el centro exacto
+	axe_position.y += 10.0
+	
+	axe_sprite.position = axe_position
+	
+	# Rotar el hacha para que apunte en la dirección de movimiento
+	# +90 grados porque el sprite del hacha está orientado verticalmente
+	axe_sprite.rotation = angle + PI / 2
+
+func _orient_hose(direction: Vector2, angle: float):
+	"""Orienta la manguera según la dirección de movimiento"""
+	var base_offset = 60.0  # Un poco más lejos que el hacha
+	
+	# Calcular posición de la manguera
+	var hose_position = direction * base_offset
+	
+	# Ajustar posición vertical
+	hose_position.y += 15.0
+	
+	hose_sprite.position = hose_position
+	
+	# Rotar la manguera para que apunte en la dirección de movimiento
+	hose_sprite.rotation = angle
+	
+	# Actualizar también la dirección de las partículas de agua si están activas
+	if water_particles:
+		# Posicionar las partículas en la punta de la manguera
+		var nozzle_offset = direction * (base_offset + 30.0)
+		water_particles.position = nozzle_offset
+		water_particles.direction = direction
 
 # ============================================
 # SISTEMA DE INTERCAMBIO DE ARMAS
@@ -436,16 +510,19 @@ func _deactivate_hose():
 
 func _update_hose(delta):
 	"""Actualiza el sistema de manguera mientras está activa"""
-	# Consumir carga y usar esa misma cantidad como "daño de agua"
+	# Consumir carga de agua
 	var safe_drain_rate = hose_drain_rate if hose_drain_rate != null else 10.0
-	var water_used: float = safe_drain_rate * delta
-	reduce_hose_charge(water_used)
+	reduce_hose_charge(safe_drain_rate * delta)
+	
+	# Calcular daño de agua usando water_pressure
+	var safe_water_pressure = water_pressure if water_pressure != null else 5.0
+	var water_damage = safe_water_pressure * delta
 	
 	# Actualizar dirección de la manguera según hacia dónde mira el personaje
 	_update_hose_direction()
 	
-	# Detectar y apagar fuego
-	_detect_and_extinguish_fire(water_used)
+	# Detectar y apagar fuego con el daño calculado
+	_detect_and_extinguish_fire(water_damage)
 	
 	# Si se acabó la carga, desactivar
 	if hose_charge <= 0:
@@ -453,31 +530,35 @@ func _update_hose(delta):
 		print("¡Manguera vacía!")
 
 func _update_hose_direction():
-	"""Actualiza la dirección de la manguera según la orientación del personaje"""
+	"""Actualiza la dirección de la manguera hacia la posición del mouse"""
 	# Valores seguros para evitar operaciones con null
 	var safe_hose_range = hose_range if hose_range != null else 50
 	var safe_tile_size = tile_size if tile_size != null else 20
-	var safe_hose_nozzle_offset = hose_nozzle_offset if hose_nozzle_offset != null else Vector2(80, 0)
 	
-	var direction = 1
-	if character_sprite and character_sprite.flip_h:
-		direction = -1
+	# Obtener la dirección hacia el mouse
+	var mouse_pos = get_global_mouse_position()
+	var direction = (mouse_pos - global_position).normalized()
 	
-	# Actualizar posición del área de colisión
+	# Si el mouse está muy cerca, usar dirección por defecto
+	if (mouse_pos - global_position).length() < 10:
+		direction = Vector2.RIGHT
+	
+	# Calcular el ángulo para el área de colisión
+	var angle = direction.angle()
+	
+	# Actualizar posición y rotación del área de colisión de la manguera
 	if hose_area and hose_area.get_child_count() > 0:
 		var collision = hose_area.get_child(0)
-		var base_offset = (safe_hose_range * safe_tile_size) / 2.0
-		collision.position = Vector2(base_offset * direction, 0) + Vector2(safe_hose_nozzle_offset.x * direction, safe_hose_nozzle_offset.y)
+		var range_distance = (safe_hose_range * safe_tile_size) / 2.0
+		
+		# Posicionar el área en la dirección de apuntado
+		collision.position = direction * range_distance
+		collision.rotation = angle
 	
 	# Actualizar dirección del raycast
 	if hose_raycast:
-		hose_raycast.position = Vector2(safe_hose_nozzle_offset.x * direction, safe_hose_nozzle_offset.y)
-		hose_raycast.target_position = Vector2((safe_hose_range * safe_tile_size) * direction, 0)
-	
-	# Actualizar dirección de las partículas
-	if water_particles:
-		water_particles.direction = Vector2(direction, 0)
-		water_particles.position = Vector2(safe_hose_nozzle_offset.x * direction, safe_hose_nozzle_offset.y)
+		hose_raycast.target_position = direction * (safe_hose_range * safe_tile_size)
+		hose_raycast.rotation = 0  # El raycast usa target_position relativo
 
 func _detect_and_extinguish_fire(water_amount: float):
 	"""Detecta y apaga el fuego en el área de la manguera"""
@@ -498,15 +579,25 @@ func _detect_and_extinguish_fire(water_amount: float):
 
 func _try_extinguish_fire(target, water_amount: float):
 	"""Intenta apagar un fuego"""
+	# IMPORTANTE: No atacar al propio jugador
+	if target == self or target.is_in_group("player") or target.is_in_group("player_main"):
+		return
+	
+	# Debug: imprimir qué está siendo detectado
+	print("Manguera detectó: ", target.name, " - Grupos: ", target.get_groups() if target.has_method("get_groups") else "sin grupos")
+	
 	# Aplicar agua o daño a cualquier objetivo compatible (fuego, enemigos, etc.)
 	if target.has_method("apply_water") or target.has_method("take_damage") or target.is_in_group("Fire") or target.has_method("extinguish"):
 		# Si el objetivo acepta agua, pásale la cantidad de agua usada literalmente
 		if target.has_method("apply_water"):
+			print("  -> Llamando apply_water con ", water_amount)
 			target.apply_water(water_amount)
 		# Si recibe daño, usa el agua como daño directo: 1 agua = 1 daño
 		elif target.has_method("take_damage"):
+			print("  -> Llamando take_damage con ", water_amount)
 			target.take_damage(water_amount)
 		elif target.has_method("extinguish"):
+			print("  -> Llamando extinguish directamente")
 			target.extinguish()
 			emit_signal("fire_extinguished", target)
 		
