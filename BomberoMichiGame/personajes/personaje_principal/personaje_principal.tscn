@@ -213,6 +213,8 @@ shape = SubResource("CapsuleShape2D_m8rjq")
 metadata/_edit_group_ = true
 
 [node name="Hitbox" type="Area2D" parent="."]
+collision_layer = 1
+collision_mask = 2
 position = Vector2(1, -1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
@@ -230,6 +232,7 @@ offset = Vector2(-8.662811, -53.667313)
 metadata/_edit_group_ = true
 
 [node name="AxeHitbox" type="Area2D" parent="Axe"]
+collision_mask = 2
 position = Vector2(-3491.5725, 511.81085)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Axe/AxeHitbox"]

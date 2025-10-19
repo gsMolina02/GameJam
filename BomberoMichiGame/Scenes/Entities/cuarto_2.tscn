@@ -1,0 +1,19 @@
+[gd_scene load_steps=5 format=3 uid="uid://d4icr2igf5ym2"]
+
+[ext_resource type="Script" uid="uid://ud6vpwak2bsk" path="res://Scripts/cuarto_2.gd" id="1_ypt4i"]
+[ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_mo1cc"]
+[ext_resource type="PackedScene" uid="uid://oysdlu64rb7d" path="res://Scenes/Entities/puerta.tscn" id="3_4eho5"]
+[ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="4_stldj"]
+
+[node name="Cuarto2" type="Node2D"]
+script = ExtResource("1_ypt4i")
+
+[node name="personajePrincipal" parent="." instance=ExtResource("2_mo1cc")]
+position = Vector2(571.99994, 459.99994)
+
+[node name="PuertaCuarto2" parent="." instance=ExtResource("3_4eho5")]
+position = Vector2(435, 524)
+escena_destino = "uid://c2fcfdi28gc84"
+nombre_puerta_destino = "PuertaCuarto1"
+
+[node name="HUD" parent="." instance=ExtResource("4_stldj")]
