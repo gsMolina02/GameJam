@@ -224,10 +224,6 @@ func _setup_hose_system():
 		water_particles.position = safe_hose_nozzle_offset
 
 func _physics_process(delta):
-	# Si el personaje está muerto, no procesar nada
-	if not vivo:
-		return
-	
 	# Movimiento estándar (mover_personaje en la base maneja dash internamente)
 	mover_personaje(delta)
 	
@@ -279,8 +275,15 @@ func _physics_process(delta):
 	# keep_in_viewport()
 
 func _unhandled_input(event):
-	# Si el personaje no está vivo, no procesar input
-	if not vivo:
+	# Si el jugador está muerto, cualquier tecla reinicia la escena
+	if is_dead and event is InputEventKey and event.pressed:
+		get_tree().paused = false
+		var err = get_tree().reload_current_scene()
+		if err != OK:
+			# Fallback por si falla
+			var current = get_tree().get_current_scene()
+			if current and current.has_method("get_scene_file_path"):
+				get_tree().change_scene_to_file(current.get_scene_file_path())
 		return
 
 	# Detectar scroll del mouse para cambiar arma
@@ -290,10 +293,6 @@ func _unhandled_input(event):
 				switch_weapon()
 
 func _handle_input():
-	# Si el personaje está muerto, no procesar input
-	if not vivo:
-		return
-	
 	# Intercambiar arma con Q
 	if Input.is_action_just_pressed("ui_focus_next"):  # Q por defecto
 		switch_weapon()
