@@ -1,6 +1,7 @@
-[gd_scene load_steps=10 format=3 uid="uid://c2fcfdi28gc84"]
+[gd_scene load_steps=13 format=3 uid="uid://c2fcfdi28gc84"]
 
 [ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="1_uapuf"]
+[ext_resource type="Script" uid="uid://crbjxxa8mctqn" path="res://Scripts/escena_prueba.gd" id="1_v2ygx"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_1in75"]
 [ext_resource type="PackedScene" uid="uid://upe8nkwx2xwf" path="res://personajes/jefe/jefe.tscn" id="3_1in75"]
 [ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/Entities/fuego.tscn" id="4_gdsp3"]
@@ -9,9 +10,12 @@
 [ext_resource type="PackedScene" uid="uid://bwg0w8g826tus" path="res://Scenes/Entities/tanque_oxigeno.tscn" id="5_qjlt0"]
 [ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="6_qjlt0"]
 [ext_resource type="PackedScene" path="res://Interfaces/puse_menu.tscn" id="7_pause"]
+[ext_resource type="PackedScene" uid="uid://oysdlu64rb7d" path="res://Scenes/Entities/puerta.tscn" id="11_p5njm"]
+[ext_resource type="Script" uid="uid://bmi6b0xff8sy" path="res://Scripts/room_manager.gd" id="12_p5njm"]
 
 [node name="escenaPrueba" type="Node2D"]
 position = Vector2(439, 348)
+script = ExtResource("1_v2ygx")
 
 [node name="mascota" parent="." instance=ExtResource("1_uapuf")]
 position = Vector2(-91.00003, 265.9999)
@@ -43,3 +47,14 @@ position = Vector2(341, -295)
 visible = false
 
 [node name="PuseMenu" parent="CanvasLayer" instance=ExtResource("7_pause")]
+
+[node name="PuertaCuarto1" parent="." instance=ExtResource("11_p5njm")]
+position = Vector2(10, -401)
+escena_destino = "uid://bebk1amggu0c8"
+nombre_puerta_destino = "PuertaCuarto2"
+
+[node name="RoomManager" type="Node" parent="."]
+script = ExtResource("12_p5njm")
+vida_maxima_habitacion = 120.0
+enemigos_requeridos = 2
+fuegos_requeridos = 1
