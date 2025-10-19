@@ -506,7 +506,7 @@ autoplay = "default"
 frame = 113
 frame_progress = 0.84268856
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="bossAnimated"]
-position = Vector2(-0.026489258, 65.76425)
-scale = Vector2(4.031593, 3.6535463)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-0.006591797, 18.000122)
+scale = Vector2(0.9999999, 0.99999994)
 shape = SubResource("CircleShape2D_s47dp")
