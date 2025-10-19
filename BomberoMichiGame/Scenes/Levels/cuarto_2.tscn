@@ -32,5 +32,9 @@ position = Vector2(896, 583)
 
 [node name="RoomManager" type="Node" parent="."]
 script = ExtResource("5_bix44")
+vida_maxima_habitacion = 60.0
 enemigos_requeridos = 1
-fuegos_requeridos = 1
+fuegos_requeridos = 2
+spawner_gato_al_completar = true
+gato_scene_path = "res://Scenes/Entities/gato_salvado.tscn"
+posicion_spawn_gato = Vector2(432, 300)
