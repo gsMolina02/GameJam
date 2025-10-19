@@ -184,7 +184,7 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_m8rjq"]
-size = Vector2(324.96497, 317.26105)
+size = Vector2(50, 50)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yy08j"]
 size = Vector2(64, 56)
@@ -193,7 +193,6 @@ size = Vector2(64, 56)
 position = Vector2(206, 122.99999)
 rotation = -0.00036524187
 scale = Vector2(1.0015259, 0.9999777)
-collision_mask = 2
 script = ExtResource("1_yy08j")
 vida_maxima = 3
 metadata/_edit_group_ = true
@@ -213,9 +212,8 @@ shape = SubResource("CapsuleShape2D_m8rjq")
 metadata/_edit_group_ = true
 
 [node name="Hitbox" type="Area2D" parent="."]
-collision_layer = 1
-collision_mask = 2
 position = Vector2(1, -1)
+collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
 shape = SubResource("CapsuleShape2D_m8rjq")
@@ -232,8 +230,8 @@ offset = Vector2(-8.662811, -53.667313)
 metadata/_edit_group_ = true
 
 [node name="AxeHitbox" type="Area2D" parent="Axe"]
-collision_mask = 2
 position = Vector2(-3491.5725, 511.81085)
+collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Axe/AxeHitbox"]
 position = Vector2(3495.6409, -851.9685)
