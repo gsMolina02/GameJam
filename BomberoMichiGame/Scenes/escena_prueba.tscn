@@ -9,12 +9,12 @@
 [ext_resource type="PackedScene" uid="uid://bmhb6a78qs4n" path="res://Objects/Boxes/box.tscn" id="5_gdsp3"]
 [ext_resource type="PackedScene" uid="uid://bwg0w8g826tus" path="res://Scenes/Entities/tanque_oxigeno.tscn" id="5_qjlt0"]
 [ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="6_qjlt0"]
-[ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="7_pause"]
+[ext_resource type="PackedScene" path="res://Interfaces/puse_menu.tscn" id="7_pause"]
 [ext_resource type="PackedScene" uid="uid://oysdlu64rb7d" path="res://Scenes/Entities/puerta.tscn" id="11_p5njm"]
-[ext_resource type="Script" uid="uid://bmi6b0fff8sy" path="res://Scripts/room_manager.gd" id="12_p5njm"]
+[ext_resource type="Script" uid="uid://bmi6b0xff8sy" path="res://Scripts/room_manager.gd" id="12_p5njm"]
 
 [node name="escenaPrueba" type="Node2D"]
-position = Vector2(439, 348)
+position = Vector2(428, 355)
 script = ExtResource("1_v2ygx")
 
 [node name="mascota" parent="." instance=ExtResource("1_uapuf")]
@@ -23,7 +23,7 @@ scale = Vector2(1.0224254, 0.9807179)
 objetivo = NodePath("../personajePrincipal")
 
 [node name="personajePrincipal" parent="." instance=ExtResource("2_1in75")]
-position = Vector2(-313.99997, -4.9999924)
+position = Vector2(-303.99997, 138.00003)
 scale = Vector2(1.0000006, 1.0237389)
 
 [node name="jefe" parent="." instance=ExtResource("3_1in75")]

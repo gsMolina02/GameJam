@@ -15,7 +15,7 @@ script = ExtResource("1_ypt4i")
 position = Vector2(571.99994, 459.99994)
 
 [node name="PuertaCuarto2" parent="." instance=ExtResource("3_4eho5")]
-position = Vector2(435, 524)
+position = Vector2(432, 550)
 escena_destino = "uid://c2fcfdi28gc84"
 nombre_puerta_destino = "PuertaCuarto1"
 
