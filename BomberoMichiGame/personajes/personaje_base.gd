@@ -175,12 +175,15 @@ func _on_Hitbox_area_entered(area):
 		recibir_dano(1)
 		return
 
-	# Pickup de vida
+	# Pickup de vida (tanques de oxígeno)
 	if area.is_in_group("pickup_vida"):
-		# Si quieres que un pickup te reviva cuando estuviste a 0,
-		# cambia curar() para permitir curar aunque !vivo.
-		curar(1)
-		area.queue_free()
+		# Solo recoger si la vida no está al máximo
+		if vida_actual < vida_maxima:
+			curar(1)
+			area.queue_free()
+			print(self.name, " - Tanque de oxígeno recogido. Vida: ", vida_actual, "/", vida_maxima)
+		else:
+			print(self.name, " - Vida al máximo, no se puede recoger el tanque")
 		return
 
 # --- Dash functions (from main) ---

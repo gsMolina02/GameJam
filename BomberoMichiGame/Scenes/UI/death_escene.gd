@@ -31,20 +31,29 @@ func _hide_pause_menu() -> void:
 	if pause_menu:
 		pause_menu.hide()
 
-# Manejar input para navegación con teclado
-func _input(event: InputEvent) -> void:
+# Manejar input para navegación con teclado - usar _unhandled_input para mayor prioridad
+func _unhandled_input(event: InputEvent) -> void:
+	# Solo procesar input de teclado/gamepad para el menú
 	if event.is_action_pressed("ui_left") or event.is_action_pressed("left"):
 		selected_button = 0  # Seleccionar "Sí"
 		_update_button_focus()
 		get_viewport().set_input_as_handled()
+		accept_event()
 	elif event.is_action_pressed("ui_right") or event.is_action_pressed("right"):
 		selected_button = 1  # Seleccionar "No"
 		_update_button_focus()
 		get_viewport().set_input_as_handled()
+		accept_event()
 	elif event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_select"):
 		# Presionar el botón seleccionado
 		_press_selected_button()
 		get_viewport().set_input_as_handled()
+		accept_event()
+	else:
+		# Bloquear TODOS los demás inputs mientras el menú está activo
+		if event is InputEventKey or event is InputEventMouseButton or event is InputEventJoypadButton:
+			get_viewport().set_input_as_handled()
+			accept_event()
 
 # Actualizar el foco visual del botón
 func _update_button_focus() -> void:

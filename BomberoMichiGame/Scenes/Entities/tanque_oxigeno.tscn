@@ -6,6 +6,8 @@
 size = Vector2(83, 76)
 
 [node name="TanqueOxigeno" type="Area2D"]
+collision_layer = 2
+collision_mask = 1
 script = ExtResource("1_oo87y")
 
 [node name="Polygon2D" type="Polygon2D" parent="."]
