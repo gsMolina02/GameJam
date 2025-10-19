@@ -4,9 +4,9 @@ class_name Bomber
 # Propiedades exportadas
 @export var gravity = 100
 @export var axe_damage = 5
-@export var parry_window = 0.2
+@export var parry_window = 0.4
 @export var attack_cooldown_time = 0.2
-@export var parry_cooldown_time = 0.3
+@export var parry_cooldown_time = 0.1
 
 # Propiedades de la manguera
 @export var hose_range = 50  # Alcance en cuadros (tiles) - AUMENTADO
@@ -84,6 +84,10 @@ func _ready():
 	# Configurar hitbox del hacha
 	if axe_hitbox:
 		axe_hitbox.monitoring = false
+		axe_hitbox.add_to_group("player_weapon")  # Identificar el hacha como arma del jugador
+		# Configurar máscara de colisión para que NO detecte al jugador
+		if axe_hitbox.has_method("add_collision_exception_with"):
+			axe_hitbox.add_collision_exception_with(self)
 		if axe_hitbox.has_signal("body_entered"):
 			axe_hitbox.body_entered.connect(_on_axe_hit)
 		if axe_hitbox.has_signal("area_entered"):
@@ -283,11 +287,7 @@ func _handle_input():
 	# Sistema de ataque con hacha - solo si está equipada
 	if current_weapon == Weapon.AXE:
 		if Input.is_action_just_pressed("attack"):
-			attack()
-		
-		# Sistema de parry
-		elif Input.is_action_just_pressed("parry"):
-			parry()
+			attack()  # El ataque ahora funciona como parry automático
 
 	# Dash: usar Shift ('ui_shift') como en el comportamiento original
 	var shift_pressed := false
@@ -577,6 +577,21 @@ func _perform_axe_attack():
 			_process_attack_target(area.get_parent())
 
 func _process_attack_target(target):
+	# Ignorar al propio jugador - no atacarse a sí mismo
+	if target == self or target.is_in_group("player"):
+		return
+	
+	# Parry de bolas de fuego - destruir proyectiles
+	if target.is_in_group("Fire") or target.is_in_group("enemy"):
+		if target.has_method("queue_free") and (target.has_method("apply_water") or target.has_method("extinguish")):
+			# Es una bola de fuego - ¡parry exitoso!
+			print("¡Parry exitoso! Bola de fuego destruida")
+			emit_signal("parry_successful")
+			_play_parry_effect()
+			target.queue_free()
+			return
+	
+	# Ataque normal a otros objetivos
 	if target.is_in_group("ExtinguisherBox"):
 		_break_extinguisher_box(target)
 	elif target.has_method("take_damage"):
@@ -615,25 +630,32 @@ func attempt_parry(incoming_attack):
 	return false
 
 func _play_parry_effect():
-	print("¡Parry exitoso!")
+	print("¡Parry exitoso! Bola de fuego bloqueada con el hacha")
+	# Aquí podrías agregar efectos visuales, sonidos, etc.
 
 # ============================================
 # SISTEMA DE CAJAS DE EXTINTOR
 # ============================================
 func _break_extinguisher_box(box):
+	# Recarga la manguera al romper la caja
 	var old_charge = hose_charge
 	hose_charge = min(hose_charge + 25.0, 100.0)
 	var _actual_recharge = hose_charge - old_charge
-	
+
 	emit_signal("hose_recharged", hose_charge)
 	emit_signal("extinguisher_box_broken")
-	
+
 	_play_box_break_effect(box)
-	
-	if box.has_method("break_with_effect"):
-		box.break_with_effect()
+
+	# Si el nodo recibido es el Area2D (boxHitbox), obtener el padre (Box)
+	var box_node = box
+	if box is Area2D and box.name == "boxHitbox" and box.get_parent():
+		box_node = box.get_parent()
+
+	if box_node.has_method("break_with_effect"):
+		box_node.break_with_effect()
 	else:
-		box.queue_free()
+		box_node.queue_free()
 
 func _play_box_break_effect(_box):
 	# Efectos visuales y sonoros al romper la caja (implementar si se desea)
@@ -653,7 +675,10 @@ func _on_axe_hit(body):
 
 func _on_axe_area_hit(area):
 	if current_axe_state == AxeState.ATTACKING:
-		if area.get_parent():
+		# Procesar el área directamente si es una bola de fuego
+		if area.is_in_group("Fire") or area.is_in_group("enemy"):
+			_process_attack_target(area)
+		elif area.get_parent():
 			_process_attack_target(area.get_parent())
 
 # Getters
