@@ -11,13 +11,14 @@ func _process(delta: float) -> void:
 	pass
 
 
-func _on_start_pressed() -> void:
-	get_tree().change_scene_to_file("res://Scenes/scene1.tscn")
+func _on_btnNewGame_pressed() -> void:
+	# Ir a la intro de historia antes de iniciar el juego
+	get_tree().change_scene_to_file("res://Interfaces/story_intro.tscn") 
 
 
-func _on_settings_pressed() -> void:
+func _on_btnOptions_pressed() -> void:
 	print("settings pressed")
 
 
-func _on_exit_pressed() -> void:
+func _on_btnExit_pressed() -> void:
 	get_tree().quit() 
