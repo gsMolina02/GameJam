@@ -19,6 +19,29 @@ func _ready():
 	# Agregar al grupo "Fire" para que la manguera pueda detectarla
 	add_to_group("Fire")
 	add_to_group("enemy")
+	# Los grupos de ataque se asignarán después cuando se conozca el shooter
+
+func _enter_tree():
+	# Cuando se agrega al árbol, verificar y asignar grupos de ataque
+	_assign_attack_groups()
+
+func _assign_attack_groups():
+	"""Asignar grupos de ataque según el tipo de shooter"""
+	# Estos grupos serán detectados por el Hitbox del jugador
+	if shooter:
+		if shooter.is_in_group("minion"):
+			add_to_group("ataque_minion")
+			print_debug("Fireball asignada al grupo: ataque_minion")
+		elif shooter.is_in_group("boss"):
+			add_to_group("ataque_jefe")
+			print_debug("Fireball asignada al grupo: ataque_jefe")
+		else:
+			add_to_group("ataque_enemigo")
+			print_debug("Fireball asignada al grupo: ataque_enemigo")
+	else:
+		# Si no hay shooter definido, asumir ataque genérico
+		add_to_group("ataque_enemigo")
+		print_debug("Fireball sin shooter, asignada al grupo: ataque_enemigo")
 
 func _physics_process(delta):
 	position += velocity * delta
@@ -34,6 +57,8 @@ func set_direction(dir):
 
 func set_shooter(s):
 	shooter = s
+	# Cuando se establece el shooter, asignar grupos inmediatamente
+	_assign_attack_groups()
 
 func _on_body_entered(body):
 	# SIEMPRE ignorar al shooter (el que lanzó la bola)
@@ -49,19 +74,22 @@ func _on_body_entered(body):
 		return
 	
 	# If we hit the player
-	if body.is_in_group("player"):
+	if body.is_in_group("player") or body.is_in_group("player_main"):
 		# Verificar si el jugador está atacando (parry)
 		if body.has_method("is_attacking") and body.is_attacking():
 			print_debug("Fireball PARRIED! Player was attacking!")
 			queue_free()
 			return
 		
-		# Si no está atacando, causar daño
+		# NOTA: El daño se maneja automáticamente por el sistema de grupos
+		# cuando el Hitbox del jugador detecta esta fireball (que está en "ataque_minion" o "ataque_jefe")
+		# El siguiente código es solo fallback si la detección por área no funciona:
 		if body.has_method("take_damage"):
-			body.take_damage(15.0)  # Las bolas de fuego del jefe causan 15 de daño
-			print_debug("Fireball hit player, dealing 15 damage")
-		elif body.has_method("die"):
-			body.die()
+			body.take_damage(1.0)  # Usar 1 de daño como especificaste
+			print_debug("Fireball hit player body, dealing 1 damage (fallback)")
+		elif body.has_method("recibir_dano"):
+			body.recibir_dano(1)
+			print_debug("Fireball hit player body, dealing 1 damage (fallback recibir_dano)")
 		queue_free()
 	# Destroy fireball on collision with walls/obstacles (not enemies)
 	else:

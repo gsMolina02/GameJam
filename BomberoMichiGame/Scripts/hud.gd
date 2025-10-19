@@ -30,6 +30,13 @@ func _register_player(player: Node) -> void:
 	if player.is_connected("vida_actualizada", Callable(self, "_on_player_vida_actualizada")):
 		player.disconnect("vida_actualizada", Callable(self, "_on_player_vida_actualizada"))
 	player.connect("vida_actualizada", Callable(self, "_on_player_vida_actualizada"))
+	
+	# Conectar señal de agua/manguera
+	if player.has_signal("hose_recharged"):
+		if player.is_connected("hose_recharged", Callable(self, "_on_player_hose_recharged")):
+			player.disconnect("hose_recharged", Callable(self, "_on_player_hose_recharged"))
+		player.connect("hose_recharged", Callable(self, "_on_player_hose_recharged"))
+	
 	# Pedir la vida inicial (respeta diferentes nombres)
 	if "tanques_oxigeno" in player:
 		_on_player_vida_actualizada(player.tanques_oxigeno)
@@ -37,10 +44,21 @@ func _register_player(player: Node) -> void:
 		_on_player_vida_actualizada(player.get_vida_actual())
 	elif "vida_actual" in player:
 		_on_player_vida_actualizada(player.vida_actual)
+	
+	# Pedir el agua inicial
+	if "hose_charge" in player:
+		_on_player_hose_recharged(player.hose_charge)
+	elif player.has_method("get_hose_charge"):
+		_on_player_hose_recharged(player.get_hose_charge())
 
 func _on_player_vida_actualizada(nueva_vida: int) -> void:
 	if is_instance_valid(player_life_label):
 		player_life_label.text = "Oxi: x%d" % int(nueva_vida)
+
+func _on_player_hose_recharged(nuevo_porcentaje: float) -> void:
+	"""Actualiza el porcentaje de agua cuando cambia la carga de la manguera"""
+	if is_instance_valid(water_percent_label):
+		water_percent_label.text = "Agua: %d%%" % int(nuevo_porcentaje)
 
 func actualizar_agua(nuevo_porcentaje: int) -> void:
 	if is_instance_valid(water_percent_label):

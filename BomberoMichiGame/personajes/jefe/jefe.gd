@@ -69,6 +69,25 @@ func _ready():
 	# Agregar el jefe al grupo "enemy" y "boss"
 	add_to_group("enemy")
 	add_to_group("boss")
+	
+	# Crear un HitArea para detectar colisiones con el jugador
+	var hit_area = Area2D.new()
+	hit_area.name = "HitArea"
+	add_child(hit_area)
+	
+	# Agregar el HitArea al grupo para que el Hitbox del jugador lo detecte
+	hit_area.add_to_group("ataque_jefe")
+	
+	# Crear un CollisionShape circular para el área de ataque
+	var hit_shape = CollisionShape2D.new()
+	var circle = CircleShape2D.new()
+	circle.radius = 70.0  # El jefe es más grande, su área de ataque también
+	hit_shape.shape = circle
+	hit_area.add_child(hit_shape)
+	
+	# Conectar señales
+	if hit_area.has_signal("area_entered"):
+		hit_area.area_entered.connect(_on_hit_area_area_entered)
 
 	# inicialmente crear orbs para el jefe
 	_spawn_orbit_fireballs()
@@ -112,6 +131,12 @@ func _spawn_orbit_fireballs():
 	var scene = get_tree().current_scene
 	for i in range(orbit_count):
 		var fb = FireballScene.instantiate()
+		
+		# IMPORTANTE: Establecer shooter ANTES de agregar a la escena
+		# para que _ready() pueda usar esta información para asignar grupos
+		if fb.has_method("set_shooter"):
+			fb.set_shooter(self)
+		
 		# iniciar en la posición del jefe
 		fb.position = global_position
 		# las fireballs orbitan, por eso no tendrán velocidad hasta lanzarlas
@@ -257,3 +282,11 @@ func die() -> void:
 	print("¡Jefe derrotado!")
 	# Aquí puedes agregar efectos de muerte, sonidos, etc.
 	queue_free()
+
+
+func _on_hit_area_area_entered(area: Node) -> void:
+	"""Cuando el HitArea del jefe detecta un Area2D (como el Hitbox del jugador)"""
+	# El daño se maneja automáticamente por el sistema de grupos
+	# cuando el Hitbox del jugador detecta esta área que está en "ataque_jefe"
+	if area.get_parent() and area.get_parent().is_in_group("player_main"):
+		print_debug("Jefe HitArea entered player Hitbox - damage will be handled by player's system")
