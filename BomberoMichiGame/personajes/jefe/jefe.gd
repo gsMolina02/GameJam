@@ -16,8 +16,8 @@ var FireballScene: PackedScene = null
 @export var launch_speed_multiplier := 1.0
 
 # Sistema de vida del jefe
-@export var max_health := 100.0
-var health := 100.0
+@export var max_health := 10.0  # REDUCIDO PARA TESTING - era 100.0
+var health := 10.0  # REDUCIDO PARA TESTING - era 100.0
 
 var orbit_fireballs := []
 var orbit_angles := []
@@ -66,9 +66,37 @@ func _ready():
 	FireballScene = load("res://personajes/minions/fireball_visual.tscn")
 	minion_scene = load("res://personajes/minions/minions.tscn")
 	
+	# Inicializar vida del jefe
+	health = max_health
+	print("🎯 JEFE INICIALIZADO - Vida:", health, "/", max_health)
+	
 	# Agregar el jefe al grupo "enemy" y "boss"
 	add_to_group("enemy")
 	add_to_group("boss")
+	
+	# Configurar el CharacterBody2D del jefe para que sea detectable por la manguera
+	# Capa 2 = enemigos/fuego
+	collision_layer = 2
+	collision_mask = 1  # Detectar capa 1 (jugador y paredes)
+	print("✅ Jefe configurado en capa de colisión 2 (enemigos)")
+	
+	# Crear un Area2D para que la manguera pueda detectar al jefe (detección adicional por área)
+	var damage_area = Area2D.new()
+	damage_area.name = "DamageArea"
+	add_child(damage_area)
+	
+	# Configurar la capa de colisión del área (debe estar en la capa 2 para que HoseArea la detecte)
+	damage_area.collision_layer = 2  # Capa 2 (enemigos/fuego)
+	damage_area.collision_mask = 0   # No necesita detectar nada
+	
+	# Crear un CollisionShape para el área de daño
+	var damage_shape = CollisionShape2D.new()
+	var damage_circle = CircleShape2D.new()
+	damage_circle.radius = 70.0  # Similar al HitArea del jefe
+	damage_shape.shape = damage_circle
+	damage_area.add_child(damage_shape)
+	
+	print("✅ Área de daño creada para el jefe (para detección de manguera)")
 	
 	# Crear un HitArea para detectar colisiones con el jugador
 	var hit_area = Area2D.new()
@@ -80,9 +108,9 @@ func _ready():
 	
 	# Crear un CollisionShape circular para el área de ataque
 	var hit_shape = CollisionShape2D.new()
-	var circle = CircleShape2D.new()
-	circle.radius = 70.0  # El jefe es más grande, su área de ataque también
-	hit_shape.shape = circle
+	var attack_circle = CircleShape2D.new()
+	attack_circle.radius = 70.0  # El jefe es más grande, su área de ataque también
+	hit_shape.shape = attack_circle
 	hit_area.add_child(hit_shape)
 	
 	# Conectar señales
@@ -265,15 +293,18 @@ func _spawn_minion():
 
 func take_damage(amount: float) -> void:
 	"""Recibe daño y verifica si muere"""
+	var old_health = health
 	health -= amount
-	print_debug("Jefe took damage:", amount, "health remaining:", health)
+	print("🔥 JEFE RECIBIÓ DAÑO! Cantidad:", amount, " | Vida anterior:", old_health, " | Vida actual:", health, " | Max:", max_health)
 	
 	if health <= 0:
+		print("💀 JEFE MURIÓ! Vida final:", health)
 		die()
 
 
 func apply_water(amount: float) -> void:
 	"""Recibe daño por agua de la manguera"""
+	print("💧 Jefe recibiendo agua con cantidad:", amount)
 	take_damage(amount)
 
 
