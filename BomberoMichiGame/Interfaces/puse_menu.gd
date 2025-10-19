@@ -10,6 +10,9 @@ func _ready() -> void:
 # Detectar cuando se presiona ESC
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):  # ESC es ui_cancel por defecto
+		# No permitir pausa si ya hay una pantalla de muerte activa
+		if _is_death_screen_active():
+			return
 		toggle_pause()
 
 # Alternar entre pausa y continuar
@@ -17,6 +20,15 @@ func toggle_pause() -> void:
 	var is_paused = not get_tree().paused
 	get_tree().paused = is_paused
 	visible = is_paused
+
+# Verificar si hay una pantalla de muerte activa
+func _is_death_screen_active() -> bool:
+	# Buscar en la raíz si existe un nodo DeathMenu
+	var root = get_tree().root
+	for child in root.get_children():
+		if child.name == "DeathMenu" or child.get_script() != null and child.get_script().resource_path.contains("death_escene"):
+			return true
+	return false
 
 # Botón continuar
 func _on_btn_continue_pressed() -> void:

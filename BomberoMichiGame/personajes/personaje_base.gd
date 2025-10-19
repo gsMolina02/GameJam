@@ -122,9 +122,13 @@ func _vencer():
 	vivo = false
 	emit_signal("personaje_muerto")
 	print(self.name, " - Ha muerto. Movilidad desactivada.")
-	# Usar call_deferred para evitar modificar colisiones durante physics query
+	# Usar set_deferred para evitar modificar colisiones durante physics query
 	if has_node("CollisionShape2D"):
 		$CollisionShape2D.set_deferred("disabled", true)
+	
+	# Si es el personaje principal, mostrar pantalla de Game Over
+	if is_in_group("player_main"):
+		_show_death_screen()
 
 # --- Detección por Hitbox ---
 func _on_Hitbox_area_entered(area):
@@ -171,12 +175,15 @@ func _on_Hitbox_area_entered(area):
 		recibir_dano(1)
 		return
 
-	# Pickup de vida
+	# Pickup de vida (tanques de oxígeno)
 	if area.is_in_group("pickup_vida"):
-		# Si quieres que un pickup te reviva cuando estuviste a 0,
-		# cambia curar() para permitir curar aunque !vivo.
-		curar(1)
-		area.queue_free()
+		# Solo recoger si la vida no está al máximo
+		if vida_actual < vida_maxima:
+			curar(1)
+			area.queue_free()
+			print(self.name, " - Tanque de oxígeno recogido. Vida: ", vida_actual, "/", vida_maxima)
+		else:
+			print(self.name, " - Vida al máximo, no se puede recoger el tanque")
 		return
 
 # --- Dash functions (from main) ---
@@ -346,3 +353,27 @@ func _play_first_available(names: Array[String]):
 			return
 	# Si no encontró ninguna, loggear para depurar
 	print("No se encontró ninguna animación en la lista: ", names)
+
+func _show_death_screen():
+	"""Muestra la pantalla de Game Over cuando el personaje muere"""
+	print("Mostrando pantalla de Game Over...")
+	# Pausar el juego
+	get_tree().paused = true
+	# Cargar la escena de muerte
+	var death_scene = load("res://Scenes/UI/deathEscene.tscn")
+	if death_scene:
+		var death_instance = death_scene.instantiate()
+		# Asegurarse de que el menú de muerte no esté pausado (configurar ANTES de agregar)
+		death_instance.process_mode = Node.PROCESS_MODE_ALWAYS
+		# Agregar a la escena raíz para que aparezca sobre todo
+		get_tree().root.add_child(death_instance)
+		# Configurar todos los hijos para que también funcionen durante la pausa
+		_set_process_mode_recursive(death_instance, Node.PROCESS_MODE_ALWAYS)
+	else:
+		print("Error: No se pudo cargar deathEscene.tscn")
+
+func _set_process_mode_recursive(node: Node, mode: Node.ProcessMode):
+	"""Configura el process_mode recursivamente para todos los nodos hijos"""
+	node.process_mode = mode
+	for child in node.get_children():
+		_set_process_mode_recursive(child, mode)
