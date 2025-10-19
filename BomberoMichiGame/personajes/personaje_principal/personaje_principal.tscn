@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 [gd_scene load_steps=31 format=3 uid="uid://bfra7nxi2wetn"]
-=======
-[gd_scene load_steps=7 format=3 uid="uid://bfra7nxi2wetn"]
->>>>>>> 3c66b2e0ab1dcc00817a16f96d46bb2c4dad8d6e
 
 [ext_resource type="Script" uid="uid://c13ihlyh4xher" path="res://personajes/personaje_principal/personaje_principal.gd" id="1_yy08j"]
 [ext_resource type="Texture2D" uid="uid://c7q2emm2xfnqf" path="res://Assets/personaje/frente/frente_1.png" id="2_ju04v"]
@@ -154,28 +150,25 @@ animations = [{
 "speed": 7.0
 }]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_ju04v"]
-radius = 38.0605
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_m8rjq"]
+radius = 35.944763
+height = 143.99808
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_yy08j"]
-radius = 53.183533
-height = 122.75363
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_qh03m"]
-size = Vector2(99.59326, 125.14642)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_m8rjq"]
+size = Vector2(121.52948, 122.85681)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yy08j"]
 size = Vector2(128.28198, 113.300545)
 
 [node name="personajePrincipal" type="CharacterBody2D"]
-position = Vector2(809, 11.999985)
+position = Vector2(135.99997, 104.99999)
 rotation = -0.00036524187
 scale = Vector2(1.0015259, 0.9999777)
 collision_mask = 2
 script = ExtResource("1_yy08j")
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
-position = Vector2(-309.7297, 207.36871)
+position = Vector2(3.868063, -1.5517578)
 scale = Vector2(0.14393736, 0.14522253)
 sprite_frames = SubResource("SpriteFrames_acmdk")
 animation = &"lat_inf_izq"
@@ -184,15 +177,15 @@ frame_progress = 0.88513285
 metadata/_edit_group_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(-311.60486, 219.89096)
-shape = SubResource("CircleShape2D_ju04v")
+position = Vector2(0.00032806396, -1.0305176)
+shape = SubResource("CapsuleShape2D_m8rjq")
 metadata/_edit_group_ = true
 
 [node name="AttackCooldownTimer" type="Timer" parent="."]
 
 [node name="Axe" type="Sprite2D" parent="."]
-position = Vector2(-250.69853, 221.91327)
-scale = Vector2(0.34542254, 0.70001954)
+position = Vector2(50.933186, 12.992798)
+scale = Vector2(0.18074378, 0.70001954)
 texture = ExtResource("2_qh03m")
 offset = Vector2(-8.662811, -53.667313)
 metadata/_edit_group_ = true
@@ -201,16 +194,12 @@ metadata/_edit_group_ = true
 position = Vector2(-3491.5725, 511.81085)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Axe/AxeHitbox"]
-position = Vector2(3479.3677, -576.77094)
-shape = SubResource("CapsuleShape2D_yy08j")
-
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="Axe/AxeHitbox"]
-position = Vector2(-5.366577, -52.57322)
-scale = Vector2(1.0000002, 1.0000001)
-shape = SubResource("RectangleShape2D_qh03m")
+position = Vector2(3480.486, -564.6727)
+scale = Vector2(0.9999997, 1)
+shape = SubResource("RectangleShape2D_m8rjq")
 
 [node name="hose" type="Sprite2D" parent="."]
-position = Vector2(64.23964, 12.915037)
+position = Vector2(84.86172, 24.001099)
 scale = Vector2(0.6927214, 0.097085826)
 texture = ExtResource("2_qh03m")
 offset = Vector2(1.6220856, 8.688446)
@@ -218,7 +207,7 @@ offset = Vector2(1.6220856, 8.688446)
 [node name="hoseHitbox" type="Area2D" parent="hose"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="hose/hoseHitbox"]
-position = Vector2(0.045387268, -2.413742)
+position = Vector2(-0.00048661232, 10.300196)
 scale = Vector2(1.0000001, 1.0000002)
 shape = SubResource("RectangleShape2D_yy08j")
 

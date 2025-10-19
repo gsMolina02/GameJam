@@ -10,12 +10,13 @@
 position = Vector2(439, 348)
 
 [node name="mascota" parent="." instance=ExtResource("1_uapuf")]
-position = Vector2(-265, -266.99997)
+position = Vector2(-302, -207)
 scale = Vector2(1.0224254, 0.9807179)
 objetivo = NodePath("../personajePrincipal")
 
 [node name="personajePrincipal" parent="." instance=ExtResource("2_1in75")]
-position = Vector2(-94.00003, -176.99998)
+position = Vector2(73.000015, -215.99998)
+rotation = 0.011365662
 scale = Vector2(1.0000006, 1.0237389)
 
 [node name="jefe" parent="." instance=ExtResource("3_1in75")]

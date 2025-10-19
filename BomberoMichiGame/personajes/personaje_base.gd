@@ -1,4 +1,14 @@
 extends CharacterBody2D
+# Implementación base de _start_dash
+func _start_dash(direction: Vector2):
+	if not can_dash:
+		return
+	is_dashing = true
+	can_dash = false
+	dash_direction = direction.normalized()
+	dash_timer = dash_duration
+	print_debug("[base] _start_dash called. direction:", dash_direction, "dash_timer:", dash_timer, "dash_speed:", dash_speed)
+
 
 @export var speed = 400
 @export var screen_margin: int = 8
@@ -15,7 +25,6 @@ var can_dash = true
 var dash_direction = Vector2.ZERO
 var dash_timer = 0.0
 
-<<<<<<< HEAD
 # Referencias para animación
 
 var last_direction = Vector2.ZERO
@@ -33,51 +42,29 @@ func _ready():
 		# Iniciar en idle frontal si existe
 		_play_idle_animation()
 
+# Unificación de mover_personaje: combina dash, animación y movimiento normal
 func mover_personaje(delta):
+	var input_vector = Input.get_vector("left", "right", "up", "down")
+	var spd = speed if speed != null else 400
+
 	# Si está haciendo dash, manejar el movimiento del dash
 	if is_dashing:
 		_handle_dash(delta)
 		return
-	
+
 	# Movimiento normal
-=======
-func mover_personaje(_delta):
-	# Movimiento normal por defecto
->>>>>>> 3c66b2e0ab1dcc00817a16f96d46bb2c4dad8d6e
-	var input_vector = Input.get_vector("left", "right", "up", "down")
-	var spd = speed if speed != null else 400
 	velocity = input_vector * spd
 	move_and_slide()
-<<<<<<< HEAD
-	
+
 	# Actualizar animaciones basadas en el input
 	_update_animation(input_vector)
-	
+
 	# Detectar input de dash (Shift)
 	if Input.is_action_just_pressed("ui_shift") and can_dash and input_vector.length() > 0:
 		_start_dash(input_vector)
-	
+
 	# Mantener al personaje dentro del viewport
-	_clamp_to_viewport()
-=======
-
-	# Si está haciendo dash, manejar el dash por frame (espera usada dentro del handler)
-	if is_dashing:
-		_handle_dash(_delta)
-		return
-
-
-func _start_dash(direction: Vector2):
-	"""Inicia el dash en la dirección especificada (implementación base)."""
-	if not can_dash:
-		return
-	is_dashing = true
-	can_dash = false
-	dash_direction = direction.normalized()
-	dash_timer = dash_duration
-	print_debug("[base] _start_dash called. direction:", dash_direction, "dash_timer:", dash_timer, "dash_speed:", dash_speed)
-
->>>>>>> 3c66b2e0ab1dcc00817a16f96d46bb2c4dad8d6e
+	keep_in_viewport(screen_margin)
 
 func _handle_dash(delta):
 	"""Maneja el movimiento durante el dash"""
@@ -121,7 +108,6 @@ func keep_in_viewport(margin := screen_margin):
 
 	# Fallback a viewport rect
 	var rect = vp.get_visible_rect()
-<<<<<<< HEAD
 	var min_x = rect.position.x + screen_margin
 	var min_y = rect.position.y + screen_margin
 	var max_x = rect.position.x + rect.size.x - screen_margin
@@ -233,8 +219,3 @@ func _play_first_available(names: Array[String]):
 			return
 	# Si no encontró ninguna, loggear para depurar
 	print("No se encontró ninguna animación en la lista: ", names)
-=======
-	var x = clamp(global_position.x, rect.position.x + margin, rect.position.x + rect.size.x - margin)
-	var y = clamp(global_position.y, rect.position.y + margin, rect.position.y + rect.size.y - margin)
-	global_position = Vector2(x, y)
->>>>>>> 3c66b2e0ab1dcc00817a16f96d46bb2c4dad8d6e
