@@ -8,7 +8,7 @@ var tiempo_desde_disparo := 0.0
 var FireballScene: PackedScene = null
 
 var can_shoot = true
-var fireball_scene = preload("res://Scenes/Entities/FireBall.tscn")
+var fireball_scene = preload("res://personajes/minions/fireball_visual.tscn")
 
 var anim_player: AnimatedSprite2D = null
 var max_health: float = 5.0
@@ -26,8 +26,12 @@ func _ready():
 	# Conectar señales de colisión si tiene Area2D
 	if has_node("HitArea"):
 		var hit_area = get_node("HitArea")
+		# Agregar el HitArea al grupo para que el Hitbox del jugador lo detecte
+		hit_area.add_to_group("ataque_minion")
 		if hit_area.has_signal("body_entered"):
 			hit_area.body_entered.connect(_on_hit_area_body_entered)
+		if hit_area.has_signal("area_entered"):
+			hit_area.area_entered.connect(_on_hit_area_area_entered)
 
 func _setup_animation_frames():
 	# Busca imágenes en res://Assets/minions/ (carpeta opcional)
@@ -88,6 +92,12 @@ func shoot():
 		can_shoot = false
 		$AttackTimer.start()
 		var fireball = fireball_scene.instantiate()
+		
+		# IMPORTANTE: Establecer shooter ANTES de agregar a la escena
+		# para que _ready() pueda usar esta información para asignar grupos
+		if fireball.has_method("set_shooter"):
+			fireball.set_shooter(self)
+		
 		# Determinar un pequeño offset hacia adelante para que no colisione con el propio minion
 		var spawn_offset = 20.0
 		var spawn_pos = global_position + target_dir * spawn_offset
@@ -183,14 +193,21 @@ func die() -> void:
 
 
 func _on_hit_area_body_entered(body: Node) -> void:
-	"""Cuando el minion colisiona con algo"""
+	"""Cuando el minion colisiona con algo (CharacterBody2D)"""
 	# Si colisiona con el jugador, causar daño
-	if body.is_in_group("player"):
-		if body.has_method("take_damage"):
-			body.take_damage(10.0)  # El minion causa 10 de daño
-			print_debug("Minion hit player, dealing 10 damage")
-		elif body.has_method("die"):
-			body.die()
-		
-		# El minion se destruye al chocar con el jugador
-		die()
+	if body.is_in_group("player_main"):
+		# Ya no necesitamos llamar a take_damage aquí
+		# El sistema de grupos se encargará cuando el Hitbox del jugador
+		# detecte el HitArea del minion (que está en grupo "ataque_minion")
+		print_debug("Minion HitArea detected player body contact")
+		# Opcional: el minion puede morir al tocar al jugador
+		# die()
+
+func _on_hit_area_area_entered(area: Node) -> void:
+	"""Cuando el HitArea del minion detecta un Area2D (como el Hitbox del jugador)"""
+	# El daño se maneja automáticamente por el sistema de grupos
+	# cuando el Hitbox del jugador detecta esta área que está en "ataque_minion"
+	if area.get_parent() and area.get_parent().is_in_group("player_main"):
+		print_debug("Minion HitArea entered player Hitbox - damage will be handled by player's system")
+		# Opcional: el minion puede morir después de atacar
+		# die()

@@ -130,10 +130,32 @@ func _on_Hitbox_area_entered(area):
 		global_position += dir * penetration_push
 		knockback_velocity = dir * knockback_strength
 		knockback_remaining = knockback_duration
-		print(self.name, " - Knockback aplicado, dir:", dir, "vel:", knockback_velocity)
+		print(self.name, " - Knockback aplicado por fuego, dir:", dir, "vel:", knockback_velocity)
 		return
 
-	# Si el area es 'ataque_enemigo' (si lo usáis)
+	# Daño por ataque de minion (grupo 'ataque_minion')
+	if area.is_in_group("ataque_minion"):
+		recibir_dano(1)
+		var dir = (global_position - area.global_position).normalized()
+		if dir == Vector2.ZERO:
+			dir = Vector2.UP
+		knockback_velocity = dir * knockback_strength
+		knockback_remaining = knockback_duration
+		print(self.name, " - Golpeado por minion! Daño: 1, Knockback aplicado")
+		return
+
+	# Daño por ataque de jefe (grupo 'ataque_jefe')
+	if area.is_in_group("ataque_jefe"):
+		recibir_dano(1)
+		var dir = (global_position - area.global_position).normalized()
+		if dir == Vector2.ZERO:
+			dir = Vector2.UP
+		knockback_velocity = dir * knockback_strength * 1.5  # Jefe empuja más fuerte
+		knockback_remaining = knockback_duration
+		print(self.name, " - Golpeado por jefe! Daño: 1, Knockback fuerte aplicado")
+		return
+
+	# Si el area es 'ataque_enemigo' (genérico, si lo usáis)
 	if area.is_in_group("ataque_enemigo"):
 		recibir_dano(1)
 		return

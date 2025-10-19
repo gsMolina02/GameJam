@@ -79,6 +79,10 @@ func _ready():
 	# Añadir al grupo para que HUD/etc. nos encuentre
 	add_to_group("player_main")
 	
+	# Conectar señal de muerte para pausar el juego solo cuando vida = 0
+	if not is_connected("personaje_muerto", Callable(self, "die")):
+		connect("personaje_muerto", Callable(self, "die"))
+	
 	# Configurar timer de cooldown
 	if not attack_cooldown_timer:
 		attack_cooldown_timer = Timer.new()
@@ -115,6 +119,9 @@ func _ready():
 
 	# Desactivar clamp al viewport para el jugador (una sola vez)
 	clamp_to_viewport = false
+	
+	# Emitir valores iniciales para que el HUD se actualice
+	emit_signal("hose_recharged", hose_charge)  # Emitir carga inicial de agua
 
 func _setup_hose_system():
 	"""Configura los nodos necesarios para el sistema de manguera"""
@@ -515,13 +522,13 @@ func _play_water_hit_effect(_hit_position: Vector2):
 # SISTEMA DE MUERTE DEL JUGADOR
 # ============================================
 func take_damage(amount: float) -> void:
-	"""Recibe daño de enemigos"""
-	print("Bombero recibió", amount, "de daño!")
-	# Por ahora solo muere directamente, puedes agregar sistema de vida aquí
-	die()
+	"""Recibe daño de enemigos - usa el sistema de vida heredado"""
+	print_debug("Bombero recibió", amount, "de daño!")
+	# Usar el sistema de vida del padre (personaje_base)
+	recibir_dano(int(amount))
 
 func die() -> void:
-	# Detener el juego por ahora al morir
+	# Detener el juego cuando la vida llega a 0
 	if is_dead:
 		return
 	is_dead = true
@@ -529,7 +536,7 @@ func die() -> void:
 	process_mode = Node.PROCESS_MODE_WHEN_PAUSED
 	get_tree().paused = true
 	# Aquí podrías reproducir animación/sonido de muerte
-	print("El Bombero ha muerto. Juego pausado.")
+	print("💀 El Bombero ha muerto. Juego pausado.")
 
 # ============================================
 # SISTEMA DE ATAQUE CON HACHA

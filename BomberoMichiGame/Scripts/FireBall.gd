@@ -35,13 +35,15 @@ func set_direction(dir):
 	direction = dir
 
 func _on_body_entered(body):
-	# If collides with player, kill the player and stop the game for now
-	if body.is_in_group("player"):
-		if body.has_method("die"):
+	# If collides with player, cause damage using the health system
+	if body.is_in_group("player") or body.is_in_group("player_main"):
+		# Use the vida system instead of instant death
+		if body.has_method("recibir_dano"):
+			body.recibir_dano(1)
+			print_debug("FireBall hit player, dealing 1 damage")
+		elif body.has_method("die"):
+			# Only call die if no health system exists
 			body.die()
-		else:
-			# Fallback: pause the tree
-			get_tree().paused = true
 	# The fireball should be destroyed on impact with anything other than another enemy
 	if not body.is_in_group("enemy"):
 		# Respect minimum visible time during debug so projectiles don't vanish immediately
