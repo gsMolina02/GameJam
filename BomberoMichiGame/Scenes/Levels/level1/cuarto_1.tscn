@@ -1,0 +1,31 @@
+[gd_scene load_steps=8 format=3 uid="uid://c1igcyabijkkv"]
+
+[ext_resource type="Script" uid="uid://cxdfulrxvuchy" path="res://Scripts/cuarto_1.gd" id="1_72xuh"]
+[ext_resource type="Script" uid="uid://bmi6b0xff8sy" path="res://Scripts/room_manager.gd" id="2_ru5om"]
+[ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="3_dfq1d"]
+[ext_resource type="PackedScene" uid="uid://oysdlu64rb7d" path="res://Scenes/Entities/puerta.tscn" id="4_v3iab"]
+[ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="5_250fv"]
+[ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/Entities/fuego.tscn" id="6_t5ljv"]
+[ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="7_h34ln"]
+
+[node name="Cuarto1" type="Node2D"]
+script = ExtResource("1_72xuh")
+
+[node name="Node" type="Node" parent="."]
+script = ExtResource("2_ru5om")
+enemigos_requeridos = 1
+fuegos_requeridos = 1
+
+[node name="personajePrincipal" parent="." instance=ExtResource("3_dfq1d")]
+position = Vector2(92.999985, 313.00003)
+
+[node name="Puerta" parent="." instance=ExtResource("4_v3iab")]
+position = Vector2(935, 232)
+
+[node name="HUD" parent="." instance=ExtResource("5_250fv")]
+
+[node name="Fuego" parent="." instance=ExtResource("6_t5ljv")]
+position = Vector2(463, 229)
+
+[node name="minions" parent="." instance=ExtResource("7_h34ln")]
+position = Vector2(845, 447)
