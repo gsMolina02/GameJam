@@ -1,36 +1,53 @@
 extends CharacterBody2D
-# Implementación base de _start_dash
-func _start_dash(direction: Vector2):
-	if not can_dash:
-		return
-	is_dashing = true
-	can_dash = false
-	dash_direction = direction.normalized()
-	dash_timer = dash_duration
-	print_debug("[base] _start_dash called. direction:", dash_direction, "dash_timer:", dash_timer, "dash_speed:", dash_speed)
 
-
-@export var speed = 400
+# MOVIMIENTO GENERAL
+@export var speed: float = 400.0
 @export var screen_margin: int = 8
 @export var clamp_to_viewport := true
 
-# Dash exports (original behavior requested)
-@export var dash_speed = 1200  # Velocidad del dash
-@export var dash_duration = 0.25  # Duración del dash en segundos
-@export var dash_cooldown = 0.5  # Tiempo de espera entre dashes
+# --- Vida / Knockback (from HEAD) ---
+# Salud (por defecto 1 -> ideal para minions)
+@export var vida_maxima: int = 1
+var vida_actual: int = 0
+var vivo: bool = true
 
-# Variables de control del dash
-var is_dashing = false
-var can_dash = true
-var dash_direction = Vector2.ZERO
-var dash_timer = 0.0
+# Knockback settings: al tocar fuego empujar al personaje fuera y aplicar daño
+@export var knockback_duration: float = 0.12
+@export var knockback_strength: float = 700.0
+@export var penetration_push: float = 8.0 # empuje inmediato para evitar quedar solapado
+var knockback_remaining: float = 0.0
+var knockback_velocity: Vector2 = Vector2.ZERO
 
-# Referencias para animación
+# Señales
+signal vida_actualizada(nueva_vida)
+signal personaje_muerto
 
+# --- Dash (from main) ---
+@export var dash_speed: float = 1200.0  # Velocidad del dash
+@export var dash_duration: float = 0.25  # Duración del dash en segundos
+@export var dash_cooldown: float = 0.5  # Tiempo de espera entre dashes
+
+var is_dashing: bool = false
+var can_dash: bool = true
+var dash_direction: Vector2 = Vector2.ZERO
+var dash_timer: float = 0.0
+
+# Referencias para animación (from main)
 var last_direction = Vector2.ZERO
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite
 
-func _ready():
+func _ready() -> void:
+	# Inicializar vida según la export var (puedes cambiarla en cada escena)
+	vida_actual = vida_maxima
+	emit_signal("vida_actualizada", vida_actual)
+
+	# Si el nodo hijo 'Hitbox' existe, conecta su señal para detectar areas
+	if has_node("Hitbox"):
+		var hb = $Hitbox
+		var cb = Callable(self, "_on_Hitbox_area_entered")
+		if not hb.is_connected("area_entered", cb):
+			hb.connect("area_entered", cb)
+	
 	# Intentar obtener el AnimatedSprite2D (puede estar en el personaje hijo)
 	animated_sprite = get_node_or_null("AnimatedSprite")
 	if not animated_sprite:
@@ -42,31 +59,107 @@ func _ready():
 		# Iniciar en idle frontal si existe
 		_play_idle_animation()
 
-# Unificación de mover_personaje: combina dash, animación y movimiento normal
 func mover_personaje(delta):
-	var input_vector = Input.get_vector("left", "right", "up", "down")
-	var spd = speed if speed != null else 400
+	# Si el personaje está muerto, no moverse
+	if not vivo:
+		velocity = Vector2.ZERO
+		return
 
-	# Si está haciendo dash, manejar el movimiento del dash
+	# Si hay un knockback activo, aplicarlo en prioridad sobre el input
+	if knockback_remaining > 0.0:
+		knockback_remaining -= delta
+		velocity = knockback_velocity
+		knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, knockback_strength * delta)
+		move_and_slide()
+		return
+
+	# Si está haciendo dash, manejar el dash por frame
 	if is_dashing:
 		_handle_dash(delta)
 		return
 
-	# Movimiento normal
-	velocity = input_vector * spd
+	# Movimiento normal y lectura de input
+	var input_vector = Input.get_vector("left", "right", "up", "down")
+	velocity = input_vector * speed
 	move_and_slide()
 
-	# Actualizar animaciones basadas en el input
+	# Actualizar animaciones basadas en el input (from main)
 	_update_animation(input_vector)
 
-	# Detectar input de dash (Shift)
-	if Input.is_action_just_pressed("ui_shift") and can_dash and input_vector.length() > 0:
-		_start_dash(input_vector)
+	# Mantener en viewport si se quiere
+	keep_in_viewport()
 
-	# Mantener al personaje dentro del viewport
-	keep_in_viewport(screen_margin)
+# --- Vida ---
+func recibir_dano(cantidad: int):
+	if not vivo:
+		return
+	vida_actual = max(0, vida_actual - cantidad)
+	emit_signal("vida_actualizada", vida_actual)
+	print(self.name, " - Daño recibido. Vida:", vida_actual)
+	if vida_actual == 0:
+		_vencer()
 
-func _handle_dash(delta):
+func curar(cantidad: int):
+	# Permitir curar si estaba vivo; si quieres que un pickup reviva, elimina la comprobación
+	if not vivo:
+		# Si quieres permitir curar desde 0 para revivir, comenta la siguiente línea
+		return
+	vida_actual = min(vida_maxima, vida_actual + cantidad)
+	emit_signal("vida_actualizada", vida_actual)
+	print(self.name, " - Curado. Vida:", vida_actual)
+
+func _vencer():
+	vivo = false
+	emit_signal("personaje_muerto")
+	print(self.name, " - Ha muerto. Movilidad desactivada.")
+	if has_node("CollisionShape2D"):
+		$CollisionShape2D.disabled = true
+
+# --- Detección por Hitbox ---
+func _on_Hitbox_area_entered(area):
+	# SOLO procesar fuego/pickups si este personaje es el personaje principal
+	if not is_in_group("player_main"):
+		return
+
+	# Daño por fuego (grupo 'fuego')
+	if area.is_in_group("fuego"):
+		recibir_dano(1)
+		var dir = (global_position - area.global_position).normalized()
+		if dir == Vector2.ZERO:
+			dir = Vector2.UP
+		global_position += dir * penetration_push
+		knockback_velocity = dir * knockback_strength
+		knockback_remaining = knockback_duration
+		print(self.name, " - Knockback aplicado, dir:", dir, "vel:", knockback_velocity)
+		return
+
+	# Si el area es 'ataque_enemigo' (si lo usáis)
+	if area.is_in_group("ataque_enemigo"):
+		recibir_dano(1)
+		return
+
+	# Pickup de vida
+	if area.is_in_group("pickup_vida"):
+		# Si quieres que un pickup te reviva cuando estuviste a 0,
+		# cambia curar() para permitir curar aunque !vivo.
+		curar(1)
+		area.queue_free()
+		return
+
+# --- Dash functions (from main) ---
+func _start_dash(direction: Vector2) -> void:
+	"""Inicia el dash en la dirección especificada (implementación base)."""
+	if not can_dash:
+		return
+	if direction == Vector2.ZERO:
+		return
+	is_dashing = true
+	can_dash = false
+	dash_direction = direction.normalized()
+	dash_timer = dash_duration
+	print_debug("[base] _start_dash called. direction:", dash_direction, "dash_timer:", dash_timer, "dash_speed:", dash_speed)
+
+func _handle_dash(delta) -> void:
 	"""Maneja el movimiento durante el dash"""
 	dash_timer -= delta
 
@@ -77,6 +170,7 @@ func _handle_dash(delta):
 
 		# Iniciar cooldown
 		can_dash = false
+		# esperar el cooldown (asíncrono)
 		await get_tree().create_timer(dash_cooldown).timeout
 		can_dash = true
 	else:
@@ -84,7 +178,8 @@ func _handle_dash(delta):
 		velocity = dash_direction * dash_speed
 		move_and_slide()
 
-func keep_in_viewport(margin := screen_margin):
+# --- Mantener en viewport ---
+func keep_in_viewport(margin := screen_margin) -> void:
 	if not clamp_to_viewport:
 		return
 
@@ -92,7 +187,6 @@ func keep_in_viewport(margin := screen_margin):
 	if vp == null:
 		return
 
-	# Intentar usar la cámara 2D si existe para clamping en mundo
 	var cam := vp.get_camera_2d()
 	if cam:
 		var vp_size = vp.get_visible_rect().size

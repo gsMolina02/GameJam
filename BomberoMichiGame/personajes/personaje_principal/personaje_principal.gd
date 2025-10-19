@@ -73,6 +73,12 @@ signal weapon_switched(new_weapon)
 @export var enforce_bounds := false # set true to enable min/max clamping
 
 func _ready():
+	# Llama a la inicialización del padre (conexión Hitbox, init vida, etc.)
+	super._ready()
+	
+	# Añadir al grupo para que HUD/etc. nos encuentre
+	add_to_group("player_main")
+	
 	# Configurar timer de cooldown
 	if not attack_cooldown_timer:
 		attack_cooldown_timer = Timer.new()
@@ -129,6 +135,7 @@ func _setup_hose_system():
 		shape.size = Vector2(safe_hose_range * safe_tile_size, safe_hose_width)
 		collision.shape = shape
 		collision.position = Vector2((safe_hose_range * safe_tile_size) / 2.0, 0) + safe_hose_nozzle_offset
+		collision.disabled = true  # Desactivar la colisión por defecto
 		hose_area.add_child(collision)
 		
 		hose_area.monitoring = false
@@ -370,9 +377,14 @@ func _activate_hose():
 	is_using_hose = true
 	emit_signal("hose_activated")
 	
-	# Activar área de detección
+	# Activar área de detección Y su CollisionShape2D
 	if hose_area:
 		hose_area.monitoring = true
+		# Activar el CollisionShape2D para que sea visible/activo
+		if hose_area.get_child_count() > 0:
+			var collision = hose_area.get_child(0)
+			if collision is CollisionShape2D:
+				collision.disabled = false
 	
 	# Activar raycast
 	if hose_raycast:
@@ -398,9 +410,14 @@ func _deactivate_hose():
 	is_using_hose = false
 	emit_signal("hose_deactivated")
 	
-	# Desactivar área de detección
+	# Desactivar área de detección Y su CollisionShape2D
 	if hose_area:
 		hose_area.monitoring = false
+		# Desactivar el CollisionShape2D para que no sea visible
+		if hose_area.get_child_count() > 0:
+			var collision = hose_area.get_child(0)
+			if collision is CollisionShape2D:
+				collision.disabled = true
 	
 	# Desactivar raycast
 	if hose_raycast:
