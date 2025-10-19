@@ -11,7 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="6_qjlt0"]
 [ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="7_pause"]
 [ext_resource type="PackedScene" uid="uid://oysdlu64rb7d" path="res://Scenes/Entities/puerta.tscn" id="11_p5njm"]
-[ext_resource type="Script" uid="uid://bmi6b0xff8sy" path="res://Scripts/room_manager.gd" id="12_p5njm"]
+[ext_resource type="Script" uid="uid://bmi6b0fff8sy" path="res://Scripts/room_manager.gd" id="12_p5njm"]
 [ext_resource type="PackedScene" uid="uid://bh08j56ukxtp" path="res://Hub/hub.tscn" id="13_u1sv6"]
 
 [node name="escenaPrueba" type="Node2D"]
@@ -28,26 +28,29 @@ position = Vector2(-344.00003, 92.99997)
 scale = Vector2(1.0000006, 1.0237389)
 
 [node name="jefe" parent="." instance=ExtResource("3_1in75")]
-position = Vector2(549, 5.000061)
+position = Vector2(439.99994, -9)
 
 [node name="Fuego" parent="." instance=ExtResource("4_gdsp3")]
 position = Vector2(117, -100)
 
 [node name="TanqueOxigeno" parent="." instance=ExtResource("5_qjlt0")]
-position = Vector2(-660, -220)
+position = Vector2(-592, -161)
 
 [node name="HUD" parent="." instance=ExtResource("6_qjlt0")]
 
 [node name="minion_test" parent="." instance=ExtResource("4_minions")]
-position = Vector2(619, -185)
+position = Vector2(557, -123)
 
 [node name="Box" parent="." instance=ExtResource("5_gdsp3")]
-position = Vector2(341, -295)
+position = Vector2(27, -439)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 visible = false
 
 [node name="PuseMenu" parent="CanvasLayer" instance=ExtResource("7_pause")]
+
+[node name="Fuego2" parent="." instance=ExtResource("4_gdsp3")]
+position = Vector2(-213, -169)
 
 [node name="PuertaCuarto1" parent="." instance=ExtResource("11_p5njm")]
 position = Vector2(10, -401)
