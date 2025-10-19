@@ -129,6 +129,7 @@ func _setup_hose_system():
 		shape.size = Vector2(hose_range * tile_size, hose_width)
 		collision.shape = shape
 		collision.position = Vector2((hose_range * tile_size) / 2.0, 0) + hose_nozzle_offset
+		collision.disabled = true  # Desactivar la colisión por defecto
 		hose_area.add_child(collision)
 		
 		hose_area.monitoring = false
@@ -370,9 +371,14 @@ func _activate_hose():
 	is_using_hose = true
 	emit_signal("hose_activated")
 	
-	# Activar área de detección
+	# Activar área de detección Y su CollisionShape2D
 	if hose_area:
 		hose_area.monitoring = true
+		# Activar el CollisionShape2D para que sea visible/activo
+		if hose_area.get_child_count() > 0:
+			var collision = hose_area.get_child(0)
+			if collision is CollisionShape2D:
+				collision.disabled = false
 	
 	# Activar raycast
 	if hose_raycast:
@@ -396,9 +402,14 @@ func _deactivate_hose():
 	is_using_hose = false
 	emit_signal("hose_deactivated")
 	
-	# Desactivar área de detección
+	# Desactivar área de detección Y su CollisionShape2D
 	if hose_area:
 		hose_area.monitoring = false
+		# Desactivar el CollisionShape2D para que no sea visible
+		if hose_area.get_child_count() > 0:
+			var collision = hose_area.get_child(0)
+			if collision is CollisionShape2D:
+				collision.disabled = true
 	
 	# Desactivar raycast
 	if hose_raycast:
@@ -718,4 +729,3 @@ func reduce_hose_charge(amount: float):
 func add_hose_charge(amount: float):
 	"""Añade carga a la manguera"""
 	set_hose_charge(hose_charge + amount)
-
