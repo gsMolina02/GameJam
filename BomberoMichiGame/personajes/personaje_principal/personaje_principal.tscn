@@ -194,19 +194,19 @@ position = Vector2(290, 115.99999)
 rotation = -0.00036524187
 scale = Vector2(1.0015259, 0.9999777)
 script = ExtResource("1_yy08j")
-vida_maxima = 5
 metadata/_edit_group_ = true
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
 position = Vector2(3.868063, -1.5517578)
 scale = Vector2(0.08, 0.08)
 sprite_frames = SubResource("SpriteFrames_acmdk")
-animation = &"lat_inf_izq"
+animation = &"move_up"
 autoplay = "idl_frente"
-frame_progress = 0.88513285
+frame_progress = 0.05990018
 metadata/_edit_group_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
 position = Vector2(0.00032806396, -1.0305176)
 shape = SubResource("CapsuleShape2D_m8rjq")
 metadata/_edit_group_ = true
@@ -216,6 +216,7 @@ position = Vector2(1, -1)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+visible = false
 shape = SubResource("CapsuleShape2D_m8rjq")
 
 [node name="AttackCooldownTimer" type="Timer" parent="."]
