@@ -7,7 +7,7 @@ var buttons: Array = []
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	# Asegurarse de que esta UI funcione incluso cuando el juego está pausado
-	process_mode = Node.PROCESS_MODE_ALWAYS
+
 	
 	# Mostrar el cursor del sistema en la pantalla de muerte
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
@@ -38,23 +38,23 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_left") or event.is_action_pressed("left"):
 		selected_button = 0  # Seleccionar "Sí"
 		_update_button_focus()
-		get_viewport().set_input_as_handled()
-		accept_event()
+		if event and event.has_method("accept"):
+			event.accept()
 	elif event.is_action_pressed("ui_right") or event.is_action_pressed("right"):
 		selected_button = 1  # Seleccionar "No"
 		_update_button_focus()
-		get_viewport().set_input_as_handled()
-		accept_event()
+		if event and event.has_method("accept"):
+			event.accept()
 	elif event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_select"):
 		# Presionar el botón seleccionado
 		_press_selected_button()
-		get_viewport().set_input_as_handled()
-		accept_event()
+		if event and event.has_method("accept"):
+			event.accept()
 	else:
 		# Bloquear TODOS los demás inputs mientras el menú está activo
 		if event is InputEventKey or event is InputEventMouseButton or event is InputEventJoypadButton:
-			get_viewport().set_input_as_handled()
-			accept_event()
+			if event and event.has_method("accept"):
+				event.accept()
 
 # Actualizar el foco visual del botón
 func _update_button_focus() -> void:
