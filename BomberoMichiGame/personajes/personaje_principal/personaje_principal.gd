@@ -12,7 +12,7 @@ class_name Bomber
 @export var hose_range = 50  # Alcance en cuadros (tiles) - AUMENTADO
 @export var tile_size = 20  # Tamaño de cada cuadro en píxeles
 @export var hose_width = 40  # Ancho del chorro de agua
-@export var hose_drain_rate = 10.0  # Carga consumida por segundo
+@export var hose_drain_rate = 4.0  # Carga consumida por segundo (reducida para mayor duración)
 @export var water_pressure = 10.0  # Daño por segundo al fuego (ajustado para apagar en 0.5s)
 @export var hose_origin_offset = Vector2(50, 0)  # Punto de origen del agua
 @export var hose_nozzle_offset = Vector2(130, 30)  # Punta de la manguera (boquilla)
