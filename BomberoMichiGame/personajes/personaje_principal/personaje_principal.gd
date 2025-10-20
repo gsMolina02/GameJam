@@ -333,13 +333,10 @@ func _handle_input():
 		if Input.is_action_just_pressed("attack"):
 			attack()  # El ataque ahora funciona como parry automático
 
-	# Dash: usar Shift ('ui_shift') como en el comportamiento original
+	# Dash: usar Shift o Espacio ('ui_shift')
 	var shift_pressed := false
 	if InputMap.has_action("ui_shift"):
 		shift_pressed = Input.is_action_just_pressed("ui_shift")
-	else:
-		# Fallback a tecla Space si no existe la acción
-		shift_pressed = Input.is_key_pressed(KEY_SPACE) and not Input.is_action_pressed("attack")
 
 	if shift_pressed and can_dash:
 		# Determinar dirección de dash: preferir input vector, caer a dirección mirando
