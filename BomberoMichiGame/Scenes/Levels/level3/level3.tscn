@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://dcemlagk1usuv"]
+[gd_scene load_steps=24 format=3 uid="uid://dcemlagk1usuv"]
 
 [ext_resource type="Script" uid="uid://c0tkcl7n8d7rs" path="res://Scripts/cuarto_3.gd" id="1_60aqv"]
 [ext_resource type="PackedScene" uid="uid://upe8nkwx2xwf" path="res://personajes/jefe/jefe.tscn" id="1_lpoki"]
@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="13_kworg"]
 [ext_resource type="PackedScene" uid="uid://g6pr41r3rkwt" path="res://Scenes/UI/deathEscene.tscn" id="14_iopqe"]
 [ext_resource type="AudioStream" uid="uid://cbv76ab0p1ot8" path="res://Assets/musica/Boss Theme.ogg" id="15_lu4lr"]
+[ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="16_ctx4j"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_u0t3m"]
 size = Vector2(143, 235)
@@ -182,3 +183,7 @@ position = Vector2(-142, 15)
 stream = ExtResource("15_lu4lr")
 volume_db = 24.0
 autoplay = true
+
+[node name="mascota" parent="." instance=ExtResource("16_ctx4j")]
+position = Vector2(246, 454)
+vida_maxima = 5.0

@@ -12,9 +12,10 @@
 [ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="10_2j1q4"]
 [ext_resource type="PackedScene" uid="uid://g6pr41r3rkwt" path="res://Scenes/UI/deathEscene.tscn" id="11_gkcdr"]
 [ext_resource type="AudioStream" uid="uid://b2ofh0vdfq8c5" path="res://Assets/musica/Niveles.ogg" id="12_2j1q4"]
+[ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="13_70f7q"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7103a"]
-size = Vector2(650, 249)
+size = Vector2(650, 183)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fdvuu"]
 size = Vector2(104, 694)
@@ -23,7 +24,7 @@ size = Vector2(104, 694)
 size = Vector2(103, 701)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bpvnq"]
-size = Vector2(716.0249, 272.90033)
+size = Vector2(716.0249, 178.14421)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_opdyy"]
 size = Vector2(546, 35)
@@ -44,11 +45,8 @@ texture = ExtResource("1_5rljr")
 [node name="Wall_top" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_top"]
-position = Vector2(1197, 128.5)
+position = Vector2(1197, 95.5)
 shape = SubResource("RectangleShape2D_7103a")
-
-[node name="jefe" parent="Wall_top" instance=ExtResource("4_xfvig")]
-position = Vector2(1051, 515.9999)
 
 [node name="Wall_right" type="StaticBody2D" parent="."]
 
@@ -68,9 +66,9 @@ shape = SubResource("RectangleShape2D_5rljr")
 [node name="Wall_righ_above" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above"]
-position = Vector2(368.54138, 141.42404)
+position = Vector2(368.12, 94.04787)
 rotation = -0.008894312
-scale = Vector2(0.99999976, 0.99999976)
+scale = Vector2(0.9999997, 0.9999997)
 shape = SubResource("RectangleShape2D_bpvnq")
 
 [node name="Wall_righ_above2" type="StaticBody2D" parent="."]
@@ -120,7 +118,7 @@ position = Vector2(1290.9999, 513)
 position = Vector2(288, 717)
 
 [node name="Box" parent="." instance=ExtResource("7_4aogg")]
-position = Vector2(991, -18)
+position = Vector2(989, -15)
 
 [node name="RoomManager" type="Node" parent="."]
 script = ExtResource("6_nrrqw")
@@ -149,3 +147,8 @@ position = Vector2(7, 0)
 stream = ExtResource("12_2j1q4")
 volume_db = 24.0
 autoplay = true
+
+[node name="mascota" parent="." instance=ExtResource("13_70f7q")]
+position = Vector2(777, 231)
+objetivo = NodePath("../personajePrincipal")
+vida_maxima = 5.0

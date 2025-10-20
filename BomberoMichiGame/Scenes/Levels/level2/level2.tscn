@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://b14whoaid4kvx"]
+[gd_scene load_steps=24 format=3 uid="uid://b14whoaid4kvx"]
 
 [ext_resource type="Texture2D" uid="uid://clv4ndi43ieoa" path="res://Scenes/Levels/level2/level2.jpg" id="1_0ai1i"]
 [ext_resource type="Script" uid="uid://ud6vpwak2bsk" path="res://Scripts/cuarto_2.gd" id="1_r4oe0"]
@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="12_tk4ob"]
 [ext_resource type="PackedScene" uid="uid://g6pr41r3rkwt" path="res://Scenes/UI/deathEscene.tscn" id="13_jslai"]
 [ext_resource type="AudioStream" uid="uid://b2ofh0vdfq8c5" path="res://Assets/musica/Niveles.ogg" id="14_s5ks2"]
+[ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="15_ijd15"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_s43nd"]
 size = Vector2(633, 186)
@@ -130,12 +131,9 @@ position = Vector2(1042, 214)
 [node name="TanqueOxigeno" parent="." instance=ExtResource("8_3he5m")]
 position = Vector2(708, 451)
 
-[node name="minions3" parent="." instance=ExtResource("2_s43nd")]
-position = Vector2(303, 444.99994)
-
 [node name="RoomManager" type="Node" parent="."]
 script = ExtResource("10_s5ks2")
-enemigos_requeridos = 3
+enemigos_requeridos = 2
 fuegos_requeridos = 4
 
 [node name="Puerta" parent="." instance=ExtResource("11_ijd15")]
@@ -164,3 +162,8 @@ position = Vector2(-1, 595)
 
 [node name="Box4" parent="." instance=ExtResource("7_psv0m")]
 position = Vector2(628, 613)
+
+[node name="mascota" parent="." instance=ExtResource("15_ijd15")]
+position = Vector2(818.9999, 201)
+objetivo = NodePath("../personajePrincipal")
+vida_maxima = 5.0
