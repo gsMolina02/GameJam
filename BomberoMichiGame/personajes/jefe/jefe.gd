@@ -15,9 +15,7 @@ var FireballScene: PackedScene = null
 @export var launch_spread_deg := 30.0
 @export var launch_speed_multiplier := 1.0
 
-# Sistema de vida del jefe
-@export var max_health := 100.0
-var health := 100.0
+
 
 var orbit_fireballs := []
 var orbit_angles := []
@@ -69,6 +67,16 @@ func _ready():
 	# Agregar el jefe al grupo "enemy" y "boss"
 	add_to_group("enemy")
 	add_to_group("boss")
+
+	# Asegurar que el cuerpo físico del jefe esté en la capa de enemigos (2)
+	# y detecte al jugador (máscara = 1). Esto permite que las áreas del jugador
+	# (hacha/manguera) lo detecten correctamente.
+	if has_method("set_collision_layer_value"):
+		set_collision_layer_value(2, true)
+		set_collision_mask_value(1, true)
+	else:
+		collision_layer = 2
+		collision_mask = 1
 	
 	# Crear un HitArea para detectar colisiones con el jugador
 	var hit_area = Area2D.new()
@@ -283,17 +291,27 @@ func _spawn_minion():
 
 
 func take_damage(amount: float) -> void:
-	"""Recibe daño y verifica si muere"""
-	health -= amount
-	print_debug("Jefe took damage:", amount, "health remaining:", health)
-	
-	if health <= 0:
-		die()
+	"""Recibe daño y verifica si muere. Usa el sistema de vida heredado (recibir_dano)."""
+	# Utilizar el sistema de vida del padre (personaje_base) para mantener consistencia
+	if has_method("recibir_dano"):
+		print("Jefe: recibiendo daño ->", amount)
+		recibir_dano(amount)
+		print("Jefe: vida restante ->", vida_actual, "/", vida_maxima)
+	else:
+		# Fallback: si por alguna razón no existe recibir_dano, almacenar en vida_actual directamente
+		vida_actual = (vida_actual if typeof(vida_actual) != TYPE_NIL else 0) - amount
+		print("Jefe (fallback) tomó daño:", amount, "vida restante:", vida_actual)
+		if vida_actual <= 0:
+			die()
 
 
 func apply_water(amount: float) -> void:
-	"""Recibe daño por agua de la manguera"""
-	take_damage(amount)
+	"""Recibe daño por agua de la manguera (delegar a recibir_dano para consistencia)."""
+	if has_method("recibir_dano"):
+		recibir_dano(amount)
+		print("Jefe: recibió agua ->", amount, "vida restante:", vida_actual)
+	else:
+		take_damage(amount)
 
 
 func die() -> void:

@@ -1,0 +1,198 @@
+[gd_scene load_steps=22 format=3 uid="uid://dcemlagk1usuv"]
+
+[ext_resource type="Script" uid="uid://c0tkcl7n8d7rs" path="res://Scripts/cuarto_3.gd" id="1_60aqv"]
+[ext_resource type="PackedScene" uid="uid://upe8nkwx2xwf" path="res://personajes/jefe/jefe.tscn" id="1_lpoki"]
+[ext_resource type="Texture2D" uid="uid://c3v3rp4af31p2" path="res://Scenes/Levels/level3/level3.jpg" id="1_p0rop"]
+[ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="3_u0t3m"]
+[ext_resource type="PackedScene" uid="uid://bmhb6a78qs4n" path="res://Objects/Boxes/box.tscn" id="4_b2oma"]
+[ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/fuego.tscn" id="5_54dbs"]
+[ext_resource type="PackedScene" uid="uid://bwg0w8g826tus" path="res://Scenes/Entities/tanque_oxigeno.tscn" id="6_sdd6u"]
+[ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="7_k3bg3"]
+[ext_resource type="PackedScene" uid="uid://bh08j56ukxtp" path="res://Hub/hub.tscn" id="8_sdd6u"]
+[ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="9_k3bg3"]
+[ext_resource type="Script" uid="uid://bmi6b0xff8sy" path="res://Scripts/room_manager.gd" id="11_lu4lr"]
+[ext_resource type="PackedScene" uid="uid://oysdlu64rb7d" path="res://Scenes/Entities/puerta.tscn" id="12_ctx4j"]
+[ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="13_kworg"]
+[ext_resource type="PackedScene" uid="uid://g6pr41r3rkwt" path="res://Scenes/UI/deathEscene.tscn" id="14_iopqe"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_u0t3m"]
+size = Vector2(143, 235)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_j4ql8"]
+size = Vector2(112, 290)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_54dbs"]
+size = Vector2(96.5, 228)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1w18h"]
+size = Vector2(125, 287)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sdd6u"]
+size = Vector2(1489, 167)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_k3bg3"]
+size = Vector2(1489, 36)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_b2oma"]
+size = Vector2(55.5, 147)
+
+[node name="Level3" type="Node2D"]
+script = ExtResource("1_60aqv")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(748, 451)
+scale = Vector2(1.4667969, 1.1934404)
+texture = ExtResource("1_p0rop")
+
+[node name="Wall_top2" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_top2"]
+position = Vector2(70.5, 295.5)
+shape = SubResource("RectangleShape2D_u0t3m")
+
+[node name="Wall_right2" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_right2"]
+position = Vector2(57, 707)
+shape = SubResource("RectangleShape2D_j4ql8")
+
+[node name="Wall_righ_above" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above"]
+position = Vector2(1447.25, 294)
+shape = SubResource("RectangleShape2D_54dbs")
+
+[node name="jefe" parent="Wall_righ_above" instance=ExtResource("1_lpoki")]
+position = Vector2(1099, 513)
+direccion = null
+orbit_count = null
+orbit_radius = null
+orbit_angular_speed = null
+fire_rate = null
+respawn_delay = null
+launch_spread_deg = null
+launch_speed_multiplier = null
+max_health = null
+minion_spawn_interval = null
+min_spawn_distance = null
+speed = null
+screen_margin = null
+clamp_to_viewport = null
+vida_maxima = 1.0
+knockback_duration = null
+knockback_strength = null
+penetration_push = null
+dash_speed = null
+dash_duration = null
+dash_cooldown = null
+
+[node name="Wall_righ_above2" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above2"]
+position = Vector2(1445.5, 704.5)
+shape = SubResource("RectangleShape2D_1w18h")
+
+[node name="Wall_righ_above3" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above3"]
+position = Vector2(745, 90.5)
+shape = SubResource("RectangleShape2D_sdd6u")
+
+[node name="Wall_righ_above4" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above4"]
+position = Vector2(740.5, 872)
+shape = SubResource("RectangleShape2D_k3bg3")
+
+[node name="Wall_righ_above5" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above5"]
+position = Vector2(1465, 485.5)
+shape = SubResource("RectangleShape2D_b2oma")
+
+[node name="personajePrincipal" parent="." instance=ExtResource("3_u0t3m")]
+position = Vector2(195.99991, 499)
+vida_maxima = 5.0
+
+[node name="Box3" parent="." instance=ExtResource("4_b2oma")]
+position = Vector2(739, 38)
+
+[node name="Fuego" parent="." instance=ExtResource("5_54dbs")]
+position = Vector2(174, 443)
+
+[node name="Fuego2" parent="." instance=ExtResource("5_54dbs")]
+position = Vector2(226, 424)
+
+[node name="Fuego3" parent="." instance=ExtResource("5_54dbs")]
+position = Vector2(140, 160)
+
+[node name="Fuego4" parent="." instance=ExtResource("5_54dbs")]
+position = Vector2(672, 365)
+
+[node name="Fuego5" parent="." instance=ExtResource("5_54dbs")]
+position = Vector2(708, 359)
+
+[node name="Fuego6" parent="." instance=ExtResource("5_54dbs")]
+position = Vector2(597, 149)
+
+[node name="Fuego7" parent="." instance=ExtResource("5_54dbs")]
+position = Vector2(570, 183)
+
+[node name="Fuego8" parent="." instance=ExtResource("5_54dbs")]
+position = Vector2(528, 38)
+
+[node name="Fuego9" parent="." instance=ExtResource("5_54dbs")]
+position = Vector2(577, 27)
+
+[node name="Fuego10" parent="." instance=ExtResource("5_54dbs")]
+position = Vector2(76, 589)
+
+[node name="Fuego11" parent="." instance=ExtResource("5_54dbs")]
+position = Vector2(126, 578)
+
+[node name="TanqueOxigeno" parent="." instance=ExtResource("6_sdd6u")]
+position = Vector2(496, 533)
+
+[node name="TanqueOxigeno2" parent="." instance=ExtResource("6_sdd6u")]
+position = Vector2(711, 21)
+
+[node name="TanqueOxigeno3" parent="." instance=ExtResource("6_sdd6u")]
+position = Vector2(225, 118)
+
+[node name="minions" parent="." instance=ExtResource("7_k3bg3")]
+position = Vector2(1159, 793)
+
+[node name="minions3" parent="." instance=ExtResource("7_k3bg3")]
+position = Vector2(782, 255.99994)
+
+[node name="minions4" parent="." instance=ExtResource("7_k3bg3")]
+position = Vector2(1293, 275)
+
+[node name="Hub" parent="." instance=ExtResource("8_sdd6u")]
+
+[node name="HUD" parent="." instance=ExtResource("9_k3bg3")]
+
+[node name="Box" parent="." instance=ExtResource("4_b2oma")]
+position = Vector2(76, 15)
+
+[node name="RoomManager" type="Node" parent="."]
+script = ExtResource("11_lu4lr")
+enemigos_requeridos = 3
+fuegos_requeridos = 9
+
+[node name="Puerta" parent="." instance=ExtResource("12_ctx4j")]
+position = Vector2(1221, 370)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="PuseMenu" parent="CanvasLayer" instance=ExtResource("13_kworg")]
+visible = false
+
+[node name="DeathMenu" parent="CanvasLayer" instance=ExtResource("14_iopqe")]
+visible = false
+
+[node name="Box" parent="CanvasLayer" instance=ExtResource("4_b2oma")]
+position = Vector2(-20, 649)
+
+[node name="Box2" parent="CanvasLayer" instance=ExtResource("4_b2oma")]
+position = Vector2(-142, 15)

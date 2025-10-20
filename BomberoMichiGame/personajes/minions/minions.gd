@@ -15,13 +15,13 @@ var health: float = 10.0
 var is_being_extinguished: bool = false
 
 # Helper: búsqueda segura del player por grupo o por nombres comunes
-func _find_node_by_name(root: Node, name: String) -> Node:
+func _find_node_by_name(root: Node, target_name: String) -> Node:
 	if root == null:
 		return null
-	if root.name == name:
+	if root.name == target_name:
 		return root
 	for child in root.get_children():
-		var found = _find_node_by_name(child, name)
+		var found = _find_node_by_name(child, target_name)
 		if found:
 			return found
 	return null

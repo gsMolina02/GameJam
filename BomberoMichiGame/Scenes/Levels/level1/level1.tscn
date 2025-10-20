@@ -1,15 +1,21 @@
-[gd_scene load_steps=16 format=3 uid="uid://dgooxxoch0lkq"]
+[gd_scene load_steps=21 format=3 uid="uid://dgooxxoch0lkq"]
 
 [ext_resource type="Texture2D" uid="uid://c0py88gnwk54y" path="res://Scenes/Levels/level1/unnamed.jpg" id="1_5rljr"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_5rljr"]
 [ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/fuego.tscn" id="3_xfvig"]
 [ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="4_fdvuu"]
 [ext_resource type="PackedScene" uid="uid://bh08j56ukxtp" path="res://Hub/hub.tscn" id="5_a4g0f"]
+[ext_resource type="Script" uid="uid://bmi6b0xff8sy" path="res://Scripts/room_manager.gd" id="6_nrrqw"]
 [ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="6_w2im6"]
 [ext_resource type="PackedScene" uid="uid://bmhb6a78qs4n" path="res://Objects/Boxes/box.tscn" id="7_4aogg"]
+[ext_resource type="PackedScene" uid="uid://oysdlu64rb7d" path="res://Scenes/Entities/puerta.tscn" id="7_gkcdr"]
+[ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="10_2j1q4"]
+[ext_resource type="PackedScene" uid="uid://g6pr41r3rkwt" path="res://Scenes/UI/deathEscene.tscn" id="11_gkcdr"]
+[ext_resource type="AudioStream" uid="uid://b2ofh0vdfq8c5" path="res://Assets/musica/Niveles.ogg" id="12_2j1q4"]
+[ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="13_70f7q"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7103a"]
-size = Vector2(650, 249)
+size = Vector2(650, 183)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fdvuu"]
 size = Vector2(104, 694)
@@ -18,7 +24,7 @@ size = Vector2(104, 694)
 size = Vector2(103, 701)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bpvnq"]
-size = Vector2(716.0249, 272.90033)
+size = Vector2(716.0249, 178.14421)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_opdyy"]
 size = Vector2(546, 35)
@@ -39,11 +45,8 @@ texture = ExtResource("1_5rljr")
 [node name="Wall_top" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_top"]
-position = Vector2(1197, 128.5)
+position = Vector2(1197, 95.5)
 shape = SubResource("RectangleShape2D_7103a")
-
-[node name="jefe" parent="Wall_top" instance=ExtResource("4_xfvig")]
-position = Vector2(1051, 515.9999)
 
 [node name="Wall_right" type="StaticBody2D" parent="."]
 
@@ -63,9 +66,9 @@ shape = SubResource("RectangleShape2D_5rljr")
 [node name="Wall_righ_above" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above"]
-position = Vector2(368.54138, 141.42404)
+position = Vector2(368.12, 94.04787)
 rotation = -0.008894312
-scale = Vector2(0.99999976, 0.99999976)
+scale = Vector2(0.9999997, 0.9999997)
 shape = SubResource("RectangleShape2D_bpvnq")
 
 [node name="Wall_righ_above2" type="StaticBody2D" parent="."]
@@ -88,6 +91,7 @@ shape = SubResource("RectangleShape2D_a4g0f")
 
 [node name="personajePrincipal" parent="." instance=ExtResource("2_5rljr")]
 position = Vector2(792, 207.99994)
+vida_maxima = 5.0
 
 [node name="Fuego" parent="." instance=ExtResource("3_xfvig")]
 position = Vector2(214, 421)
@@ -113,9 +117,38 @@ position = Vector2(1290.9999, 513)
 [node name="minions2" parent="." instance=ExtResource("4_fdvuu")]
 position = Vector2(288, 717)
 
+[node name="Box" parent="." instance=ExtResource("7_4aogg")]
+position = Vector2(989, -15)
+
+[node name="RoomManager" type="Node" parent="."]
+script = ExtResource("6_nrrqw")
+enemigos_requeridos = 2
+fuegos_requeridos = 6
+
+[node name="Puerta" parent="." instance=ExtResource("7_gkcdr")]
+position = Vector2(622, 682)
+escena_destino = "uid://b14whoaid4kvx"
+nombre_puerta_destino = "Puerta nivel 2"
+
 [node name="Hub" parent="." instance=ExtResource("5_a4g0f")]
 
 [node name="HUD" parent="." instance=ExtResource("6_w2im6")]
 
-[node name="Box" parent="." instance=ExtResource("7_4aogg")]
-position = Vector2(991, -18)
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="PuseMenu" parent="CanvasLayer" instance=ExtResource("10_2j1q4")]
+visible = false
+
+[node name="DeathMenu" parent="CanvasLayer" instance=ExtResource("11_gkcdr")]
+visible = false
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+position = Vector2(7, 0)
+stream = ExtResource("12_2j1q4")
+volume_db = 24.0
+autoplay = true
+
+[node name="mascota" parent="." instance=ExtResource("13_70f7q")]
+position = Vector2(777, 231)
+objetivo = NodePath("../personajePrincipal")
+vida_maxima = 5.0
