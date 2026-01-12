@@ -40,13 +40,14 @@ func _register_player(player: Node) -> void:
 			player.disconnect("hose_recharged", Callable(self, "_on_player_hose_recharged"))
 		player.connect("hose_recharged", Callable(self, "_on_player_hose_recharged"))
 	
-	# Pedir la vida inicial (respeta diferentes nombres)
-	if "tanques_oxigeno" in player:
-		_on_player_vida_actualizada(player.tanques_oxigeno)
+	# Pedir la vida inicial (usar vida_actual como prioridad)
+	if "vida_actual" in player:
+		_on_player_vida_actualizada(player.vida_actual)
+		print("HUD: Vida inicial del player:", player.vida_actual, "/", player.vida_maxima if "vida_maxima" in player else "?")
 	elif player.has_method("get_vida_actual"):
 		_on_player_vida_actualizada(player.get_vida_actual())
-	elif "vida_actual" in player:
-		_on_player_vida_actualizada(player.vida_actual)
+	elif "tanques_oxigeno" in player:
+		_on_player_vida_actualizada(player.tanques_oxigeno)
 	
 	# Pedir el agua inicial
 	if "hose_charge" in player:
@@ -54,18 +55,22 @@ func _register_player(player: Node) -> void:
 	elif player.has_method("get_hose_charge"):
 		_on_player_hose_recharged(player.get_hose_charge())
 
-func _on_player_vida_actualizada(nueva_vida: int) -> void:
+func _on_player_vida_actualizada(nueva_vida: float) -> void:
 	if is_instance_valid(player_life_label):
-		player_life_label.text = "Oxi: x%d" % int(nueva_vida)
+		# Mostrar con 1 decimal si es necesario, si no, mostrar como entero
+		if fmod(nueva_vida, 1.0) == 0.0:
+			player_life_label.text = "x%d" % int(nueva_vida)
+		else:
+			player_life_label.text = "x%.1f" % nueva_vida
 
 func _on_player_hose_recharged(nuevo_porcentaje: float) -> void:
 	"""Actualiza el porcentaje de agua cuando cambia la carga de la manguera"""
 	if is_instance_valid(water_percent_label):
-		water_percent_label.text = "Agua: %d%%" % int(nuevo_porcentaje)
+		water_percent_label.text = "%d%%" % int(nuevo_porcentaje)
 
 func actualizar_agua(nuevo_porcentaje: int) -> void:
 	if is_instance_valid(water_percent_label):
-		water_percent_label.text = "Agua: %d%%" % int(nuevo_porcentaje)
+		water_percent_label.text = "%d%%" % int(nuevo_porcentaje)
 
 # ============================================
 # ROOM MANAGER
@@ -107,15 +112,18 @@ func _on_vida_habitacion_actualizada(vida_actual: float, vida_maxima: float) -> 
 	
 	# Actualizar barra visual
 	if is_instance_valid(room_bar):
-		var porcentaje = vida_actual / vida_maxima
+		var porcentaje = max(0.0, vida_actual / vida_maxima)
 		# Ajustar el tamaño de la barra (160 es el ancho máximo)
 		var ancho_maximo = 160.0
-		room_bar.custom_minimum_size.x = ancho_maximo * porcentaje
+		var nuevo_ancho = ancho_maximo * porcentaje
+		room_bar.custom_minimum_size.x = max(0.0, nuevo_ancho)
 		
 		# Cambiar color según la vida restante
 		if porcentaje > 0.5:
 			room_bar.color = Color(0.435, 0.027, 0.027)  # Rojo oscuro
 		elif porcentaje > 0.25:
 			room_bar.color = Color(0.8, 0.4, 0.0)  # Naranja
+		elif porcentaje > 0.1:
+			room_bar.color = Color(0.9, 0.0, 0.0)  # Rojo brillante
 		else:
-			room_bar.color = Color(0.8, 0.0, 0.0)  # Rojo brillante
+			room_bar.color = Color(1.0, 0.0, 0.0)  # Rojo puro (crítico)

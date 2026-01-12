@@ -8,17 +8,17 @@ extends Control
 		"text": "Hace mucho tiempo, la ciudad de Felinia era un lugar pacífico...\n\nLos gatos y humanos vivían en armonía, protegidos por valientes bomberos."
 	},
 	{
-		"image": "res://Assets/fondos/fondo.jpg", 
+		"image": "res://Assets/fondos/1.jpg", 
 		"text": "Pero un día, misteriosas llamas comenzaron a aparecer en toda la ciudad...\n\nEran llamas que no podían ser apagadas con agua normal."
 	},
 	{
-		"image": "res://Assets/fondos/puerta.png",
+		"image": "res://Assets/fondos/story3.png",
 		"text": "Un joven bombero llamado Michi descubrió que tenía un don especial...\n\n¡Podía controlar el agua de formas mágicas! Ahora, la esperanza de la ciudad descansa en sus patas."
 	}
 ]
 
 # Escena a la que ir después de la intro (tu nivel o escena de juego)
-@export var next_scene: String = "res://Scenes/escena_prueba.tscn"
+@export var next_scene: String = "res://Scenes/Levels/level1/level1.tscn"
 
 # Velocidad del efecto de escritura
 @export var typing_speed: float = 40.0
@@ -33,6 +33,9 @@ var can_advance: bool = false
 var full_text: String = ""
 
 func _ready():
+	# Mostrar el cursor del sistema en la intro de historia
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	
 	# Validar que tengamos páginas configuradas
 	if story_pages.is_empty():
 		push_error("No hay páginas de historia configuradas!")
@@ -97,9 +100,11 @@ func _on_timer_timeout():
 	can_advance = true
 
 func _input(event):
-	if event is InputEventKey or event is InputEventMouseButton:
-		if event.is_pressed():
-			handle_input()
+	# Solo responder a Enter o click de mouse (NO Space)
+	if event is InputEventMouseButton and event.is_pressed():
+		handle_input()
+	elif event is InputEventKey and event.is_pressed() and event.keycode == KEY_ENTER:
+		handle_input()
 
 func handle_input():
 	if is_typing:
@@ -122,4 +127,18 @@ func finish_story():
 	go_to_next_scene()
 
 func go_to_next_scene():
-	get_tree().change_scene_to_file(next_scene)
+	# Verificar que el SceneTree esté disponible
+	var tree = get_tree()
+	if tree == null:
+		push_error("SceneTree is null! Cannot change scene.")
+		return
+	
+	# Verificar que next_scene no esté vacío
+	if next_scene.is_empty():
+		push_error("next_scene is empty! Cannot change scene.")
+		return
+	
+	# Cambiar la escena
+	var error = tree.change_scene_to_file(next_scene)
+	if error != OK:
+		push_error("Failed to load scene: " + next_scene + " Error code: " + str(error))
