@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://dgooxxoch0lkq"]
+[gd_scene load_steps=22 format=3 uid="uid://dgooxxoch0lkq"]
 
 [ext_resource type="Texture2D" uid="uid://c0py88gnwk54y" path="res://Scenes/Levels/level1/unnamed.jpg" id="1_5rljr"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_5rljr"]
@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" uid="uid://g6pr41r3rkwt" path="res://Scenes/UI/deathEscene.tscn" id="11_gkcdr"]
 [ext_resource type="AudioStream" uid="uid://b2ofh0vdfq8c5" path="res://Assets/musica/Niveles.ogg" id="12_2j1q4"]
 [ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="13_70f7q"]
+[ext_resource type="Texture2D" uid="uid://dh0jku72q5qh0" path="res://Assets/Objetos/calaca.png" id="14_3cji1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7103a"]
 size = Vector2(650, 183)
@@ -91,7 +92,6 @@ shape = SubResource("RectangleShape2D_a4g0f")
 
 [node name="personajePrincipal" parent="." instance=ExtResource("2_5rljr")]
 position = Vector2(792, 207.99994)
-vida_maxima = 5.0
 
 [node name="Fuego" parent="." instance=ExtResource("3_xfvig")]
 position = Vector2(214, 421)
@@ -126,7 +126,7 @@ enemigos_requeridos = 2
 fuegos_requeridos = 6
 
 [node name="Puerta" parent="." instance=ExtResource("7_gkcdr")]
-position = Vector2(622, 682)
+position = Vector2(608, 684)
 escena_destino = "uid://b14whoaid4kvx"
 nombre_puerta_destino = "Puerta nivel 2"
 
@@ -151,3 +151,8 @@ autoplay = true
 position = Vector2(777, 231)
 objetivo = NodePath("../personajePrincipal")
 vida_maxima = 5.0
+
+[node name="Calaca" type="Sprite2D" parent="."]
+position = Vector2(1301, 812)
+scale = Vector2(0.07314821, 0.058333375)
+texture = ExtResource("14_3cji1")

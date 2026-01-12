@@ -33,13 +33,13 @@ size = Vector2(120.009155, 701)
 size = Vector2(691.862, 188.2124)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_3he5m"]
-size = Vector2(546, 63)
+size = Vector2(566, 63)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_twbf5"]
 size = Vector2(160, 56)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_inn2q"]
-size = Vector2(550, 68)
+size = Vector2(576, 68)
 
 [node name="Level2" type="Node2D"]
 script = ExtResource("1_r4oe0")
@@ -84,7 +84,7 @@ shape = SubResource("RectangleShape2D_psv0m")
 [node name="Wall_righ_above2" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above2"]
-position = Vector2(1149, 865.5)
+position = Vector2(1139, 865.5)
 shape = SubResource("RectangleShape2D_3he5m")
 
 [node name="Wall_righ_above3" type="StaticBody2D" parent="."]
@@ -96,7 +96,7 @@ shape = SubResource("RectangleShape2D_twbf5")
 [node name="Wall_righ_above4" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above4"]
-position = Vector2(397, 856)
+position = Vector2(410, 856)
 shape = SubResource("RectangleShape2D_inn2q")
 
 [node name="minions" parent="." instance=ExtResource("2_s43nd")]
@@ -137,7 +137,7 @@ enemigos_requeridos = 2
 fuegos_requeridos = 4
 
 [node name="Puerta" parent="." instance=ExtResource("11_ijd15")]
-position = Vector2(599, 646)
+position = Vector2(592, 643)
 escena_destino = "uid://dcemlagk1usuv"
 nombre_puerta_destino = "Puerta nivel 3"
 

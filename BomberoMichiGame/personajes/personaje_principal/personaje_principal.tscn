@@ -190,11 +190,11 @@ size = Vector2(50, 50)
 size = Vector2(64, 56)
 
 [node name="personajePrincipal" type="CharacterBody2D" groups=["player_main"]]
+z_index = 1
 position = Vector2(290, 115.99999)
 rotation = -0.00036524187
 scale = Vector2(1.0015259, 0.9999777)
 script = ExtResource("1_yy08j")
-vida_maxima = 5
 metadata/_edit_group_ = true
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
