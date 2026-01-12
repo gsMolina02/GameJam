@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [gd_scene load_steps=12 format=3 uid="uid://dgooxxoch0lkq"]
 
 [ext_resource type="Texture2D" uid="uid://c0py88gnwk54y" path="res://Scenes/Levels/level1/unnamed.jpg" id="1_5rljr"]
@@ -28,10 +29,17 @@ size = Vector2(142, 56)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_a4g0f"]
 size = Vector2(601, 36)
+=======
+[gd_scene load_steps=3 format=3 uid="uid://dgooxxoch0lkq"]
+
+[ext_resource type="Texture2D" uid="uid://1gtqwgldjx8b" path="res://Scenes/Levels/level1/level1.jpg" id="1_7103a"]
+[ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_5rljr"]
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 
 [node name="FondoSala" type="Node2D"]
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+<<<<<<< HEAD
 position = Vector2(766.25, 451)
 scale = Vector2(2.0649796, 1.6505576)
 texture = ExtResource("1_5rljr")
@@ -92,3 +100,11 @@ shape = SubResource("RectangleShape2D_a4g0f")
 [node name="personajePrincipal" parent="." instance=ExtResource("2_5rljr")]
 position = Vector2(597, 511)
 collision_mask = 1
+=======
+position = Vector2(576.99994, 316.75)
+scale = Vector2(1.3164061, 1.0739385)
+texture = ExtResource("1_7103a")
+
+[node name="personajePrincipal" parent="." instance=ExtResource("2_5rljr")]
+position = Vector2(541, 434)
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
