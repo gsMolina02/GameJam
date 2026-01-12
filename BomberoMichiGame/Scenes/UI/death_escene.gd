@@ -56,6 +56,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		# Presionar el botón seleccionado
 		_press_selected_button()
 		viewport.set_input_as_handled()
+	elif event is InputEventKey and event.pressed and event.keycode == KEY_ENTER:
+		# Presionar el botón seleccionado con Enter
+		_press_selected_button()
+		viewport.set_input_as_handled()
 	else:
 		# Bloquear TODOS los demás inputs mientras el menú está activo
 		if event is InputEventKey or event is InputEventMouseButton or event is InputEventJoypadButton:
@@ -77,17 +81,6 @@ func _press_selected_button() -> void:
 		_on_no_pressed()
 
 
-func _on_no_pressed() -> void:
-	# NO quiero continuar = Volver al menú principal
-	if not is_inside_tree():
-		return
-	
-	get_tree().paused = false
-	# Usar call_deferred para evitar problemas durante el procesamiento de input
-	get_tree().call_deferred("change_scene_to_file", "res://Interfaces/main_menu.tscn")
-	queue_free()
-
-
 func _on_yes_pressed() -> void:
 	# SÍ quiero continuar = Reiniciar el nivel
 	if not is_inside_tree():
@@ -96,4 +89,15 @@ func _on_yes_pressed() -> void:
 	get_tree().paused = false
 	# Usar call_deferred para evitar problemas durante el procesamiento de input
 	get_tree().call_deferred("reload_current_scene")
-	queue_free()
+	call_deferred("queue_free")
+
+
+func _on_no_pressed() -> void:
+	# NO quiero continuar = Volver al menú principal
+	if not is_inside_tree():
+		return
+	
+	get_tree().paused = false
+	# Usar call_deferred para evitar problemas durante el procesamiento de input
+	get_tree().call_deferred("change_scene_to_file", "res://Interfaces/main_menu.tscn")
+	call_deferred("queue_free")
