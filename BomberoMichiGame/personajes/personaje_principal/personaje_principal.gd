@@ -123,7 +123,7 @@ func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 
 	# Instanciar apuntador visual
-	var apuntador_scene = preload("res://Assets/objetos/apuntador.tscn")
+	var apuntador_scene = preload("res://Assets/Objetos/apuntador.tscn")
 	apuntador = apuntador_scene.instantiate()
 	apuntador.name = "Apuntador"
 	add_child(apuntador)
