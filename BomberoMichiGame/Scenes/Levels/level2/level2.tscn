@@ -121,9 +121,9 @@ position = Vector2(629, 473)
 [node name="Fuego4" parent="." instance=ExtResource("4_02sxl")]
 position = Vector2(-162, 524)
 
-[node name="Hub" parent="." instance=ExtResource("5_gu04i")]
-
 [node name="HUD" parent="." instance=ExtResource("6_02sxl")]
+
+[node name="Hub" parent="." instance=ExtResource("5_gu04i")]
 
 [node name="Box" parent="." instance=ExtResource("7_psv0m")]
 position = Vector2(1042, 214)
