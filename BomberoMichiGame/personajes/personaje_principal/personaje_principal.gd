@@ -123,7 +123,7 @@ func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 
 	# Instanciar apuntador visual
-	var apuntador_scene = preload("res://Assets/objetos/apuntador.tscn")
+	var apuntador_scene = preload("res://Assets/Objetos/apuntador.tscn")
 	apuntador = apuntador_scene.instantiate()
 	apuntador.name = "Apuntador"
 	add_child(apuntador)
@@ -658,10 +658,13 @@ func attack():
 		
 		if axe_hitbox:
 			axe_hitbox.monitoring = true
+<<<<<<< HEAD
 
 		# Reproducir la animación del hacha si existe en el AnimatedSprite2D
 		if axe_sprite and axe_sprite.has_method("play") and axe_sprite.sprite_frames and axe_sprite.sprite_frames.has_animation("animacionHacha"):
 			axe_sprite.play("animacionHacha")
+=======
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 		
 		if animation_player and animation_player.has_animation("axe_attack"):
 			animation_player.play("axe_attack")
@@ -677,12 +680,15 @@ func attack():
 		if axe_hitbox:
 			axe_hitbox.monitoring = false
 		
+<<<<<<< HEAD
 		# Volver a la animación base del hacha (idle) si existe
 		if axe_sprite and axe_sprite.sprite_frames and axe_sprite.sprite_frames.has_animation("hacha"):
 			axe_sprite.play("hacha")
 		elif axe_sprite and axe_sprite.has_method("stop"):
 			axe_sprite.stop()
 
+=======
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 		_reset_axe_position()
 		var safe_cooldown = attack_cooldown_time if attack_cooldown_time != null else 0.2
 		attack_cooldown_timer.start(safe_cooldown)

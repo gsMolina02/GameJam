@@ -1,6 +1,6 @@
 [gd_scene load_steps=24 format=3 uid="uid://dcemlagk1usuv"]
 
-[ext_resource type="Script" uid="uid://c0tkcl7n8d7rs" path="res://Scripts/cuarto_3.gd" id="1_60aqv"]
+[ext_resource type="Script" path="res://Scripts/cuarto_3.gd" id="1_60aqv"]
 [ext_resource type="PackedScene" uid="uid://upe8nkwx2xwf" path="res://personajes/jefe/jefe.tscn" id="1_lpoki"]
 [ext_resource type="Texture2D" uid="uid://c3v3rp4af31p2" path="res://Scenes/Levels/level3/level3.jpg" id="1_p0rop"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="3_u0t3m"]
@@ -150,9 +150,9 @@ position = Vector2(782, 255.99994)
 [node name="minions4" parent="." instance=ExtResource("7_k3bg3")]
 position = Vector2(1293, 275)
 
-[node name="Hub" parent="." instance=ExtResource("8_sdd6u")]
-
 [node name="HUD" parent="." instance=ExtResource("9_k3bg3")]
+
+[node name="Hub" parent="." instance=ExtResource("8_sdd6u")]
 
 [node name="Box" parent="." instance=ExtResource("4_b2oma")]
 position = Vector2(76, 15)

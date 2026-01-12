@@ -34,28 +34,36 @@ func _hide_pause_menu() -> void:
 
 # Manejar input para navegación con teclado - usar _unhandled_input para mayor prioridad
 func _unhandled_input(event: InputEvent) -> void:
+	# NO procesar input si el menú no es visible o no está en el árbol
+	if not visible or not is_inside_tree():
+		return
+	
+	# Verificar que el viewport existe antes de usarlo
+	var viewport = get_viewport()
+	if not viewport:
+		return
+	
 	# Solo procesar input de teclado/gamepad para el menú
 	if event.is_action_pressed("ui_left") or event.is_action_pressed("left"):
 		selected_button = 0  # Seleccionar "Sí"
 		_update_button_focus()
-		if event and event.has_method("accept"):
-			event.accept()
+		viewport.set_input_as_handled()
 	elif event.is_action_pressed("ui_right") or event.is_action_pressed("right"):
 		selected_button = 1  # Seleccionar "No"
 		_update_button_focus()
-		if event and event.has_method("accept"):
-			event.accept()
+		viewport.set_input_as_handled()
+	elif event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_select"):
+		# Presionar el botón seleccionado
+		_press_selected_button()
+		viewport.set_input_as_handled()
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_ENTER:
 		# Presionar el botón seleccionado con Enter
-		print("Enter presionado - ejecutando botón: ", selected_button)
 		_press_selected_button()
-		if event and event.has_method("accept"):
-			event.accept()
+		viewport.set_input_as_handled()
 	else:
 		# Bloquear TODOS los demás inputs mientras el menú está activo
 		if event is InputEventKey or event is InputEventMouseButton or event is InputEventJoypadButton:
-			if event and event.has_method("accept"):
-				event.accept()
+			viewport.set_input_as_handled()
 
 # Actualizar el foco visual del botón
 func _update_button_focus() -> void:
@@ -75,19 +83,21 @@ func _press_selected_button() -> void:
 
 func _on_yes_pressed() -> void:
 	# SÍ quiero continuar = Reiniciar el nivel
-	print("╔════════════════════════════════╗")
-	print("║  BOTÓN SÍ - REINICIAR NIVEL   ║")
-	print("╚════════════════════════════════╝")
+	if not is_inside_tree():
+		return
+	
 	get_tree().paused = false
+	# Usar call_deferred para evitar problemas durante el procesamiento de input
 	get_tree().call_deferred("reload_current_scene")
 	call_deferred("queue_free")
 
 
 func _on_no_pressed() -> void:
 	# NO quiero continuar = Volver al menú principal
-	print("╔════════════════════════════════╗")
-	print("║  BOTÓN NO - MENÚ PRINCIPAL     ║")
-	print("╚════════════════════════════════╝")
+	if not is_inside_tree():
+		return
+	
 	get_tree().paused = false
+	# Usar call_deferred para evitar problemas durante el procesamiento de input
 	get_tree().call_deferred("change_scene_to_file", "res://Interfaces/main_menu.tscn")
 	call_deferred("queue_free")

@@ -1,23 +1,41 @@
 [gd_scene load_steps=4 format=3 uid="uid://bmhb6a78qs4n"]
 
+<<<<<<< HEAD
 [ext_resource type="Script" uid="uid://dxggjd0kwr6yy" path="res://Objects/Boxes/box.gd" id="1_yqyg2"]
 [ext_resource type="Texture2D" uid="uid://biv4dys2ltgbr" path="res://Assets/Objetos/Assets_caja de extintor_2.png" id="2_yqyg2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yqyg2"]
 size = Vector2(50, 62.75)
+=======
+[ext_resource type="Texture2D" uid="uid://o6ngfpcesb0w" path="res://icon.svg" id="1_5d80p"]
+[ext_resource type="Script" uid="uid://dxggjd0kwr6yy" path="res://Objects/Boxes/box.gd" id="1_yqyg2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_yqyg2"]
+size = Vector2(50, 116)
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 
 [node name="Box" type="Node2D"]
 script = ExtResource("1_yqyg2")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+<<<<<<< HEAD
 position = Vector2(360.6953, 189.83597)
 scale = Vector2(0.0727865, 0.07252601)
 texture = ExtResource("2_yqyg2")
+=======
+position = Vector2(2.500002, 3.4999962)
+scale = Vector2(0.38281253, 0.89843744)
+texture = ExtResource("1_5d80p")
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 
 [node name="boxHitbox" type="Area2D" parent="."]
 collision_layer = 2
 collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="boxHitbox"]
+<<<<<<< HEAD
 position = Vector2(361, 191.625)
+=======
+position = Vector2(3, 6)
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 shape = SubResource("RectangleShape2D_yqyg2")

@@ -28,4 +28,4 @@ position = Vector2(935, 232)
 position = Vector2(463, 229)
 
 [node name="minions" parent="." instance=ExtResource("7_h34ln")]
-position = Vector2(476.99997, 657.00006)
+position = Vector2(845, 447)
