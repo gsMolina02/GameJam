@@ -91,7 +91,6 @@ shape = SubResource("RectangleShape2D_a4g0f")
 
 [node name="personajePrincipal" parent="." instance=ExtResource("2_5rljr")]
 position = Vector2(792, 207.99994)
-vida_maxima = 5.0
 
 [node name="Fuego" parent="." instance=ExtResource("3_xfvig")]
 position = Vector2(214, 421)
