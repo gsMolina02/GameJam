@@ -45,8 +45,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		_update_button_focus()
 		if event and event.has_method("accept"):
 			event.accept()
-	elif event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_select"):
-		# Presionar el botón seleccionado
+	elif event is InputEventKey and event.pressed and event.keycode == KEY_ENTER:
+		# Presionar el botón seleccionado con Enter
+		print("Enter presionado - ejecutando botón: ", selected_button)
 		_press_selected_button()
 		if event and event.has_method("accept"):
 			event.accept()
@@ -72,15 +73,21 @@ func _press_selected_button() -> void:
 		_on_no_pressed()
 
 
-func _on_no_pressed() -> void:
-	# NO quiero continuar = Volver al menú principal
-	get_tree().paused = false
-	queue_free()
-	get_tree().change_scene_to_file("res://Interfaces/main_menu.tscn")
-
-
 func _on_yes_pressed() -> void:
 	# SÍ quiero continuar = Reiniciar el nivel
+	print("╔════════════════════════════════╗")
+	print("║  BOTÓN SÍ - REINICIAR NIVEL   ║")
+	print("╚════════════════════════════════╝")
 	get_tree().paused = false
-	queue_free()
-	get_tree().reload_current_scene()
+	get_tree().call_deferred("reload_current_scene")
+	call_deferred("queue_free")
+
+
+func _on_no_pressed() -> void:
+	# NO quiero continuar = Volver al menú principal
+	print("╔════════════════════════════════╗")
+	print("║  BOTÓN NO - MENÚ PRINCIPAL     ║")
+	print("╚════════════════════════════════╝")
+	get_tree().paused = false
+	get_tree().call_deferred("change_scene_to_file", "res://Interfaces/main_menu.tscn")
+	call_deferred("queue_free")

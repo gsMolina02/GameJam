@@ -159,16 +159,16 @@ radius = 16.124516
 
 [node name="Fuego" type="Area2D"]
 collision_layer = 2
-collision_mask = 1
 script = ExtResource("1_fuego")
 
 [node name="Fuego" type="AnimatedSprite2D" parent="."]
-position = Vector2(400.5, 194)
-scale = Vector2(0.043229174, 0.044444438)
+position = Vector2(403.00003, 180)
+scale = Vector2(0.086521536, 0.08731021)
 sprite_frames = SubResource("SpriteFrames_5hdup")
 animation = &"llamas"
 autoplay = "llamas"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(398, 201)
+scale = Vector2(1.6429917, 1.515633)
 shape = SubResource("CircleShape2D_ph56w")

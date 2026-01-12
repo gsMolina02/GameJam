@@ -8,11 +8,11 @@ extends Control
 		"text": "Hace mucho tiempo, la ciudad de Felinia era un lugar pacífico...\n\nLos gatos y humanos vivían en armonía, protegidos por valientes bomberos."
 	},
 	{
-		"image": "res://Assets/fondos/fondo.jpg", 
+		"image": "res://Assets/fondos/1.jpg", 
 		"text": "Pero un día, misteriosas llamas comenzaron a aparecer en toda la ciudad...\n\nEran llamas que no podían ser apagadas con agua normal."
 	},
 	{
-		"image": "res://Assets/fondos/puerta.png",
+		"image": "res://Assets/fondos/story3.png",
 		"text": "Un joven bombero llamado Michi descubrió que tenía un don especial...\n\n¡Podía controlar el agua de formas mágicas! Ahora, la esperanza de la ciudad descansa en sus patas."
 	}
 ]
@@ -100,9 +100,11 @@ func _on_timer_timeout():
 	can_advance = true
 
 func _input(event):
-	if event is InputEventKey or event is InputEventMouseButton:
-		if event.is_pressed():
-			handle_input()
+	# Solo responder a Enter o click de mouse (NO Space)
+	if event is InputEventMouseButton and event.is_pressed():
+		handle_input()
+	elif event is InputEventKey and event.is_pressed() and event.keycode == KEY_ENTER:
+		handle_input()
 
 func handle_input():
 	if is_typing:

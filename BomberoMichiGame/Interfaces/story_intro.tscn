@@ -60,16 +60,15 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_story")
-next_scene = "res://Scenes/Levels/level1/level1.tscn"
 story_pages = Array[Dictionary]([{
 "image": "res://Assets/fondos/story1.png",
-"text": "Kala, un pueblo acunado por el fuego cerca del ecuador, producto de ser el destino preferido para los piromaniacos, tenÃ­a en las llamas su himno eterno. Sus noches, teÃ±idas de humo y reflejos anaranjados, habÃ­an visto arder templos, mercados y sueÃ±os. En esa tierra devorada por el calor, solo los bomberos, sacerdotes de las cenizas, podÃ­an negociar con el incendio.. Y entre ellos, JosuÃ©, de origen campesino, cumplÃ­a su deber civil sin mirar atrÃ¡s, forjado en el fuego que todo lo consume."
+"text": "Kala, un pueblo acunado por el fuego cerca del ecuador, destino preferido de los piromaniacos, tenía en las llamas su himno eterno. Sus noches, teñidas de humo y reflejos anaranjados, habían visto arder templos, mercados y sueños. En esa tierra devorada por el calor, solo los bomberos, sacerdotes de las cenizas, podían negociar con el incendio. Y entre ellos, Josué, de origen campesino, cumplía su deber civil sin mirar atrás, forjado en el fuego que todo lo consume."
 }, {
-"image": "res://Assets/fondos/story2.png",
-"text": "Â¿Puede el hombre culparse por perder lo que ama, cuando lo hace cumpliendo su deber? Â¿Puede culparse por ser desconocido en su propio hogar, por mirar la ciudad con mÃ¡s ternura que a sus hijos? Navidades pasaban sin su sombra, cumpleaÃ±os sin su voz. Una madrugada, el fuego decidiÃ³ visitarlo con rostro propio. Una fuga, una chispa, una rÃ¡faga bastaron. El espacio que alguna vez considerÃ³ su hogar, el aire aÃºn olÃ­a a su vida, porque el espacio donde dormÃ­a su humanidad, era ceniza, la lejanÃ­a rural del hogar habÃ­a evitado cualquier reporte y atenciÃ³n suya mientras no perdonÃ³ alma alguna."
+"image": "res://Assets/fondos/1.jpg",
+"text": "¿Puede el hombre culparse por perder lo que ama cuando lo hace cumpliendo su deber? ¿Puede culparse por ser desconocido en su propio hogar, por mirar la ciudad con más ternura que a sus hijos? Las navidades pasaban sin su sombra, los cumpleaños sin su voz. Una madrugada, el fuego decidió visitarlo con rostro propio: una fuga, una chispa, una ráfaga bastaron. El espacio que alguna vez consideró su hogar aún olía a su vida, porque el lugar donde dormía su humanidad era ahora ceniza; la lejanía rural del hogar había evitado cualquier reporte y atención suya mientras el fuego no perdonó a nadie."
 }, {
 "image": "res://Assets/fondos/story3.png",
-"text": "Entre los restos, solo un alma esperÃ³, Osiris, un gato que algun dia solo conocio la calle, fue durante dÃ­as su propio refugio en su propio hogar, ahora, era el Ãºnico refugio que en realidad le quedaba  A pesar de los homenajes y las promesas, JosuÃ©, a sus 40 aÃ±os, habÃ­a perdido su hogar y con Ã©l, un pedazo de su alma. Por mÃ¡s que amara al animal, este no podrÃ­a llenar el vacÃ­o de sus pÃ©rdidas, ni sustituir el recuerdo de lo que, para siempre, se habÃ­a quedado atrÃ¡s."
+"text": "Entre los restos, solo un alma esperó: Osiris, un gato que algún día solo conoció la calle y que durante días fue su único refugio. A pesar de los homenajes y las promesas, Josué, a sus 40 años, había perdido su hogar y con él un pedazo de su alma. Por más que amara al animal, este no podría llenar el vacío de sus pérdidas ni sustituir el recuerdo de lo que, para siempre, se había quedado atrás."
 }])
 
 [node name="Background" type="ColorRect" parent="."]
@@ -124,7 +123,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 0.7)
 theme_override_font_sizes/font_size = 16
-text = "Presiona cualquier tecla para continuar..."
+text = "Presiona ENTER para continuar..."
 horizontal_alignment = 2
 
 [node name="StoryImage" type="TextureRect" parent="HBoxContainer"]
