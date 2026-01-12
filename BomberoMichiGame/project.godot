@@ -11,11 +11,7 @@ config_version=5
 [application]
 
 config/name="BomberoMichiGame"
-<<<<<<< HEAD
-run/main_scene="uid://615vh1g7fw4f"
-=======
 run/main_scene="uid://iunb5cylo0wq"
->>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -26,11 +22,6 @@ GameManager="*res://Scripts/game_manager.gd"
 
 [display]
 
-<<<<<<< HEAD
-window/size/viewport_width=1500
-window/size/viewport_height=900
-=======
->>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="canvas_items"
