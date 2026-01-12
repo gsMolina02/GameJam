@@ -1,35 +1,25 @@
-<<<<<<< HEAD
-[gd_scene load_steps=15 format=3 uid="uid://c2fcfdi28gc84"]
-=======
 [gd_scene load_steps=14 format=3 uid="uid://c2fcfdi28gc84"]
->>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 
 [ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="1_uapuf"]
-[ext_resource type="Script" uid="uid://crbjxxa8mctqn" path="res://Scripts/escena_prueba.gd" id="1_v2ygx"]
+[ext_resource type="Script" path="res://Scripts/escena_prueba.gd" id="1_v2ygx"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_1in75"]
 [ext_resource type="PackedScene" uid="uid://upe8nkwx2xwf" path="res://personajes/jefe/jefe.tscn" id="3_1in75"]
-[ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/Entities/fuego.tscn" id="4_gdsp3"]
+[ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/fuego.tscn" id="4_gdsp3"]
 [ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="4_minions"]
 [ext_resource type="PackedScene" uid="uid://bmhb6a78qs4n" path="res://Objects/Boxes/box.tscn" id="5_gdsp3"]
 [ext_resource type="PackedScene" uid="uid://bwg0w8g826tus" path="res://Scenes/Entities/tanque_oxigeno.tscn" id="5_qjlt0"]
 [ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="6_qjlt0"]
-[ext_resource type="PackedScene" path="res://Interfaces/puse_menu.tscn" id="7_pause"]
+[ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="7_pause"]
 [ext_resource type="PackedScene" uid="uid://oysdlu64rb7d" path="res://Scenes/Entities/puerta.tscn" id="11_p5njm"]
-<<<<<<< HEAD
-[ext_resource type="Script" uid="uid://bmi6b0fff8sy" path="res://Scripts/room_manager.gd" id="12_p5njm"]
-[ext_resource type="PackedScene" uid="uid://b4cinnlduff6a" path="res://Scenes/Entities/gato_gris.tscn" id="13_u1sv6"]
-[ext_resource type="PackedScene" uid="uid://bh08j56ukxtp" path="res://Hub/hub.tscn" id="14_hub"]
-=======
 [ext_resource type="Script" uid="uid://bmi6b0xff8sy" path="res://Scripts/room_manager.gd" id="12_p5njm"]
-[ext_resource type="PackedScene" uid="uid://b4cinnlduff6a" path="res://Scenes/Entities/gato_gris.tscn" id="13_u1sv6"]
->>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
+[ext_resource type="PackedScene" uid="uid://bh08j56ukxtp" path="res://Hub/hub.tscn" id="13_u1sv6"]
 
 [node name="escenaPrueba" type="Node2D"]
 position = Vector2(428, 355)
 script = ExtResource("1_v2ygx")
 
 [node name="mascota" parent="." instance=ExtResource("1_uapuf")]
-position = Vector2(-339.00003, -131.00003)
+position = Vector2(-17.000002, -104.99998)
 scale = Vector2(1.0224254, 0.9807179)
 objetivo = NodePath("../personajePrincipal")
 
@@ -38,48 +28,30 @@ position = Vector2(-344.00003, 92.99997)
 scale = Vector2(1.0000006, 1.0237389)
 
 [node name="jefe" parent="." instance=ExtResource("3_1in75")]
-<<<<<<< HEAD
 position = Vector2(439.99994, -9)
-=======
-position = Vector2(549, 5.000061)
->>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 
 [node name="Fuego" parent="." instance=ExtResource("4_gdsp3")]
 position = Vector2(117, -100)
 
 [node name="TanqueOxigeno" parent="." instance=ExtResource("5_qjlt0")]
-<<<<<<< HEAD
 position = Vector2(-592, -161)
-=======
-position = Vector2(-660, -220)
->>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 
 [node name="HUD" parent="." instance=ExtResource("6_qjlt0")]
 
 [node name="minion_test" parent="." instance=ExtResource("4_minions")]
-<<<<<<< HEAD
 position = Vector2(557, -123)
 
 [node name="Box" parent="." instance=ExtResource("5_gdsp3")]
 position = Vector2(27, -439)
-=======
-position = Vector2(619, -185)
-
-[node name="Box" parent="." instance=ExtResource("5_gdsp3")]
-position = Vector2(341, -295)
->>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 visible = false
 
 [node name="PuseMenu" parent="CanvasLayer" instance=ExtResource("7_pause")]
 
-<<<<<<< HEAD
 [node name="Fuego2" parent="." instance=ExtResource("4_gdsp3")]
 position = Vector2(-213, -169)
 
-=======
->>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 [node name="PuertaCuarto1" parent="." instance=ExtResource("11_p5njm")]
 position = Vector2(10, -401)
 escena_destino = "uid://bebk1amggu0c8"
@@ -90,16 +62,5 @@ script = ExtResource("12_p5njm")
 vida_maxima_habitacion = 120.0
 enemigos_requeridos = 2
 fuegos_requeridos = 1
-<<<<<<< HEAD
-activar_dialogo_gato_al_completar = true
-=======
->>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 
-[node name="GatoGris" parent="." instance=ExtResource("13_u1sv6")]
-position = Vector2(-719, -551)
-mostrar_dialogo_automatico = false
-<<<<<<< HEAD
-
-[node name="Hub" parent="." instance=ExtResource("14_hub")]
-=======
->>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
+[node name="Hub" parent="." instance=ExtResource("13_u1sv6")]

@@ -1,7 +1,20 @@
-[gd_scene load_steps=11 format=3 uid="uid://b14whoaid4kvx"]
+[gd_scene load_steps=24 format=3 uid="uid://b14whoaid4kvx"]
 
 [ext_resource type="Texture2D" uid="uid://clv4ndi43ieoa" path="res://Scenes/Levels/level2/level2.jpg" id="1_0ai1i"]
-[ext_resource type="PackedScene" uid="uid://upe8nkwx2xwf" path="res://personajes/jefe/jefe.tscn" id="2_nkdak"]
+[ext_resource type="Script" uid="uid://ud6vpwak2bsk" path="res://Scripts/cuarto_2.gd" id="1_r4oe0"]
+[ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="2_s43nd"]
+[ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="3_gu04i"]
+[ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/fuego.tscn" id="4_02sxl"]
+[ext_resource type="PackedScene" uid="uid://bh08j56ukxtp" path="res://Hub/hub.tscn" id="5_gu04i"]
+[ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="6_02sxl"]
+[ext_resource type="PackedScene" uid="uid://bmhb6a78qs4n" path="res://Objects/Boxes/box.tscn" id="7_psv0m"]
+[ext_resource type="PackedScene" uid="uid://bwg0w8g826tus" path="res://Scenes/Entities/tanque_oxigeno.tscn" id="8_3he5m"]
+[ext_resource type="Script" uid="uid://bmi6b0xff8sy" path="res://Scripts/room_manager.gd" id="10_s5ks2"]
+[ext_resource type="PackedScene" uid="uid://oysdlu64rb7d" path="res://Scenes/Entities/puerta.tscn" id="11_ijd15"]
+[ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="12_tk4ob"]
+[ext_resource type="PackedScene" uid="uid://g6pr41r3rkwt" path="res://Scenes/UI/deathEscene.tscn" id="13_jslai"]
+[ext_resource type="AudioStream" uid="uid://b2ofh0vdfq8c5" path="res://Assets/musica/Niveles.ogg" id="14_s5ks2"]
+[ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="15_ijd15"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_s43nd"]
 size = Vector2(633, 186)
@@ -29,6 +42,7 @@ size = Vector2(160, 56)
 size = Vector2(550, 68)
 
 [node name="Level2" type="Node2D"]
+script = ExtResource("1_r4oe0")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(757, 444.00003)
@@ -59,9 +73,6 @@ position = Vector2(1445.0178, 544.55994)
 rotation = -0.0023522556
 shape = SubResource("RectangleShape2D_6cnr2")
 
-[node name="jefe" parent="Wall_right2" instance=ExtResource("2_nkdak")]
-position = Vector2(1274, 310)
-
 [node name="Wall_righ_above" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above"]
@@ -87,3 +98,72 @@ shape = SubResource("RectangleShape2D_twbf5")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above4"]
 position = Vector2(397, 856)
 shape = SubResource("RectangleShape2D_inn2q")
+
+[node name="minions" parent="." instance=ExtResource("2_s43nd")]
+position = Vector2(1256, 549)
+
+[node name="personajePrincipal" parent="." instance=ExtResource("3_gu04i")]
+position = Vector2(773.99994, 169)
+vida_maxima = 5.0
+
+[node name="minions2" parent="." instance=ExtResource("2_s43nd")]
+position = Vector2(290, 647)
+
+[node name="Fuego" parent="." instance=ExtResource("4_02sxl")]
+position = Vector2(532, 119)
+
+[node name="Fuego2" parent="." instance=ExtResource("4_02sxl")]
+position = Vector2(166, 453)
+
+[node name="Fuego3" parent="." instance=ExtResource("4_02sxl")]
+position = Vector2(629, 473)
+
+[node name="Fuego4" parent="." instance=ExtResource("4_02sxl")]
+position = Vector2(-162, 524)
+
+[node name="HUD" parent="." instance=ExtResource("6_02sxl")]
+
+[node name="Hub" parent="." instance=ExtResource("5_gu04i")]
+
+[node name="Box" parent="." instance=ExtResource("7_psv0m")]
+position = Vector2(1042, 214)
+
+[node name="TanqueOxigeno" parent="." instance=ExtResource("8_3he5m")]
+position = Vector2(708, 451)
+
+[node name="RoomManager" type="Node" parent="."]
+script = ExtResource("10_s5ks2")
+enemigos_requeridos = 2
+fuegos_requeridos = 4
+
+[node name="Puerta" parent="." instance=ExtResource("11_ijd15")]
+position = Vector2(599, 646)
+escena_destino = "uid://dcemlagk1usuv"
+nombre_puerta_destino = "Puerta nivel 3"
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="PuseMenu" parent="CanvasLayer" instance=ExtResource("12_tk4ob")]
+visible = false
+
+[node name="DeathMenu" parent="CanvasLayer" instance=ExtResource("13_jslai")]
+visible = false
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("14_s5ks2")
+volume_db = 24.0
+autoplay = true
+
+[node name="Box2" parent="." instance=ExtResource("7_psv0m")]
+position = Vector2(993, 561)
+
+[node name="Box3" parent="." instance=ExtResource("7_psv0m")]
+position = Vector2(-1, 595)
+
+[node name="Box4" parent="." instance=ExtResource("7_psv0m")]
+position = Vector2(628, 613)
+
+[node name="mascota" parent="." instance=ExtResource("15_ijd15")]
+position = Vector2(818.9999, 201)
+objetivo = NodePath("../personajePrincipal")
+vida_maxima = 5.0

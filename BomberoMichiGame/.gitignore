@@ -5,7 +5,6 @@
 export.cfg
 export_presets.cfg
 # Archivos de compilación o resultados de exportación
-*.exe
 *.zip
 *.apk
 *.dylib

@@ -5,7 +5,6 @@ var tiempo_cambio := 0.5
 var tiempo_actual := 0.0
 var tiempo_disparo := 0.0
 var tiempo_desde_disparo := 0.0
-var FireballScene: PackedScene = null
 
 var can_shoot = true
 var fireball_scene = preload("res://personajes/minions/fireball_visual.tscn")
@@ -17,13 +16,13 @@ var is_being_extinguished: bool = false
 
 <<<<<<< HEAD
 # Helper: búsqueda segura del player por grupo o por nombres comunes
-func _find_node_by_name(root: Node, name: String) -> Node:
+func _find_node_by_name(root: Node, target_name: String) -> Node:
 	if root == null:
 		return null
-	if root.name == name:
+	if root.name == target_name:
 		return root
 	for child in root.get_children():
-		var found = _find_node_by_name(child, name)
+		var found = _find_node_by_name(child, target_name)
 		if found:
 			return found
 	return null
@@ -56,6 +55,9 @@ func _ready():
 	# Conectar señales de colisión si tiene Area2D
 	if has_node("HitArea"):
 		var hit_area = get_node("HitArea")
+		# IMPORTANTE: Configurar en la capa 2 para que el Hitbox del jugador (mask=2) lo detecte
+		hit_area.collision_layer = 2
+		hit_area.collision_mask = 1  # Detectar capa 1 (jugador)
 		# Agregar el HitArea al grupo para que el Hitbox del jugador lo detecte
 		hit_area.add_to_group("ataque_minion")
 		if hit_area.has_signal("body_entered"):

@@ -71,14 +71,15 @@ func _on_timer_timeout():
 	# Cambiar a la escena del menú principal
 	get_tree().change_scene_to_file("res://Interfaces/main_menu.tscn")
 
-# Permitir saltar la intro con cualquier tecla
+# Permitir saltar la intro solo con Enter o click de mouse (NO Space)
 func _input(event):
 	if not can_skip:
 		return
-		
-	if event is InputEventKey or event is InputEventMouseButton:
-		if event.is_pressed():
-			skip_intro()
+
+	if event is InputEventMouseButton and event.is_pressed():
+		skip_intro()
+	elif event is InputEventKey and event.is_pressed() and event.keycode == KEY_ENTER:
+		skip_intro()
 
 func skip_intro():
 	if is_typing:

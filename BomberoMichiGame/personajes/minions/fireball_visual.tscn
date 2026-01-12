@@ -280,15 +280,16 @@ script = ExtResource("1")
 
 <<<<<<< HEAD
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(367, 206)
+position = Vector2(0, 0)
 scale = Vector2(0.035737745, 0.03466707)
 sprite_frames = SubResource("SpriteFrames_71ljy")
-animation = &"bola_fuegoOG"
-autoplay = "bola_fuegoOG"
-frame_progress = 0.8468367
+animation = &"bola_fuego"
+autoplay = "bola_fuego"
+frame_progress = 0.53433675
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(368, 208)
+visible = false
+position = Vector2(0, 0)
 shape = SubResource("CircleShape2D_1")
 metadata/_edit_group_ = true
 =======

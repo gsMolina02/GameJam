@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://bh08j56ukxtp"]
+[gd_scene load_steps=6 format=3 uid="uid://bh08j56ukxtp"]
 
 [ext_resource type="Script" uid="uid://dwci2hamwcyo8" path="res://Hub/hub.gd" id="1_lcg3h"]
 [ext_resource type="Texture2D" uid="uid://c5dg1dtjddomr" path="res://Resources/hub/agua.png" id="2_n854u"]
+[ext_resource type="Texture2D" uid="uid://dq51ep7yij4pt" path="res://Hub/marcoHUD-Photoroom.png" id="2_qjn6s"]
 [ext_resource type="Texture2D" uid="uid://c6txxii6radrf" path="res://Resources/hub/CascoBombero_0006.png" id="3_n854u"]
 [ext_resource type="Texture2D" uid="uid://baifopy6ijjdf" path="res://Resources/hub/tanque de oxigeno.png" id="3_qjn6s"]
 
@@ -14,29 +15,35 @@ anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="water" type="TextureRect" parent="Control"]
+[node name="marco" type="TextureRect" parent="Control"]
 layout_mode = 0
-offset_left = 54.0
-offset_top = 42.000008
-offset_right = 1134.0
-offset_bottom = 1122.0
-scale = Vector2(0.02899458, 0.028254714)
-texture = ExtResource("2_n854u")
+offset_right = 1497.0
+offset_bottom = 901.0
+texture = ExtResource("2_qjn6s")
 
 [node name="waepon" type="TextureRect" parent="Control"]
 layout_mode = 0
-offset_left = 31.0
-offset_top = 560.0
-offset_right = 1111.0
-offset_bottom = 1640.0
+offset_left = 22.0
+offset_top = 28.0
+offset_right = 3967.2354
+offset_bottom = 3852.3447
 scale = Vector2(0.056016937, 0.049943198)
 texture = ExtResource("3_n854u")
 
+[node name="water" type="TextureRect" parent="Control"]
+layout_mode = 0
+offset_left = 23.0
+offset_top = 170.00002
+offset_right = 7610.625
+offset_bottom = 9107.096
+scale = Vector2(0.02899458, 0.028254714)
+texture = ExtResource("2_n854u")
+
 [node name="vida" type="TextureRect" parent="Control"]
 layout_mode = 0
-offset_left = 54.0
-offset_top = 13.000001
-offset_right = 1134.0
-offset_bottom = 1093.0
+offset_left = 123.0
+offset_top = 181.0
+offset_right = 7308.1304
+offset_bottom = 10187.299
 scale = Vector2(0.028113617, 0.023413971)
 texture = ExtResource("3_qjn6s")

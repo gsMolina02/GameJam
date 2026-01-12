@@ -12,7 +12,7 @@ class_name Bomber
 @export var hose_range = 50  # Alcance en cuadros (tiles) - AUMENTADO
 @export var tile_size = 20  # Tamaño de cada cuadro en píxeles
 @export var hose_width = 40  # Ancho del chorro de agua
-@export var hose_drain_rate = 10.0  # Carga consumida por segundo
+@export var hose_drain_rate = 4.0  # Carga consumida por segundo (reducida para mayor duración)
 @export var water_pressure = 10.0  # Daño por segundo al fuego (ajustado para apagar en 0.5s)
 @export var hose_origin_offset = Vector2(50, 0)  # Punto de origen del agua
 @export var hose_nozzle_offset = Vector2(130, 30)  # Punta de la manguera (boquilla)
@@ -38,6 +38,8 @@ var can_attack = true
 var hose_charge = 100.0
 var is_using_hose = false
 var current_weapon = Weapon.HOSE  # Iniciar con MANGUERA equipada
+var apuntador = null
+var apuntador_offset = Vector2(130, 30)
 var is_dead: bool = false
 
 # Marcador calculado para la punta de la manguera
@@ -117,11 +119,27 @@ func _ready():
 	# Add to player group for collision filtering
 	add_to_group("player")
 
+	# Ocultar el cursor del sistema (Windows)
+	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+
+	# Instanciar apuntador visual
+	var apuntador_scene = preload("res://Assets/Objetos/apuntador.tscn")
+	apuntador = apuntador_scene.instantiate()
+	apuntador.name = "Apuntador"
+	add_child(apuntador)
+	apuntador.z_index = 100 # Asegura que esté encima
+	apuntador.visible = true
+	# Offset para la punta de la manguera
+	apuntador_offset = hose_nozzle_offset if hose_nozzle_offset != null else Vector2(130, 30)
+
 	# Desactivar clamp al viewport para el jugador (una sola vez)
 	clamp_to_viewport = false
 	
 	# Emitir valores iniciales para que el HUD se actualice
 	emit_signal("hose_recharged", hose_charge)  # Emitir carga inicial de agua
+	emit_signal("vida_actualizada", vida_actual)  # Emitir vida inicial para que el HUD se actualice
+	
+	print("✓ Vida inicial emitida:", vida_actual, "/", vida_maxima)
 
 func _setup_hose_system():
 	"""Configura los nodos necesarios para el sistema de manguera"""
@@ -244,25 +262,21 @@ func _physics_process(delta):
 	# Input de acciones
 	_handle_input()
 
-	# Limitar posición dentro del campo definido (se puede desactivar con enforce_bounds)
-	var x = global_position.x
-	var y = global_position.y
+	# Limitar posición dentro del campo definido (SOLO si enforce_bounds está activo)
 	if enforce_bounds:
 		var minx = (min_x if min_x != null else -1000.0)
 		var maxx = (max_x if max_x != null else 1000.0)
 		var miny = (min_y if min_y != null else -1000.0)
 		var maxy = (max_y if max_y != null else 1000.0)
-		x = clamp(global_position.x, float(minx), float(maxx))
-		y = clamp(global_position.y, float(miny), float(maxy))
-
-	# Debug: imprimir cuando el jugador intenta moverse horizontalmente
-	if abs(velocity.x) > 0:
-		if enforce_bounds:
-			print_debug("Player attempt move -> pos:", global_position, "vel.x:", velocity.x, "clamped_x:", x, "bounds_enabled")
-		else:
-			print_debug("Player attempt move -> pos:", global_position, "vel.x:", velocity.x, "clamped_x:", x, "(bounds disabled)")
-
-	global_position = Vector2(x, y)
+		
+		# Aplicar clamp y actualizar posición
+		var clamped_x = clamp(global_position.x, float(minx), float(maxx))
+		var clamped_y = clamp(global_position.y, float(miny), float(maxy))
+		global_position = Vector2(clamped_x, clamped_y)
+		
+		# Debug solo si está activo el clamp
+		if abs(velocity.x) > 0 or abs(velocity.y) > 0:
+			print_debug("Player clamped -> pos:", global_position, "vel:", velocity)
 
 	# Girar el sprite horizontalmente según la dirección
 	if character_sprite:
@@ -319,15 +333,14 @@ func _handle_input():
 		if Input.is_action_just_pressed("attack"):
 			attack()  # El ataque ahora funciona como parry automático
 
-	# Dash: usar Shift ('ui_shift') como en el comportamiento original
-	var shift_pressed := false
-	if InputMap.has_action("ui_shift"):
-		shift_pressed = Input.is_action_just_pressed("ui_shift")
+	# Dash: usar la acción 'dash' (tecla Shift) exclusivamente
+	var dash_pressed := false
+	if InputMap.has_action("dash"):
+		dash_pressed = Input.is_action_just_pressed("dash") and not Input.is_action_pressed("attack")
 	else:
-		# Fallback a tecla Space si no existe la acción
-		shift_pressed = Input.is_key_pressed(KEY_SPACE) and not Input.is_action_pressed("attack")
+		dash_pressed = false
 
-	if shift_pressed and can_dash:
+	if dash_pressed and can_dash:
 		# Determinar dirección de dash: preferir input vector, caer a dirección mirando
 		var dir = Input.get_vector("left", "right", "up", "down")
 		if dir == Vector2.ZERO:
@@ -358,6 +371,11 @@ func _update_weapon_orientation():
 	
 	# Calcular el ángulo de la dirección
 	var angle = direction.angle()
+
+	# Actualizar posición y rotación del apuntador visual
+	if apuntador:
+		apuntador.global_position = global_position + direction * 80.0 + apuntador_offset.rotated(angle)
+		apuntador.rotation = angle
 	
 	# Actualizar orientación del hacha
 	if axe_sprite:
@@ -616,8 +634,8 @@ func _play_water_hit_effect(_hit_position: Vector2):
 func take_damage(amount: float) -> void:
 	"""Recibe daño de enemigos - usa el sistema de vida heredado"""
 	print_debug("Bombero recibió", amount, "de daño!")
-	# Usar el sistema de vida del padre (personaje_base)
-	recibir_dano(int(amount))
+	# Usar el sistema de vida del padre (personaje_base) - ahora acepta float
+	recibir_dano(amount)
 
 func die() -> void:
 	# Detener el juego cuando la vida llega a 0
