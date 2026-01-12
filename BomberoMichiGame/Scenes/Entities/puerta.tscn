@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://oysdlu64rb7d"]
 
-[ext_resource type="Script" path="res://Scripts/puerta.gd" id="1_drj33"]
-[ext_resource type="Texture2D" uid="uid://c2sbxrutsdryc" path="res://Assets/fondos/puerta.png" id="2_wjbh2"]
+[ext_resource type="Script" uid="uid://cld821c463ja5" path="res://Scripts/puerta.gd" id="1_drj33"]
+[ext_resource type="Texture2D" uid="uid://bx66ogsms5ofc" path="res://Assets/Objetos/escaleras.png" id="2_drj33"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mesff"]
 size = Vector2(145, 176)
@@ -12,8 +12,9 @@ script = ExtResource("1_drj33")
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(195, 121)
 scale = Vector2(0.5, 0.46)
-texture = ExtResource("2_wjbh2")
+texture = ExtResource("2_drj33")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
 position = Vector2(176.5, 119)
 shape = SubResource("RectangleShape2D_mesff")
