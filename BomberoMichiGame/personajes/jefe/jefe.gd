@@ -4,12 +4,20 @@ var direccion := Vector2.ZERO
 var tiempo_cambio := 0.5
 var tiempo_actual := 0.0
 var tiempo_desde_disparo := 0.0
+<<<<<<< HEAD
 var FireballSceneBoss: PackedScene = null
 var FireballSceneMinion: PackedScene = null
 
 # Parámetros de las bolas de fuego orbitales
 @export var orbit_count := 5  # Cantidad de bolas en órbita
 @export var orbit_radius := 160.0
+=======
+var FireballScene: PackedScene = null
+
+# Parámetros de las bolas de fuego orbitales
+@export var orbit_count := 5  # Cantidad de bolas en órbita
+@export var orbit_radius := 48.0
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 @export var orbit_angular_speed := 2.0
 @export var fire_rate := 2.0  # Frecuencia de disparo (segundos entre disparos)
 @export var respawn_delay := 1.2
@@ -64,8 +72,12 @@ func _physics_process(delta):
 
 
 func _ready():
+<<<<<<< HEAD
 	FireballSceneBoss = load("res://personajes/minions/fireball_boss.tscn")
 	FireballSceneMinion = load("res://personajes/minions/fireball_visual.tscn")
+=======
+	FireballScene = load("res://personajes/minions/fireball_visual.tscn")
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 	minion_scene = load("res://personajes/minions/minions.tscn")
 	
 	# Inicializar vida del jefe
@@ -127,8 +139,15 @@ func _disparar_triple():
 	var scene = get_tree().current_scene
 	if scene == null:
 		return
+<<<<<<< HEAD
 	var jugador: Node = scene.get_node_or_null("personajePrincipal")
 	if jugador == null:
+=======
+	var jugador: Node = null
+	if scene.has_node("personajePrincipal"):
+		jugador = scene.get_node("personajePrincipal")
+	else:
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 		jugador = scene.get_node_or_null("../personajePrincipal")
 	if jugador == null:
 		return
@@ -138,6 +157,7 @@ func _disparar_triple():
 	var dirs = [base_dir.rotated(deg_to_rad(-spread_deg)), base_dir, base_dir.rotated(deg_to_rad(spread_deg))]
 
 	for d in dirs:
+<<<<<<< HEAD
 		if FireballSceneBoss == null:
 			continue
 		var fb = FireballSceneBoss.instantiate()
@@ -154,6 +174,14 @@ func _disparar_triple():
 			fb.set_global_position(world_pos)
 			fb.get_parent().call_deferred("remove_child", fb)
 			root.call_deferred("add_child", fb)
+=======
+		if FireballScene == null:
+			continue
+		var fb = FireballScene.instantiate()
+		fb.position = global_position
+		fb.velocity = d * fb.speed
+		scene.call_deferred("add_child", fb)
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 
 
 func _spawn_orbit_fireballs():
@@ -163,6 +191,7 @@ func _spawn_orbit_fireballs():
 			fb.queue_free()
 	orbit_fireballs.clear()
 	orbit_angles.clear()
+<<<<<<< HEAD
 	if FireballSceneBoss == null:
 		return
 	for i in range(orbit_count):
@@ -172,6 +201,25 @@ func _spawn_orbit_fireballs():
 		fb.position = Vector2.ZERO
 		fb.velocity = Vector2.ZERO
 		call_deferred("add_child", fb)
+=======
+	if FireballScene == null:
+		return
+	# generar N fireballs alrededor del jefe
+	var scene = get_tree().current_scene
+	for i in range(orbit_count):
+		var fb = FireballScene.instantiate()
+		
+		# IMPORTANTE: Establecer shooter ANTES de agregar a la escena
+		# para que _ready() pueda usar esta información para asignar grupos
+		if fb.has_method("set_shooter"):
+			fb.set_shooter(self)
+		
+		# iniciar en la posición del jefe
+		fb.position = global_position
+		# las fireballs orbitan, por eso no tendrán velocidad hasta lanzarlas
+		fb.velocity = Vector2.ZERO
+		scene.call_deferred("add_child", fb)
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 		orbit_fireballs.append(fb)
 		var angle = TAU * i / orbit_count
 		orbit_angles.append(angle)
@@ -185,7 +233,11 @@ func _update_orbit(delta):
 			continue
 		orbit_angles[i] += orbit_angular_speed * delta
 		var pos = Vector2(cos(orbit_angles[i]), sin(orbit_angles[i])) * orbit_radius
+<<<<<<< HEAD
 		fb.position = pos
+=======
+		fb.global_position = global_position + pos
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 
 
 func _lanzar_orbita():
@@ -193,8 +245,15 @@ func _lanzar_orbita():
 	var scene = get_tree().current_scene
 	if scene == null:
 		return
+<<<<<<< HEAD
 	var jugador: Node = scene.get_node_or_null("personajePrincipal")
 	if jugador == null:
+=======
+	var jugador: Node = null
+	if scene.has_node("personajePrincipal"):
+		jugador = scene.get_node("personajePrincipal")
+	else:
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 		jugador = scene.get_node_or_null("../personajePrincipal")
 	if jugador == null:
 		return
@@ -204,35 +263,60 @@ func _lanzar_orbita():
 		var fb = orbit_fireballs[i]
 		if not fb or not fb.is_inside_tree():
 			continue
+<<<<<<< HEAD
 		# Calcular posición global antes de lanzar
 		var world_pos = fb.get_global_position()
 		var dir = (jugador.global_position - world_pos).normalized()
+=======
+		# dirección base desde la orb hacia el jugador
+		var dir = (jugador.global_position - fb.global_position).normalized()
+		# calcular offset angular de dispersión según el índice (distribuido entre -launch_spread_deg y +launch_spread_deg)
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 		var n = orbit_fireballs.size()
 		var t = 0.0
 		if n > 1:
 			t = float(i) / float(n - 1)
 		else:
 			t = 0.5
+<<<<<<< HEAD
+=======
+		# proteger launch_spread_deg por si está a null
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 		var ls := 0.0
 		if launch_spread_deg != null:
 			ls = float(launch_spread_deg)
 		var angle_offset = lerp(-ls, ls, t)
+<<<<<<< HEAD
 		dir = dir.rotated(deg_to_rad(angle_offset))
 		if fb.has_method("set_shooter"):
 			fb.set_shooter(self)
 		if fb.has_method("set_direction"):
 			fb.set_direction(dir.rotated(0))
+=======
+		# aplicar rotación para dispersar la dirección
+		dir = dir.rotated(deg_to_rad(angle_offset))
+		# asignar shooter si existe (para que la fireball ignore colisiones iniciales)
+		if fb.has_method("set_shooter"):
+			fb.set_shooter(self)
+		# aplicar multiplicador de velocidad, preferir set_direction si existe
+		if fb.has_method("set_direction"):
+			fb.set_direction(dir.rotated(0) )
+			# si además tiene propiedad 'velocity', actualizarla mediante set/get
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 			var try_vel = fb.get("velocity")
 			if try_vel != null:
 				fb.set("velocity", dir * (fb.get("speed") if fb.get("speed") != null else fb.speed) * launch_speed_multiplier)
 		else:
 			fb.set("velocity", dir * (fb.get("speed") if fb.get("speed") != null else fb.speed) * launch_speed_multiplier)
+<<<<<<< HEAD
 		# Reparent to scene root and keep world position
 		var root = get_tree().current_scene if get_tree() else null
 		if root:
 			fb.set_global_position(world_pos)
 			fb.get_parent().call_deferred("remove_child", fb)
 			root.call_deferred("add_child", fb)
+=======
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 	# vaciar la lista (las instancias siguen en escena pero ya tienen velocidad)
 	orbit_fireballs.clear()
 	orbit_angles.clear()
@@ -253,8 +337,15 @@ func _spawn_minion():
 	var m: Node2D = null
 	
 	# Buscar al bombero (firefighter)
+<<<<<<< HEAD
 	var bombero: Node = scene.get_node_or_null("personajePrincipal")
 	if bombero == null:
+=======
+	var bombero: Node = null
+	if scene.has_node("personajePrincipal"):
+		bombero = scene.get_node("personajePrincipal")
+	else:
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 		bombero = scene.get_node_or_null("../personajePrincipal")
 	
 	if bombero == null:
