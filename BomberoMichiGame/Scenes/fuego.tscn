@@ -1,7 +1,6 @@
 [gd_scene load_steps=40 format=3 uid="uid://b2isyrlrybvoh"]
 
 [ext_resource type="Script" uid="uid://dx332xajg8slu" path="res://Scripts/fuego.gd" id="1_fuego"]
-<<<<<<< HEAD
 [ext_resource type="Texture2D" uid="uid://bwbpvd778coy4" path="res://Assets/Animación_fuego/final-0001.png" id="2_nevuf"]
 [ext_resource type="Texture2D" uid="uid://bj1k33wjuv6t3" path="res://Assets/Animación_fuego/final-0002.png" id="3_arwyw"]
 [ext_resource type="Texture2D" uid="uid://dfd2ttw4vfwy8" path="res://Assets/Animación_fuego/final-0003.png" id="4_s2v8u"]
@@ -154,8 +153,6 @@ animations = [{
 "name": &"llamas",
 "speed": 20.0
 }]
-=======
->>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ph56w"]
 radius = 16.124516
