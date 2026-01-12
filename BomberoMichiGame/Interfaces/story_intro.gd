@@ -3,18 +3,7 @@ extends Control
 # Configuración de las 3 páginas de la historia
 # Cada página tiene una imagen y un texto
 @export var story_pages: Array[Dictionary] = [
-	{
-		"image": "res://Assets/fondos/intro001.png",
-		"text": "Hace mucho tiempo, la ciudad de Felinia era un lugar pacífico...\n\nLos gatos y humanos vivían en armonía, protegidos por valientes bomberos."
-	},
-	{
-		"image": "res://Assets/fondos/1.jpg", 
-		"text": "Pero un día, misteriosas llamas comenzaron a aparecer en toda la ciudad...\n\nEran llamas que no podían ser apagadas con agua normal."
-	},
-	{
-		"image": "res://Assets/fondos/story3.png",
-		"text": "Un joven bombero llamado Michi descubrió que tenía un don especial...\n\n¡Podía controlar el agua de formas mágicas! Ahora, la esperanza de la ciudad descansa en sus patas."
-	}
+
 ]
 
 # Escena a la que ir después de la intro (tu nivel o escena de juego)
@@ -100,10 +89,15 @@ func _on_timer_timeout():
 	can_advance = true
 
 func _input(event):
-	# Solo responder a Enter o click de mouse (NO Space)
-	if event is InputEventMouseButton and event.is_pressed():
-		handle_input()
-	elif event is InputEventKey and event.is_pressed() and event.keycode == KEY_ENTER:
+	# Verificamos si es un evento de teclado presionado
+	if event is InputEventKey and event.is_pressed():
+		if event.keycode == KEY_P:
+			is_typing = false 
+			go_to_next_scene()
+			return 
+		elif event.keycode == KEY_ENTER:
+			handle_input()
+	elif event is InputEventMouseButton and event.is_pressed():
 		handle_input()
 
 func handle_input():
