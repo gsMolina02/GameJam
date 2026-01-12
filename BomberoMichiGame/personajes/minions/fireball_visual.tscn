@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [gd_scene load_steps=66 format=3 uid="uid://vpqs7x32qqr3"]
 
 [ext_resource type="Script" uid="uid://geu5qwmj10pm" path="res://personajes/minions/fireball_visual.gd" id="1"]
@@ -265,18 +266,33 @@ animations = [{
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1"]
 radius = 13.0
+=======
+[gd_scene load_steps=3 format=3 uid="uid://vpqs7x32qqr3"]
+
+[ext_resource type="Script" uid="uid://geu5qwmj10pm" path="res://personajes/minions/fireball_visual.gd" id="1"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 12.0
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 
 [node name="FireballVisual" type="Area2D"]
 script = ExtResource("1")
 
+<<<<<<< HEAD
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-scale = Vector2(0.85318667, 0.8755948)
+position = Vector2(0, 0)
+scale = Vector2(0.035737745, 0.03466707)
 sprite_frames = SubResource("SpriteFrames_71ljy")
 animation = &"bola_fuego"
 autoplay = "bola_fuego"
-frame_progress = 0.8340316
+frame_progress = 0.53433675
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 visible = false
+position = Vector2(0, 0)
 shape = SubResource("CircleShape2D_1")
 metadata/_edit_group_ = true
+=======
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_1")
+>>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56

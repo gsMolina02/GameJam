@@ -299,7 +299,7 @@ animations = [{
 }]
 
 [node name="mascota" type="CharacterBody2D"]
-position = Vector2(641.99994, 310.99997)
+position = Vector2(633, 272)
 rotation = -0.00036524187
 collision_layer = 2
 script = ExtResource("1_frh65")
@@ -312,4 +312,4 @@ scale = Vector2(0.09549637, 0.08749181)
 sprite_frames = SubResource("SpriteFrames_w0v5f")
 animation = &"GhostCat"
 autoplay = "GhostCat"
-frame_progress = 0.913038
+frame_progress = 0.6281221

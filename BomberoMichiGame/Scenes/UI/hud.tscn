@@ -20,28 +20,32 @@ layout_mode = 1
 anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 0.57500005
-offset_left = 82.0
-offset_top = 18.0
-offset_right = -958.0
-offset_bottom = -318.475
+offset_left = 208.99998
+offset_top = 354.496
+offset_right = -1274.9688
+offset_bottom = -140.57907
+scale = Vector2(1.44, 1.44)
+theme_override_colors/font_color = Color(0.080783345, 0.080783345, 0.080783345, 1)
 text = "O"
 
 [node name="WaterPercentLabel" type="Label" parent="RootControl"]
 layout_mode = 0
-offset_left = 89.0
-offset_top = 42.0
-offset_right = 148.0
-offset_bottom = 77.0
+offset_left = 110.0
+offset_top = 351.496
+offset_right = 154.89795
+offset_bottom = 380.74768
+scale = Vector2(1.47, 1.47)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "100%"
 
 [node name="RoomBar" type="Control" parent="RootControl"]
 layout_mode = 1
 anchor_right = 41.357002
 anchor_bottom = 50.000004
-offset_left = -1.0
-offset_top = -2.0
-offset_right = -0.99609375
-offset_bottom = -2.0
+offset_left = 1.0
+offset_top = 18.495998
+offset_right = -60831.105
+offset_bottom = -44886.51
 
 [node name="Background" type="ColorRect" parent="RootControl/RoomBar"]
 custom_minimum_size = Vector2(160, 14)
@@ -49,10 +53,11 @@ layout_mode = 1
 anchors_preset = -1
 anchor_right = 0.003
 anchor_bottom = 0.001
-offset_left = 276.0
+offset_left = 356.0
 offset_top = 27.0
-offset_right = 887.5739
-offset_bottom = 20.549992
+offset_right = 950.736
+offset_bottom = 56.740055
+scale = Vector2(1.74, 1.74)
 color = Color(0.07327741, 0.022158388, 0.052080005, 1)
 
 [node name="ColorRect" type="ColorRect" parent="RootControl/RoomBar"]
@@ -61,16 +66,18 @@ layout_mode = 1
 anchors_preset = -1
 anchor_right = 0.001
 anchor_bottom = 0.001
-offset_left = 289.0
-offset_top = 31.0
-offset_right = 966.1913
-offset_bottom = 15.549992
+offset_left = 372.0
+offset_top = 39.000004
+offset_right = 952.77185
+offset_bottom = 55.728565
+scale = Vector2(1.74, 1.74)
 color = Color(0.43529412, 0.02745098, 0.02745098, 1)
 
 [node name="RoomLabel" type="Label" parent="RootControl/RoomBar"]
 layout_mode = 0
-offset_left = 624.0
-offset_top = 26.0
-offset_right = 664.0
-offset_bottom = 49.0
+offset_left = 795.0
+offset_top = 30.0
+offset_right = 834.9997
+offset_bottom = 53.000008
+scale = Vector2(1.74, 1.74)
 text = "100"

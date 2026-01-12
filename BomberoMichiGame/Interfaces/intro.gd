@@ -75,7 +75,7 @@ func _on_timer_timeout():
 func _input(event):
 	if not can_skip:
 		return
-		
+
 	if event is InputEventMouseButton and event.is_pressed():
 		skip_intro()
 	elif event is InputEventKey and event.is_pressed() and event.keycode == KEY_ENTER:
