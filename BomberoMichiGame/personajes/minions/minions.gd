@@ -14,35 +14,6 @@ var max_health: float = 10.0  # Vida máxima del minion (ajustado para 1 segundo
 var health: float = 10.0
 var is_being_extinguished: bool = false
 
-<<<<<<< HEAD
-# Helper: búsqueda segura del player por grupo o por nombres comunes
-func _find_node_by_name(root: Node, target_name: String) -> Node:
-	if root == null:
-		return null
-	if root.name == target_name:
-		return root
-	for child in root.get_children():
-		var found = _find_node_by_name(child, target_name)
-		if found:
-			return found
-	return null
-
-func _find_player() -> Node:
-	# Preferir buscar por grupo
-	var grouped = get_tree().get_nodes_in_group("player")
-	if grouped.size() > 0:
-		return grouped[0]
-	# Buscar por nombres comunes
-	var candidate_names = ["personaje_principal", "personajePrincipal", "player", "Player"]
-	var root = get_tree().get_root()
-	for n in candidate_names:
-		var p = _find_node_by_name(root, n)
-		if p:
-			return p
-	return null
-
-=======
->>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 func _ready():
 	# no se usan disparos en minions ahora, pero conectamos el timer por si se re-activa
 	$AttackTimer.timeout.connect(_on_AttackTimer_timeout)
@@ -107,9 +78,6 @@ func shoot():
 		var player = null
 		if current_scene:
 			# Try common node names, prefer the snake_case `personaje_principal`
-<<<<<<< HEAD
-			player = _find_player()
-=======
 			player = current_scene.get_node_or_null("personaje_principal")
 			if not player:
 				player = current_scene.get_node_or_null("personajePrincipal")
@@ -117,7 +85,6 @@ func shoot():
 				player = current_scene.find_node("personaje_principal", true, false)
 			if not player:
 				player = current_scene.find_node("personajePrincipal", true, false)
->>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 		if player:
 			# Calcular dirección desde la posición del minion hacia la posición del player
 			target_dir = (player.global_position - global_position).normalized()
