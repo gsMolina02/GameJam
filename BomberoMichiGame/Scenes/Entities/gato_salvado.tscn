@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://btkxymwivdjbi"]
+
+[ext_resource type="Script" uid="uid://djsk1ifbgi5vn" path="res://Scripts/gato_salvado.gd" id="1_308bs"]
+[ext_resource type="Texture2D" uid="uid://bdyccfw3hayh4" path="res://Assets/gatobarato.png" id="2_65uf7"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0k2g1"]
+size = Vector2(61, 96)
+
+[node name="GatoSalvado" type="Node2D"]
+script = ExtResource("1_308bs")
+nombre_gato = "rengar"
+mensaje_agradecimiento = "¡Miau! Onichan"
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(70, 59.00003)
+scale = Vector2(0.31388894, 0.28888887)
+texture = ExtResource("2_65uf7")
+
+[node name="InteraccionArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteraccionArea"]
+position = Vector2(75.5, 61)
+shape = SubResource("RectangleShape2D_0k2g1")

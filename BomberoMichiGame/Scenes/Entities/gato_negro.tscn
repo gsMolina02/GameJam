@@ -1,0 +1,77 @@
+[gd_scene load_steps=14 format=3 uid="uid://derbkobkcr2n3"]
+
+[ext_resource type="Script" uid="uid://djsk1ifbgi5vn" path="res://Scripts/gato_salvado.gd" id="1_fo4bs"]
+[ext_resource type="Texture2D" uid="uid://6hu4idhv55st" path="res://Assets/gatos/gatoNegro_0000.png" id="2_t1wok"]
+[ext_resource type="Texture2D" uid="uid://rw2ihsv6m3uc" path="res://Assets/gatos/gatoNegro_0001.png" id="3_bji5m"]
+[ext_resource type="Texture2D" uid="uid://cdokxxq22esyf" path="res://Assets/gatos/gatoNegro_0002.png" id="4_oj3s2"]
+[ext_resource type="Texture2D" uid="uid://c01hjyqr5cb8x" path="res://Assets/gatos/gatoNegro_0003.png" id="5_hv8yx"]
+[ext_resource type="Texture2D" uid="uid://v6ax3fn44c4r" path="res://Assets/gatos/gatoNegro_0004.png" id="6_di5rc"]
+[ext_resource type="Texture2D" uid="uid://cogecbrqp04dr" path="res://Assets/gatos/gatoNegro_0005.png" id="7_62goq"]
+[ext_resource type="Texture2D" uid="uid://cord46485p7e2" path="res://Assets/gatos/gatoNegro_0006.png" id="8_p2qy8"]
+[ext_resource type="Texture2D" uid="uid://jd5lasnlhw8g" path="res://Assets/gatos/gatoNegro_0007.png" id="9_e612a"]
+[ext_resource type="Texture2D" uid="uid://qddh3q88b76d" path="res://Assets/gatos/gatoNegro_0008.png" id="10_8if6w"]
+[ext_resource type="Texture2D" uid="uid://t1gfw7265n2m" path="res://Assets/gatos/gatoNegro_0009.png" id="11_qvgig"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_rqsat"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_t1wok")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_bji5m")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_oj3s2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_hv8yx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_di5rc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_62goq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_p2qy8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_e612a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_8if6w")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_qvgig")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 10.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bpr4t"]
+
+[node name="GatoGris" type="Node2D"]
+position = Vector2(-409, -133)
+script = ExtResource("1_fo4bs")
+nombre_gato = "Miki"
+mensaje_agradecimiento = "Hola uwu"
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(554, 356.00003)
+scale = Vector2(0.05, 0.05)
+sprite_frames = SubResource("SpriteFrames_rqsat")
+animation = &"idle"
+autoplay = "idle"
+frame = 2
+frame_progress = 0.90423393
+
+[node name="Area2D" type="Area2D" parent="."]
+position = Vector2(558, 361)
+scale = Vector2(10, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(516.1, 330.59998)
+scale = Vector2(10, 10)
+shape = SubResource("RectangleShape2D_bpr4t")
