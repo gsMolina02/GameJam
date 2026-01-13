@@ -14,7 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://oysdlu64rb7d" path="res://Scenes/Entities/puerta.tscn" id="12_ctx4j"]
 [ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="13_kworg"]
 [ext_resource type="PackedScene" uid="uid://g6pr41r3rkwt" path="res://Scenes/UI/deathEscene.tscn" id="14_iopqe"]
-[ext_resource type="AudioStream" uid="uid://cbv76ab0p1ot8" path="res://Assets/musica/Boss Theme.ogg" id="15_lu4lr"]
+[ext_resource type="AudioStream" uid="uid://cmwyo8g5j3dn0" path="res://Assets/musica/The Boos is coming.wav" id="15_lu4lr"]
 [ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="16_ctx4j"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_u0t3m"]
