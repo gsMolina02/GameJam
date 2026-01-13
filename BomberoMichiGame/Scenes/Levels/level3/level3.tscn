@@ -1,8 +1,9 @@
-[gd_scene load_steps=24 format=3 uid="uid://dcemlagk1usuv"]
+[gd_scene load_steps=25 format=3 uid="uid://dcemlagk1usuv"]
 
 [ext_resource type="Script" uid="uid://c0tkcl7n8d7rs" path="res://Scripts/cuarto_3.gd" id="1_60aqv"]
 [ext_resource type="PackedScene" uid="uid://upe8nkwx2xwf" path="res://personajes/jefe/jefe.tscn" id="1_lpoki"]
 [ext_resource type="Texture2D" uid="uid://c3v3rp4af31p2" path="res://Scenes/Levels/level3/level3.jpg" id="1_p0rop"]
+[ext_resource type="PackedScene" uid="uid://derbkobkcr2n3" path="res://Scenes/Entities/gato_negro.tscn" id="3_kworg"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="3_u0t3m"]
 [ext_resource type="PackedScene" uid="uid://bmhb6a78qs4n" path="res://Objects/Boxes/box.tscn" id="4_b2oma"]
 [ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/fuego.tscn" id="5_54dbs"]
@@ -52,6 +53,10 @@ texture = ExtResource("1_p0rop")
 position = Vector2(70.5, 295.5)
 shape = SubResource("RectangleShape2D_u0t3m")
 
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_top2/CollisionShape2D"]
+position = Vector2(-31.5, 224.5)
+shape = SubResource("RectangleShape2D_u0t3m")
+
 [node name="Wall_right2" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_right2"]
@@ -94,7 +99,6 @@ shape = SubResource("RectangleShape2D_b2oma")
 
 [node name="personajePrincipal" parent="." instance=ExtResource("3_u0t3m")]
 position = Vector2(195.99991, 499)
-vida_maxima = 5.0
 
 [node name="Box3" parent="." instance=ExtResource("4_b2oma")]
 position = Vector2(739, 38)
@@ -150,9 +154,9 @@ position = Vector2(782, 255.99994)
 [node name="minions4" parent="." instance=ExtResource("7_k3bg3")]
 position = Vector2(1293, 275)
 
-[node name="HUD" parent="." instance=ExtResource("9_k3bg3")]
-
 [node name="Hub" parent="." instance=ExtResource("8_sdd6u")]
+
+[node name="HUD" parent="." instance=ExtResource("9_k3bg3")]
 
 [node name="Box" parent="." instance=ExtResource("4_b2oma")]
 position = Vector2(76, 15)
@@ -187,3 +191,7 @@ autoplay = true
 [node name="mascota" parent="." instance=ExtResource("16_ctx4j")]
 position = Vector2(246, 454)
 vida_maxima = 5.0
+
+[node name="GatoNegro" parent="." instance=ExtResource("3_kworg")]
+position = Vector2(-368.00006, -149.00003)
+scale = Vector2(2.11, 2.11)
