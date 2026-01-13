@@ -56,7 +56,8 @@ animations = [{
 position = Vector2(-394, -197)
 script = ExtResource("1_geexe")
 nombre_gato = "Pelusa"
-mensaje_agradecimiento = "Woof! woof!"
+mensaje_agradecimiento = "¡Miau! ¡Onii-chan o Salvarme!"
+mostrar_dialogo_automatico = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(554, 356.00003)
@@ -65,6 +66,12 @@ sprite_frames = SubResource("SpriteFrames_rqsat")
 animation = &"idle"
 autoplay = "idle"
 frame_progress = 0.7869946
+
+[node name="InteractionArea" type="Area2D" parent="."]
+position = Vector2(554, 356)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea"]
+shape = SubResource("RectangleShape2D_bpr4t")
 
 [node name="Area2D" type="Area2D" parent="."]
 position = Vector2(558, 361)
