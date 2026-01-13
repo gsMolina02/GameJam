@@ -1,6 +1,7 @@
-[gd_scene load_steps=22 format=3 uid="uid://dgooxxoch0lkq"]
+[gd_scene load_steps=23 format=3 uid="uid://dgooxxoch0lkq"]
 
 [ext_resource type="Texture2D" uid="uid://c0py88gnwk54y" path="res://Scenes/Levels/level1/unnamed.jpg" id="1_5rljr"]
+[ext_resource type="PackedScene" uid="uid://b4cinnlduff6a" path="res://Scenes/Entities/gato_gris.tscn" id="2_2yhdf"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_5rljr"]
 [ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/fuego.tscn" id="3_xfvig"]
 [ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="4_fdvuu"]
@@ -28,7 +29,7 @@ size = Vector2(103, 701)
 size = Vector2(716.0249, 178.14421)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_opdyy"]
-size = Vector2(546, 35)
+size = Vector2(751, 35)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_xfvig"]
 size = Vector2(142, 56)
@@ -75,8 +76,12 @@ shape = SubResource("RectangleShape2D_bpvnq")
 [node name="Wall_righ_above2" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above2"]
-position = Vector2(1149, 879.5)
+position = Vector2(1046.5, 879.5)
 shape = SubResource("RectangleShape2D_opdyy")
+
+[node name="GatoGris" parent="Wall_righ_above2" instance=ExtResource("2_2yhdf")]
+position = Vector2(-56.999996, -43.000004)
+scale = Vector2(1.55, 1.55)
 
 [node name="Wall_righ_above3" type="StaticBody2D" parent="."]
 
@@ -138,6 +143,7 @@ nombre_puerta_destino = "Puerta nivel 2"
 visible = false
 
 [node name="PuseMenu" parent="CanvasLayer" instance=ExtResource("10_2j1q4")]
+visible = false
 
 [node name="DeathMenu" parent="CanvasLayer" instance=ExtResource("11_gkcdr")]
 

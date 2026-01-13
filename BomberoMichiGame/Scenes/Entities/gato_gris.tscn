@@ -55,16 +55,17 @@ animations = [{
 [node name="GatoGris" type="Node2D"]
 position = Vector2(-276, -195)
 script = ExtResource("1_hjnvh")
-nombre_gato = "rengar"
-mensaje_agradecimiento = "¡Miau! Onichan"
+nombre_gato = "Miel"
+mensaje_agradecimiento = "¡Miau! ¡Gracias por salvarme~"
+mostrar_dialogo_automatico = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(554, 356.00003)
 scale = Vector2(0.05, 0.05)
 sprite_frames = SubResource("SpriteFrames_rqsat")
 autoplay = "default"
-frame = 6
-frame_progress = 0.61019325
+frame_progress = 0.93213224
+script = ExtResource("1_hjnvh")
 
 [node name="Area2D" type="Area2D" parent="."]
 position = Vector2(558, 361)

@@ -1,9 +1,10 @@
-[gd_scene load_steps=24 format=3 uid="uid://b14whoaid4kvx"]
+[gd_scene load_steps=25 format=3 uid="uid://b14whoaid4kvx"]
 
 [ext_resource type="Texture2D" uid="uid://clv4ndi43ieoa" path="res://Scenes/Levels/level2/level2.jpg" id="1_0ai1i"]
 [ext_resource type="Script" uid="uid://ud6vpwak2bsk" path="res://Scripts/cuarto_2.gd" id="1_r4oe0"]
 [ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="2_s43nd"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="3_gu04i"]
+[ext_resource type="PackedScene" uid="uid://djbbvmt4xxank" path="res://Scenes/Entities/gato_naranjoso.tscn" id="3_tk4ob"]
 [ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/fuego.tscn" id="4_02sxl"]
 [ext_resource type="PackedScene" uid="uid://bh08j56ukxtp" path="res://Hub/hub.tscn" id="5_gu04i"]
 [ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="6_02sxl"]
@@ -33,7 +34,7 @@ size = Vector2(120.009155, 701)
 size = Vector2(691.862, 188.2124)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_3he5m"]
-size = Vector2(566, 63)
+size = Vector2(728, 63)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_twbf5"]
 size = Vector2(160, 56)
@@ -84,7 +85,7 @@ shape = SubResource("RectangleShape2D_psv0m")
 [node name="Wall_righ_above2" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above2"]
-position = Vector2(1139, 865.5)
+position = Vector2(1058, 865.5)
 shape = SubResource("RectangleShape2D_3he5m")
 
 [node name="Wall_righ_above3" type="StaticBody2D" parent="."]
@@ -104,7 +105,6 @@ position = Vector2(1256, 549)
 
 [node name="personajePrincipal" parent="." instance=ExtResource("3_gu04i")]
 position = Vector2(773.99994, 169)
-vida_maxima = 5.0
 
 [node name="minions2" parent="." instance=ExtResource("2_s43nd")]
 position = Vector2(290, 647)
@@ -121,9 +121,9 @@ position = Vector2(629, 473)
 [node name="Fuego4" parent="." instance=ExtResource("4_02sxl")]
 position = Vector2(-162, 524)
 
-[node name="HUD" parent="." instance=ExtResource("6_02sxl")]
-
 [node name="Hub" parent="." instance=ExtResource("5_gu04i")]
+
+[node name="HUD" parent="." instance=ExtResource("6_02sxl")]
 
 [node name="Box" parent="." instance=ExtResource("7_psv0m")]
 position = Vector2(1042, 214)
@@ -167,3 +167,7 @@ position = Vector2(628, 613)
 position = Vector2(818.9999, 201)
 objetivo = NodePath("../personajePrincipal")
 vida_maxima = 5.0
+
+[node name="GatoNaranjoso" parent="." instance=ExtResource("3_tk4ob")]
+position = Vector2(-123.00012, -78.00012)
+scale = Vector2(1.725, 1.725)
