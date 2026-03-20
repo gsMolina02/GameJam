@@ -8,7 +8,8 @@ extends CharacterBody2D
 # --- Vida / Knockback (from HEAD) ---
 # Salud (por defecto 5 -> personaje principal)
 # CAMBIADO A FLOAT para soportar daño de 0.5 de las bolas de minions
-@export var vida_maxima: float = 5.0
+# ACTUALIZADO A 100.0 para usar escala 0-100 (oxígeno)
+@export var vida_maxima: float = 100.0
 var vida_actual: float = 0.0
 var vivo: bool = true
 
@@ -179,14 +180,9 @@ func _on_Hitbox_area_entered(area):
 
 	# Daño por ataque de minion (grupo 'ataque_minion')
 	if area.is_in_group("ataque_minion"):
-		# Si el área tiene una propiedad 'damage', usarla; si no, usar 1
-		var damage_amount = 1.0
-		if area.has_method("get") and area.get("damage") != null:
-			damage_amount = area.get("damage")
-			print(self.name, " - 🔥 Golpeado por ataque de minion! Daño:", damage_amount)
-		else:
-			print(self.name, " - Golpeado por minion! Daño: 1")
-		
+		# Restar -10 de oxígeno (daño a la barra de vida que representa oxígeno)
+		var damage_amount = 10.0
+		print(self.name, " - 🔥 Golpeado por ataque de minion! Oxígeno perdido:", damage_amount)
 		recibir_dano(damage_amount)
 		var dir = (global_position - area.global_position).normalized()
 		if dir == Vector2.ZERO:
@@ -197,14 +193,9 @@ func _on_Hitbox_area_entered(area):
 
 	# Daño por ataque de jefe (grupo 'ataque_jefe')
 	if area.is_in_group("ataque_jefe"):
-		# Si el área tiene una propiedad 'damage', usarla; si no, usar 1
-		var damage_amount = 1.0
-		if area.has_method("get") and area.get("damage") != null:
-			damage_amount = area.get("damage")
-			print(self.name, " - 💥 Golpeado por ataque de jefe! Daño:", damage_amount)
-		else:
-			print(self.name, " - Golpeado por jefe! Daño: 1")
-		
+		# Restar -10 de oxígeno (daño a la barra de vida que representa oxígeno)
+		var damage_amount = 10.0
+		print(self.name, " - 💥 Golpeado por ataque de jefe! Oxígeno perdido:", damage_amount)
 		recibir_dano(damage_amount)
 		var dir = (global_position - area.global_position).normalized()
 		if dir == Vector2.ZERO:
@@ -222,11 +213,11 @@ func _on_Hitbox_area_entered(area):
 	if area.is_in_group("pickup_vida"):
 		# Solo recoger si la vida no está al máximo
 		if vida_actual < vida_maxima:
-			curar(1.0)
+			curar(25.0)  # Recupera +25% de oxígeno
 			area.queue_free()
-			print(self.name, " - Tanque de oxígeno recogido. Vida: ", vida_actual, "/", vida_maxima)
+			print(self.name, " - Tanque de oxígeno recogido (+25). Oxígeno: ", vida_actual, "/", vida_maxima)
 		else:
-			print(self.name, " - Vida al máximo, no se puede recoger el tanque")
+			print(self.name, " - Oxígeno al máximo, no se puede recoger el tanque")
 		return
 
 # --- Dash functions (from main) ---
