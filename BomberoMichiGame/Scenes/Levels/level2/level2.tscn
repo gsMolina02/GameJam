@@ -14,7 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://oysdlu64rb7d" path="res://Scenes/Entities/puerta.tscn" id="11_ijd15"]
 [ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="12_tk4ob"]
 [ext_resource type="PackedScene" uid="uid://g6pr41r3rkwt" path="res://Scenes/UI/deathEscene.tscn" id="13_jslai"]
-[ext_resource type="AudioStream" uid="uid://b2ofh0vdfq8c5" path="res://Assets/musica/Niveles.ogg" id="14_s5ks2"]
+[ext_resource type="AudioStream" uid="uid://cscyyxjdqwybb" path="res://Assets/musica/Zone 1.wav" id="14_s5ks2"]
 [ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="15_ijd15"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_s43nd"]
