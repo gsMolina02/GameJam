@@ -8,41 +8,50 @@ var buttons: Array = []
 func _ready() -> void:
 	# Asegurarse de que esta UI funcione incluso cuando el juego está pausado
 
-	
+
 	# Mostrar el cursor del sistema en la pantalla de muerte
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	
+
 	# Ocultar el menú de pausa si estaba visible
 	_hide_pause_menu()
-	
+
 	# Obtener referencias a los botones
 	buttons = [
 		$GameOver/PanelContainer/MarginContainer/VBoxContainer/botonera/botonYes,
 		$GameOver/PanelContainer/MarginContainer/VBoxContainer/botonera/botonNo
 	]
-	
+
 	# Las señales ya están conectadas en el archivo .tscn, no es necesario conectarlas aquí
-	
+
 	# Dar foco al primer botón
 	_update_button_focus()
 
 # Ocultar el menú de pausa si existe
 func _hide_pause_menu() -> void:
-	var pause_menu = get_tree().root.get_node_or_null("PauseMenu")
-	if pause_menu:
-		pause_menu.hide()
+	# Buscar el menú de pausa en el mismo MenusLayer
+	var parent = get_parent()
+	if parent:
+		var pause_menu = parent.get_node_or_null("PuseMenu")
+		if pause_menu:
+			pause_menu.hide()
+			print("✓ PauseMenu ocultado desde DeathMenu")
 
 # Manejar input para navegación con teclado - usar _unhandled_input para mayor prioridad
 func _unhandled_input(event: InputEvent) -> void:
 	# NO procesar input si el menú no es visible o no está en el árbol
 	if not visible or not is_inside_tree():
 		return
-	
+
 	# Verificar que el viewport existe antes de usarlo
 	var viewport = get_viewport()
 	if not viewport:
 		return
-	
+
+	# BLOQUEAR ESC para que no active el menú de pausa cuando hay game over
+	if event.is_action_pressed("ui_cancel"):
+		viewport.set_input_as_handled()
+		return
+
 	# Solo procesar input de teclado/gamepad para el menú
 	if event.is_action_pressed("ui_left") or event.is_action_pressed("left"):
 		selected_button = 0  # Seleccionar "Sí"
@@ -85,8 +94,14 @@ func _on_yes_pressed() -> void:
 	# SÍ quiero continuar = Reiniciar el nivel
 	if not is_inside_tree():
 		return
-	
+
 	get_tree().paused = false
+
+	# Ocultar el MenusLayer padre antes de cambiar de escena
+	var parent = get_parent()
+	if parent and parent.name == "MenusLayer":
+		parent.visible = false
+
 	# Usar call_deferred para evitar problemas durante el procesamiento de input
 	get_tree().call_deferred("reload_current_scene")
 	call_deferred("queue_free")
@@ -96,8 +111,14 @@ func _on_no_pressed() -> void:
 	# NO quiero continuar = Volver al menú principal
 	if not is_inside_tree():
 		return
-	
+
 	get_tree().paused = false
+
+	# Ocultar el MenusLayer padre antes de cambiar de escena
+	var parent = get_parent()
+	if parent and parent.name == "MenusLayer":
+		parent.visible = false
+
 	# Usar call_deferred para evitar problemas durante el procesamiento de input
 	get_tree().call_deferred("change_scene_to_file", "res://Interfaces/main_menu.tscn")
 	call_deferred("queue_free")
