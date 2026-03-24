@@ -91,6 +91,7 @@ func mover_personaje(delta):
 
 	# Si está haciendo dash, manejar el dash por frame
 	if is_dashing:
+		_play_dash_roll_animation()
 		_handle_dash(delta)
 		return
 
@@ -315,46 +316,54 @@ func _update_animation(input_vector: Vector2):
 
 	# 0° = derecha, 90° = abajo, 180° = izquierda, 270° = arriba
 	if degrees >= 337.5 or degrees < 22.5:
-		# Derecha
+		# Derecha (frontal)
 		candidates = [
-			"move_right", "move-right",  # nombres alternativos
-			"lat_inf_der", "lat_sup_der",  # fallbacks diagonales si no hay derecha pura
-			"move_down", "move_up"  # último recurso, que algo se mueva
+			"AxeWalkinFrontDer", "AxelWalkinFrontDer",
+			"AxeWalkinFront", "AxelWalkinFront"
 		]
 	elif degrees >= 22.5 and degrees < 67.5:
-		# Diagonal inferior derecha
+		# Diagonal inferior derecha (frontal)
 		candidates = [
-			"lat_inf_der", "move_right", "move-right", "move_down"
+			"AxeWalkinFrontDer", "AxelWalkinFrontDer",
+			"AxeWalkinFront", "AxelWalkinFront"
 		]
 	elif degrees >= 67.5 and degrees < 112.5:
-		# Abajo
+		# Abajo (frontal)
 		candidates = [
-			"move_down", "lat_inf_der", "lat_inf_izq", "idle_frente", "idl_frente", "lat_frente"
+			"AxeWalkinFront", "AxelWalkinFront",
+			"AxeWalkinFrontDer", "AxelWalkinFrontDer",
+			"AxeWalkinFrontIzq", "AxelWalkinFrontIzq"
 		]
 	elif degrees >= 112.5 and degrees < 157.5:
-		# Diagonal inferior izquierda
+		# Diagonal inferior izquierda (frontal)
 		candidates = [
-			"lat_inf_izq", "move_left", "move-left", "move_down"
+			"AxeWalkinFrontIzq", "AxelWalkinFrontIzq",
+			"AxeWalkinFront", "AxelWalkinFront"
 		]
 	elif degrees >= 157.5 and degrees < 202.5:
-		# Izquierda
+		# Izquierda (frontal)
 		candidates = [
-			"move_left", "move-left", "lat_inf_izq", "lat_sup_izq", "lat_frente"
+			"AxeWalkinFrontIzq", "AxelWalkinFrontIzq",
+			"AxeWalkinFront", "AxelWalkinFront"
 		]
 	elif degrees >= 202.5 and degrees < 247.5:
 		# Diagonal superior izquierda
 		candidates = [
-			"lat_sup_izq", "move_left", "move-left", "move_up"
+			"AxeWalkBackIzq", "AxelWalkBackIzq",
+			"AxeWalkBack", "AxelWalkBack"
 		]
 	elif degrees >= 247.5 and degrees < 292.5:
 		# Arriba
 		candidates = [
-			"move_up", "lat_sup_der", "lat_sup_izq", "idle_up", "atras"
+			"AxeWalkBack", "AxelWalkBack",
+			"AxeWalkBackDer", "AxelWalkBackDer",
+			"AxeWalkBackIzq", "AxelWalkBackIzq"
 		]
 	elif degrees >= 292.5 and degrees < 337.5:
 		# Diagonal superior derecha
 		candidates = [
-			"lat_sup_der", "move_right", "move-right", "move_up"
+			"AxeWalkBackDer", "AxelWalkBackDer",
+			"AxeWalkBack", "AxelWalkBack"
 		]
 
 	_play_first_available(candidates)
@@ -364,13 +373,38 @@ func _play_idle_animation():
 	if not animated_sprite:
 		return
 
-	# Intentar animaciones de idle conocidas
+	# Intentar idle del set nuevo
 	if animated_sprite.sprite_frames:
 		var played_before := animated_sprite.animation
-		_play_first_available(["idl_frente", "idle_frente", "idle"])  # prioriza tu 'idl_frente'
+		_play_first_available(["AxeIdl", "AxelIdl"])
 		# Si ninguna idle existe, detener para mantener el último frame
 		if animated_sprite.animation == played_before and animated_sprite.is_playing():
 			animated_sprite.stop()
+
+func _play_dash_roll_animation():
+	"""Reproduce roll según dirección del dash."""
+	if not animated_sprite or not animated_sprite.sprite_frames:
+		return
+
+	var dir := dash_direction
+	if dir == Vector2.ZERO:
+		dir = last_direction
+	if dir == Vector2.ZERO:
+		_play_first_available(["AxeRollFrontDer", "AxelRollFrontDer"])
+		return
+
+	if dir.y < -0.35:
+		if dir.x < -0.2:
+			_play_first_available(["AxeRollBackIzq", "AxelRollBackIzq"])
+		elif dir.x > 0.2:
+			_play_first_available(["AxeRollBackDer", "AxelRollBackDer"])
+		else:
+			_play_first_available(["AxeRollBackDer", "AxelRollBackDer", "AxeRollBackIzq", "AxelRollBackIzq"])
+	else:
+		if dir.x < 0:
+			_play_first_available(["AxeRollFrontIzq", "AxelRollFrontIzq"])
+		else:
+			_play_first_available(["AxeRollFrontDer", "AxelRollFrontDer"])
 
 func _play_animation(anim_name: String):
 	"""Reproduce una animación si existe"""

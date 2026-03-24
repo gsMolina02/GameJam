@@ -12,6 +12,12 @@ func toggle_pause() -> void:
 	var is_paused = not get_tree().paused
 	get_tree().paused = is_paused
 	visible = is_paused
+	
+	# Mostrar cursor cuando está en pausa, ocultarlo cuando continúa
+	if is_paused:
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	else:
+		Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 
 	# Activar/desactivar el MenusLayer padre si existe
 	var parent = get_parent()
