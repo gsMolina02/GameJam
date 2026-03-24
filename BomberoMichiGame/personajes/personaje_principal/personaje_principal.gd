@@ -91,10 +91,13 @@ signal weapon_switched(new_weapon)
 func _ready():
 	# Llama a la inicialización del padre (conexión Hitbox, init vida, etc.)
 	super._ready()
-	
+
 	# Añadir al grupo para que HUD/etc. nos encuentre
 	add_to_group("player_main")
-	
+
+	# Configurar para que el personaje pueda detectar ESC incluso durante pausa
+	process_mode = Node.PROCESS_MODE_ALWAYS
+
 	# Conectar señal de muerte para pausar el juego solo cuando vida = 0
 	if not is_connected("personaje_muerto", Callable(self, "die")):
 		connect("personaje_muerto", Callable(self, "die"))
@@ -317,11 +320,50 @@ func _unhandled_input(event):
 	if not vivo:
 		return
 
+	# Detectar ESC para pausar el juego
+	if event.is_action_pressed("ui_cancel"):
+		_toggle_pause_menu()
+		get_viewport().set_input_as_handled()
+		return
+
 	# Detectar scroll del mouse para cambiar arma
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP or event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			if event.pressed:
 				switch_weapon()
+
+func _toggle_pause_menu():
+	"""Activa/desactiva el menú de pausa"""
+	# Buscar el MenusLayer
+	var menus_layer = get_tree().root.find_child("MenusLayer", true, false)
+	if not menus_layer:
+		print("⚠️ MenusLayer no encontrado")
+		return
+
+	# Buscar los menús
+	var pause_menu = menus_layer.get_node_or_null("PuseMenu")
+	var death_menu = menus_layer.get_node_or_null("DeathMenu")
+
+	# No permitir pausar si hay pantalla de muerte activa
+	if death_menu and death_menu.visible:
+		return
+
+	# Alternar pausa
+	var is_paused = not get_tree().paused
+	get_tree().paused = is_paused
+
+	# Mostrar/ocultar menús
+	menus_layer.visible = is_paused
+	if pause_menu:
+		pause_menu.visible = is_paused
+	if death_menu:
+		death_menu.visible = false
+
+	# Mostrar/ocultar cursor
+	if is_paused:
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	else:
+		Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 
 func _handle_input():
 	# Si el personaje está muerto, no procesar input

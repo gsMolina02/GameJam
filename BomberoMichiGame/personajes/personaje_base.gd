@@ -403,18 +403,38 @@ func _show_death_screen():
 	print("Mostrando pantalla de Game Over...")
 	# Pausar el juego
 	get_tree().paused = true
-	# Cargar la escena de muerte
-	var death_scene = load("res://Scenes/UI/deathEscene.tscn")
-	if death_scene:
-		var death_instance = death_scene.instantiate()
-		# Asegurarse de que el menú de muerte no esté pausado (configurar ANTES de agregar)
-		death_instance.process_mode = Node.PROCESS_MODE_ALWAYS
-		# Agregar a la escena raíz para que aparezca sobre todo
-		get_tree().root.add_child(death_instance)
-		# Configurar todos los hijos para que también funcionen durante la pausa
-		_set_process_mode_recursive(death_instance, Node.PROCESS_MODE_ALWAYS)
+
+	# Buscar el MenusLayer en la escena actual
+	var menus_layer = get_tree().root.find_child("MenusLayer", true, false)
+
+	if menus_layer:
+		# Activar el MenusLayer existente
+		menus_layer.visible = true
+		# Asegurarse de que funcione durante la pausa
+		menus_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+		_set_process_mode_recursive(menus_layer, Node.PROCESS_MODE_ALWAYS)
+
+		# Mostrar solo el DeathMenu y ocultar el PauseMenu
+		var death_menu = menus_layer.get_node_or_null("DeathMenu")
+		var pause_menu = menus_layer.get_node_or_null("PuseMenu")
+
+		if death_menu:
+			death_menu.visible = true
+		if pause_menu:
+			pause_menu.visible = false
+
+		print("✓ MenusLayer activado correctamente")
 	else:
-		print("Error: No se pudo cargar deathEscene.tscn")
+		# Fallback: Cargar la escena de muerte si no existe MenusLayer
+		print("⚠️ MenusLayer no encontrado, creando instancia de muerte...")
+		var death_scene = load("res://Scenes/UI/deathEscene.tscn")
+		if death_scene:
+			var death_instance = death_scene.instantiate()
+			death_instance.process_mode = Node.PROCESS_MODE_ALWAYS
+			get_tree().root.add_child(death_instance)
+			_set_process_mode_recursive(death_instance, Node.PROCESS_MODE_ALWAYS)
+		else:
+			print("Error: No se pudo cargar deathEscene.tscn")
 
 func _set_process_mode_recursive(node: Node, mode: Node.ProcessMode):
 	"""Configura el process_mode recursivamente para todos los nodos hijos"""
