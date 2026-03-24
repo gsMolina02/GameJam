@@ -16,6 +16,15 @@ class_name Bomber
 @export var water_pressure = 10.0  # Daño por segundo al fuego (ajustado para apagar en 0.5s)
 @export var hose_origin_offset = Vector2(50, 0)  # Punto de origen del agua
 @export var hose_nozzle_offset = Vector2(130, 30)  # Punta de la manguera (boquilla)
+@export var water_recharge_rate = 3.0  # Cantidad de agua que se recarga por segundo
+@export var water_recharge_on_box = 20.0  # Cantidad de agua al romper una caja
+
+# Propiedades del oxígeno (sistema de barra de vida mejorado)
+@export var oxygen_loss_rate = 1.0  # Pérdida de oxígeno por segundo en condiciones normales
+@export var oxygen_recovery_rate = 5.0  # Recuperación de oxígeno por segundo sin enemigos/fuego
+@export var oxygen_attack_damage = 10.0  # Pérdida de oxígeno por golpe
+@export var oxygen_tankpickup = 25.0  # Cantidad de oxígeno que recupera un tanque
+@export var oxygen_death_time = 5.0  # Segundos permitidos sin oxígeno antes de morir
 
 # Estados del hacha
 enum AxeState {
@@ -41,6 +50,11 @@ var current_weapon = Weapon.HOSE  # Iniciar con MANGUERA equipada
 var apuntador = null
 var apuntador_offset = Vector2(130, 30)
 var is_dead: bool = false
+var manguera_bloqueada: bool = false  # Bloquea la manguera cuando llega a 0
+
+# Variables de control de oxígeno
+var oxygen_zero_timer = 0.0  # Contador para los 5 segundos permitidos sin oxígeno
+var had_enemies_or_fire = false  # Para detectar cuándo no hay enemigos/fuego
 
 # Marcador calculado para la punta de la manguera
  
@@ -77,10 +91,13 @@ signal weapon_switched(new_weapon)
 func _ready():
 	# Llama a la inicialización del padre (conexión Hitbox, init vida, etc.)
 	super._ready()
-	
+
 	# Añadir al grupo para que HUD/etc. nos encuentre
 	add_to_group("player_main")
-	
+
+	# Configurar para que el personaje pueda detectar ESC incluso durante pausa
+	process_mode = Node.PROCESS_MODE_ALWAYS
+
 	# Conectar señal de muerte para pausar el juego solo cuando vida = 0
 	if not is_connected("personaje_muerto", Callable(self, "die")):
 		connect("personaje_muerto", Callable(self, "die"))
@@ -123,7 +140,7 @@ func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 
 	# Instanciar apuntador visual
-	var apuntador_scene = preload("res://Assets/objetos/apuntador.tscn")
+	var apuntador_scene = preload("res://Assets/Objetos/apuntador.tscn")
 	apuntador = apuntador_scene.instantiate()
 	apuntador.name = "Apuntador"
 	add_child(apuntador)
@@ -262,6 +279,12 @@ func _physics_process(delta):
 	# Input de acciones
 	_handle_input()
 
+	# ========== SISTEMA DE RECARGA AUTOMÁTICA DE AGUA ==========
+	_update_water_recharge(delta)
+	
+	# ========== SISTEMA DE CONSUMO/RECUPERACIÓN DE OXÍGENO ==========
+	_update_oxygen_system(delta)
+
 	# Limitar posición dentro del campo definido (SOLO si enforce_bounds está activo)
 	if enforce_bounds:
 		var minx = (min_x if min_x != null else -1000.0)
@@ -297,11 +320,50 @@ func _unhandled_input(event):
 	if not vivo:
 		return
 
+	# Detectar ESC para pausar el juego
+	if event.is_action_pressed("ui_cancel"):
+		_toggle_pause_menu()
+		get_viewport().set_input_as_handled()
+		return
+
 	# Detectar scroll del mouse para cambiar arma
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP or event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			if event.pressed:
 				switch_weapon()
+
+func _toggle_pause_menu():
+	"""Activa/desactiva el menú de pausa"""
+	# Buscar el MenusLayer
+	var menus_layer = get_tree().root.find_child("MenusLayer", true, false)
+	if not menus_layer:
+		print("⚠️ MenusLayer no encontrado")
+		return
+
+	# Buscar los menús
+	var pause_menu = menus_layer.get_node_or_null("PuseMenu")
+	var death_menu = menus_layer.get_node_or_null("DeathMenu")
+
+	# No permitir pausar si hay pantalla de muerte activa
+	if death_menu and death_menu.visible:
+		return
+
+	# Alternar pausa
+	var is_paused = not get_tree().paused
+	get_tree().paused = is_paused
+
+	# Mostrar/ocultar menús
+	menus_layer.visible = is_paused
+	if pause_menu:
+		pause_menu.visible = is_paused
+	if death_menu:
+		death_menu.visible = false
+
+	# Mostrar/ocultar cursor
+	if is_paused:
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	else:
+		Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 
 func _handle_input():
 	# Si el personaje está muerto, no procesar input
@@ -333,15 +395,14 @@ func _handle_input():
 		if Input.is_action_just_pressed("attack"):
 			attack()  # El ataque ahora funciona como parry automático
 
-	# Dash: usar Shift ('ui_shift') como en el comportamiento original
-	var shift_pressed := false
-	if InputMap.has_action("ui_shift"):
-		shift_pressed = Input.is_action_just_pressed("ui_shift")
+	# Dash: usar la acción 'dash' (tecla Shift) exclusivamente
+	var dash_pressed := false
+	if InputMap.has_action("dash"):
+		dash_pressed = Input.is_action_just_pressed("dash") and not Input.is_action_pressed("attack")
 	else:
-		# Fallback a tecla Space si no existe la acción
-		shift_pressed = Input.is_key_pressed(KEY_SPACE) and not Input.is_action_pressed("attack")
+		dash_pressed = false
 
-	if shift_pressed and can_dash:
+	if dash_pressed and can_dash:
 		# Determinar dirección de dash: preferir input vector, caer a dirección mirando
 		var dir = Input.get_vector("left", "right", "up", "down")
 		if dir == Vector2.ZERO:
@@ -544,10 +605,12 @@ func _update_hose(delta):
 	# Detectar y apagar fuego con el daño calculado
 	_detect_and_extinguish_fire(water_damage)
 	
-	# Si se acabó la carga, desactivar
+	# SI LLEGA A 0: Bloqueo inmediato
 	if hose_charge <= 0:
+		hose_charge = 0
+		manguera_bloqueada = true
 		_deactivate_hose()
-		print("¡Manguera vacía!")
+		print("⚠️ Manguera agotada. Esperando recarga al 20%...")
 
 func _update_hose_direction():
 	"""Actualiza la dirección de la manguera hacia la posición del mouse"""
@@ -802,12 +865,12 @@ func _play_parry_effect():
 func _break_extinguisher_box(box):
 	# Recarga la manguera al romper la caja
 	var old_charge = hose_charge
-	hose_charge = min(hose_charge + 25.0, 100.0)
+	var safe_recharge = water_recharge_on_box if water_recharge_on_box != null else 20.0
+	set_hose_charge(hose_charge + safe_recharge)
 	var actual_recharge = hose_charge - old_charge
 
 	print("¡Caja rota! Agua recargada: +", actual_recharge, "% (", old_charge, "% → ", hose_charge, "%)")
 	
-	emit_signal("hose_recharged", hose_charge)
 	emit_signal("extinguisher_box_broken")
 
 	_play_box_break_effect(box)
@@ -857,7 +920,8 @@ func get_hose_charge() -> float:
 	return hose_charge
 
 func can_use_hose() -> bool:
-	return hose_charge > 0
+	# Solo puede usar la manguera si tiene carga Y no está bloqueada
+	return hose_charge > 0.0 and not manguera_bloqueada
 
 func is_hose_active() -> bool:
 	return is_using_hose
@@ -877,3 +941,63 @@ func reduce_hose_charge(amount: float):
 func add_hose_charge(amount: float):
 	"""Añade carga a la manguera"""
 	set_hose_charge(hose_charge + amount)
+
+# ============================================
+# SISTEMA DE RECARGA AUTOMÁTICA DE AGUA
+# ============================================
+func _update_water_recharge(delta):
+	"""Recarga automática de agua: +3 por segundo y control de bloqueo"""
+	if not is_using_hose:
+		# Recarga normal cuando no se usa
+		set_hose_charge(hose_charge + (water_recharge_rate * delta))
+		
+		# SI ESTABA BLOQUEADA: Revisar si ya recuperó el 20% para desbloquear
+		if manguera_bloqueada and hose_charge >= 20.0:
+			manguera_bloqueada = false
+			print("✅ Manguera recuperada. ¡Puedes disparar!")
+
+# ============================================
+# SISTEMA DE CONSUMO/RECUPERACIÓN DE OXÍGENO
+# ============================================
+func _update_oxygen_system(delta):
+	"""
+	Maneja el sistema de oxígeno:
+	- Consume -1 por segundo normalmente
+	- Recupera +5 por segundo sin enemigos/fuego
+	- Contar 5 segundos si llega a 0
+	"""
+	# Si el personaje está muerto, no hacer nada
+	if not vivo:
+		return
+	
+	# Detectar si hay enemigos o fuego activos en la escena
+	var enemies = get_tree().get_nodes_in_group("enemy")
+	var minions = get_tree().get_nodes_in_group("minion")
+	var fire_nodes = get_tree().get_nodes_in_group("Fire")
+	
+	var has_enemies_or_fire = (enemies.size() > 0 or minions.size() > 0 or fire_nodes.size() > 0)
+	
+	# Si oxígeno es cero, iniciar contador de muerte
+	if vida_actual <= 0.0:
+		if oxygen_zero_timer <= 0.0:
+			oxygen_zero_timer = oxygen_death_time
+			print("⚠️ ¡OXÍGENO AGOTADO! Tienes ", oxygen_death_time, " segundos para obtener oxígeno")
+		
+		oxygen_zero_timer -= delta
+		
+		# Si se acaba el tiempo sin oxígeno, morir
+		if oxygen_zero_timer <= 0.0 and not is_dead:
+			is_dead = true
+			print("💀 ¡TIEMPO AGOTADO! Game Over sin oxígeno")
+		return
+	else:
+		# Resetear contador si hay oxígeno
+		oxygen_zero_timer = 0.0
+	
+	# Si hay enemigos o fuego: consumir oxígeno (-1 por segundo)
+	if has_enemies_or_fire:
+		recibir_dano(oxygen_loss_rate * delta)
+	else:
+		# Sin enemigos/fuego: recuperar oxígeno (+5 por segundo)
+		if vida_actual < vida_maxima:
+			curar(oxygen_recovery_rate * delta)

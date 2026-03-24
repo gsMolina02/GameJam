@@ -52,11 +52,16 @@ func mover_personaje(delta):
 	elif has_node("mishiMuerto"):
 		anim = $mishiMuerto
 
+	# Asegurar que la animación siempre esté reproduciéndose
+	if anim:
+		if anim.animation != "GhostCat":
+			anim.animation = "GhostCat"
+		if not anim.is_playing():
+			anim.play()
+
 	if principal == null:
-		# No hay objetivo válido: detener y salir
+		# No hay objetivo válido: detener movimiento pero mantener animación
 		velocity = Vector2.ZERO
-		if anim:
-			anim.stop()
 		return
 
 	var distancia = global_position.distance_to(principal.global_position)
@@ -67,16 +72,9 @@ func mover_personaje(delta):
 		var t = clamp(follow_speed * delta, 0.0, 1.0)
 		velocity = velocity.lerp(objetivo_vel, t)
 		move_and_slide()
-		if anim:
-			if anim.animation != "GhostCat":
-				anim.animation = "GhostCat"
-			if not anim.is_playing():
-				anim.play()
 	else:
-		# Dentro de distancia mínima: parar
+		# Dentro de distancia mínima: parar movimiento
 		velocity = Vector2.ZERO
-		if anim:
-			anim.stop()
 
 func _physics_process(delta):
 	mover_personaje(delta)

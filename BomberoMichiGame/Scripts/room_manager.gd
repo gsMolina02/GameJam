@@ -120,6 +120,9 @@ func completar_habitacion() -> void:
 	print("  Vida restante:", vida_habitacion)
 	emit_signal("habitacion_completada_signal")
 	
+	# Notificar a los gatos que el rescate está completo
+	notificar_gatos_rescatados()
+	
 	# Desbloquear puertas
 	desbloquear_puertas()
 
@@ -129,10 +132,31 @@ func desbloquear_puertas() -> void:
 		if puerta.has_method("desbloquear"):
 			puerta.desbloquear()
 
+func notificar_gatos_rescatados() -> void:
+	"""Notifica a todos los gatos que el rescate está completo"""
+	var gatos = get_tree().get_nodes_in_group("gatos_salvados")
+	for gato in gatos:
+		if gato.has_method("marcar_fuego_apagado"):
+			gato.marcar_fuego_apagado()
+		if gato.has_method("marcar_enemigos_derrotados"):
+			gato.marcar_enemigos_derrotados()
+	print("🐱 Notificados", gatos.size(), "gatos sobre el rescate completado")
+
 func game_over_habitacion() -> void:
+	if habitacion_completada:
+		return  # Evitar muerte si ya completó la habitación
+		
 	perdiendo_vida = false
+	habitacion_completada = true  # Evitar llamadas múltiples
 	print("💀 GAME OVER - Se acabó el tiempo de la habitación")
 	emit_signal("game_over")
 	
-	# Pausar el juego
-	get_tree().paused = true
+	# Buscar al personaje principal y matarlo usando el sistema correcto
+	var players = get_tree().get_nodes_in_group("player_main")
+	if players.size() > 0:
+		var player = players[0]
+		# Usar el sistema de daño para matar al jugador
+		if player.has_method("recibir_dano") and "vida_actual" in player:
+			var dano_total = player.vida_actual + 1.0  # Asegurar que muera
+			player.recibir_dano(dano_total)
+			print("💀 Personaje muerto por tiempo agotado - Vida reducida a:", player.vida_actual)
