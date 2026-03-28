@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bnihukhmyhrty"
-path="res://.godot/imported/Escenario_tileset.jpg-37b1e70348467a45d8963b664993a9b0.ctex"
+uid="uid://itvv43g04xsp"
+path="res://.godot/imported/Suelo_4.png-5efa6400b67d36ab36e63c2fb06deb7e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Tiles/Escenario_tileset.jpg"
-dest_files=["res://.godot/imported/Escenario_tileset.jpg-37b1e70348467a45d8963b664993a9b0.ctex"]
+source_file="res://Tiles/SuelosRene/Suelo_4.png"
+dest_files=["res://.godot/imported/Suelo_4.png-5efa6400b67d36ab36e63c2fb06deb7e.ctex"]
 
 [params]
 
