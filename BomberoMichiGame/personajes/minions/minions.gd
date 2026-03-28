@@ -10,6 +10,9 @@ var tiempo_actual := 0.0
 var tiempo_disparo := 0.0
 var tiempo_desde_disparo := 0.0
 
+# Variable para el movimiento de flotado (levitación dinámica)
+var levitation_time := 0.0
+
 var can_shoot = true
 var fireball_scene = preload("res://personajes/minions/fireball_visual.tscn")
 
@@ -48,7 +51,8 @@ func _ready():
 	# no se usan disparos en minions ahora, pero conectamos el timer por si se re-activa
 	$AttackTimer.timeout.connect(_on_AttackTimer_timeout)
 	anim_player = $AnimatedSprite2D
-	_setup_animation_frames()
+	if anim_player:
+		_setup_animation_frames()
 	# Ensure this node is recognized as an enemy for collisions/filters
 	add_to_group("enemy")
 	add_to_group("minion")
@@ -78,15 +82,14 @@ func _ready():
 				# Crear un occluder simple para proyectar sombras (approx caja basada en sprite)
 				var occl = LightOccluder2D.new()
 				var poly = OccluderPolygon2D.new()
-				var sprite_node := get_node_or_null("AnimatedSprite2D")
 				var size = Vector2(24, 24)
-				if sprite_node and sprite_node.frames and sprite_node.frames.get_animation_names().size() > 0:
+				if anim_player != null and anim_player.sprite_frames != null and anim_player.sprite_frames.get_animation_names().size() > 0:
 					# Intentar tomar el primer frame para estimar tamaño
-					var anim = sprite_node.frames.get_animation_names()[0]
-					if sprite_node.frames.get_frame_count(anim) > 0:
-						var tex = sprite_node.frames.get_frame(anim, 0)
+					var anim = anim_player.sprite_frames.get_animation_names()[0]
+					if anim_player.sprite_frames.get_frame_count(anim) > 0:
+						var tex = anim_player.sprite_frames.get_frame(anim, 0)
 						if tex:
-							size = tex.get_size() * sprite_node.scale
+							size = tex.get_size() * anim_player.scale
 				# Construir polígono rectangular centrado
 				var hw = size.x * 0.5
 				var hh = size.y * 0.5
@@ -98,28 +101,29 @@ func _setup_animation_frames():
 	# Busca imágenes en res://Assets/minions/ (carpeta opcional)
 	var dir_path = "res://Assets/minions/"
 	var fs = DirAccess.open(dir_path)
-	if not fs:
-		return
-	
+
 	var frames = []
-	fs.list_dir_begin()
-	var fname = fs.get_next()
-	while fname != "":
-		if not fs.current_is_dir():
-			if fname.to_lower().ends_with(".png") or fname.to_lower().ends_with(".webp") or fname.to_lower().ends_with(".jpg"):
-				frames.append(dir_path + fname)
-		fname = fs.get_next()
-	fs.list_dir_end()
-	frames.sort()
-	if frames.size() == 0:
-		return
+	if fs:
+		fs.list_dir_begin()
+		var fname = fs.get_next()
+		while fname != "":
+			if not fs.current_is_dir():
+				if fname.to_lower().ends_with(".png") or fname.to_lower().ends_with(".webp") or fname.to_lower().ends_with(".jpg"):
+					frames.append(dir_path + fname)
+			fname = fs.get_next()
+		fs.list_dir_end()
+		frames.sort()
+
+	# Siempre crear un SpriteFrames, aunque sea vacío
 	var sf = SpriteFrames.new()
 	sf.add_animation("walk")
-	for f in frames:
-		var tex = load(f)
-		sf.add_frame("walk", tex)
-	anim_player.frames = sf
-	anim_player.frames = sf
+
+	if frames.size() > 0:
+		for f in frames:
+			var tex = load(f)
+			sf.add_frame("walk", tex)
+
+	anim_player.sprite_frames = sf
 	anim_player.animation = "walk"
 	anim_player.play()
 	# Aumenta velocidad por defecto (multiplicador)
@@ -228,6 +232,13 @@ func mover_personaje(delta):
 			anim_player.flip_h = true
 		elif direccion.x > 0:
 			anim_player.flip_h = false
+
+func _process(delta):
+	# Actualizar el movimiento de flotado del sprite
+	levitation_time += delta * 2.0  # Velocidad del flotado
+	# Mueve el sprite un poquito arriba y abajo
+	if anim_player:
+		anim_player.position.y = sin(levitation_time) * 5.0
 
 func _physics_process(delta):
 	mover_personaje(delta)
