@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://ccbpd223shlq8"]
+[gd_scene load_steps=15 format=3 uid="uid://ccbpd223shlq8"]
 
 [ext_resource type="Script" uid="uid://cnmq25o7uo6hf" path="res://personajes/minions/minions.gd" id="1_g41pb"]
 [ext_resource type="Texture2D" uid="uid://cqxqumwlvrnfh" path="res://Assets/minions/001.png" id="2_gqk2a"]
@@ -8,6 +8,20 @@
 [ext_resource type="Texture2D" uid="uid://cl1vajnwpxf3g" path="res://Assets/minions/005.png" id="6_tn7ht"]
 [ext_resource type="Texture2D" uid="uid://cyg6q40hhe3fy" path="res://Assets/minions/006.png" id="7_cknje"]
 [ext_resource type="Texture2D" uid="uid://dww1h7vvrankk" path="res://Assets/minions/007.png" id="8_nw6n0"]
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_gqk2a"]
+cull_mode = 1
+polygon = PackedVector2Array(-31.03798, 103.98862, 49.96054, 108.01822, 33.96637, 92.01236, -5.0336, 91.99814)
+
+[sub_resource type="Gradient" id="Gradient_gqk2a"]
+colors = PackedColorArray(0.8217887, 0.82178867, 0.82178867, 1, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_y5mv6"]
+gradient = SubResource("Gradient_gqk2a")
+use_hdr = true
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_p2trp"]
 animations = [{
@@ -45,12 +59,23 @@ size = Vector2(32, 32)
 radius = 16.0
 
 [node name="minions" type="CharacterBody2D"]
-position = Vector2(253, 458)
+position = Vector2(251, 456)
 rotation = -0.00036524187
 collision_layer = 2
 collision_mask = 3
 script = ExtResource("1_g41pb")
 metadata/_edit_group_ = true
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="."]
+occluder = SubResource("OccluderPolygon2D_gqk2a")
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+color = Color(1, 0.54901963, 0, 1)
+energy = 1.97
+shadow_filter = 2
+texture = SubResource("GradientTexture2D_y5mv6")
+texture_scale = 4.61
+height = 50.0
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 scale = Vector2(0.1, 0.1)
@@ -59,6 +84,7 @@ autoplay = "default"
 frame_progress = 0.9948683
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
 position = Vector2(1, -1)
 shape = SubResource("RectangleShape2D_jy0aa")
 
@@ -67,6 +93,7 @@ wait_time = 2.0
 autostart = true
 
 [node name="HitArea" type="Area2D" parent="."]
+visible = false
 collision_layer = 2
 
 [node name="HitShape" type="CollisionShape2D" parent="HitArea"]

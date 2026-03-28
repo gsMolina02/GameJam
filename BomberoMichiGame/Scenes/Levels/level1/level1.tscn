@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://dgooxxoch0lkq"]
+[gd_scene load_steps=30 format=3 uid="uid://dgooxxoch0lkq"]
 
 [ext_resource type="Texture2D" uid="uid://c0py88gnwk54y" path="res://Scenes/Levels/level1/unnamed.jpg" id="1_5rljr"]
 [ext_resource type="PackedScene" path="res://Scenes/Entities/gato_gris.tscn" id="2_2yhdf"]
@@ -48,7 +48,21 @@ shader_parameter/intensidad = 1.0
 shader_parameter/color_humo = Color(0.2, 0.2, 0.2, 1)
 shader_parameter/velocidad = Vector2(0.04, 0.01)
 
+[sub_resource type="Gradient" id="Gradient_suv00"]
+interpolation_color_space = 2
+offsets = PackedFloat32Array(0.023188407, 1)
+colors = PackedColorArray(0.3529412, 0.3529412, 0.3529412, 0.19215687, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_o0l2g"]
+gradient = SubResource("Gradient_suv00")
+use_hdr = true
+fill = 1
+fill_from = Vector2(0.491453, 0.42735043)
+
 [node name="FondoSala" type="Node2D"]
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.14901961, 0.14901961, 0.15294118, 1)
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(766.25, 451)
@@ -198,3 +212,12 @@ visible = false
 [node name="PuseMenu" parent="MenusLayer" instance=ExtResource("10_2j1q4")]
 
 [node name="DeathMenu" parent="MenusLayer" instance=ExtResource("11_gkcdr")]
+
+[node name="LuzAmbienteCentro" type="PointLight2D" parent="."]
+position = Vector2(772, 452.50003)
+scale = Vector2(2.9765625, 1.7558595)
+color = Color(1, 0.88942164, 0.61782414, 1)
+energy = 19.95
+texture = SubResource("GradientTexture2D_o0l2g")
+texture_scale = 19.36
+height = 61.0
