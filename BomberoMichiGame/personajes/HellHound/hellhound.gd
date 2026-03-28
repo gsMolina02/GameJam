@@ -10,6 +10,7 @@ extends CharacterBody2D
 @onready var detection_area: Area2D = $Area2D
 
 var target: Node2D = null
+var _search_cooldown: int = 0
 
 func _ready() -> void:
 	add_to_group("enemy")
@@ -27,7 +28,11 @@ func _ready() -> void:
 
 func _physics_process(_delta: float) -> void:
 	if target == null or not is_instance_valid(target):
-		target = _find_player()
+		# Buscar jugador solo cada 30 frames (optimización)
+		_search_cooldown -= 1
+		if _search_cooldown <= 0:
+			target = _find_player()
+			_search_cooldown = 30
 
 	if target and is_instance_valid(target):
 		var dir := (target.global_position - global_position)
