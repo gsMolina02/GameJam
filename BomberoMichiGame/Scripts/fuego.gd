@@ -3,9 +3,12 @@ extends Area2D
 # Sistema de vida del fuego
 @export var max_fire_health: float = 5.0  # Vida máxima del fuego (ajustado para 0.5 segundos)
 @export var extinguish_time: float = 0.5  # Tiempo necesario para apagar (segundos)
+@export var ambient_fire_sound: AudioStream = preload("res://Assets/SFX/Fuego/Fuego_fondo.ogg")
+@export var ambient_sound_volume_db: float = -20.0  # Volumen ambiente más bajo
 
 var current_health: float = 5.0
 var is_being_extinguished: bool = false
+var ambient_sound_player: AudioStreamPlayer
 
 # Efectos visuales opcionales
 @onready var sprite = get_node_or_null("Sprite2D")
@@ -27,6 +30,9 @@ func _ready() -> void:
 	# Configurar animación si existe
 	if animation_player and animation_player.has_animation("burning"):
 		animation_player.play("burning")
+	
+	# Configurar sonido ambiente del fuego
+	_setup_ambient_fire_sound()
 	
 	print("Fuego estático inicializado - Vida: ", current_health, " - Grupos: ", get_groups())
 
@@ -69,6 +75,9 @@ func extinguish() -> void:
 	"""Apaga el fuego completamente"""
 	print("¡Fuego extinguido!")
 	
+	# Detener sonido ambiente
+	_stop_ambient_fire_sound()
+	
 	# Efectos visuales/sonoros de extinción
 	_play_extinguished_effect()
 	
@@ -88,12 +97,35 @@ func _play_extinguish_effect() -> void:
 
 func _play_extinguished_effect() -> void:
 	"""Efectos cuando el fuego se apaga completamente"""
-	# Aquí puedes instanciar partículas de humo, sonido de "pshhh", etc.
+	# Reproducir sonido de fuego apagado usando el jugador
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.has_method("_play_fire_extinguish_sound"):
+		player._play_fire_extinguish_sound()
+	
+	# Aquí puedes instanciar partículas de humo, etc.
 	pass
 
 func get_extinguish_progress() -> float:
 	"""Retorna el progreso de extinción (0.0 = lleno, 1.0 = apagado)"""
 	return 1.0 - (current_health / max_fire_health)
+
+func _setup_ambient_fire_sound() -> void:
+	"""Inicializa el sonido ambiente del fuego"""
+	if ambient_fire_sound:
+		ambient_sound_player = AudioStreamPlayer.new()
+		ambient_sound_player.stream = ambient_fire_sound
+		ambient_sound_player.bus = "Master"
+		ambient_sound_player.volume_db = ambient_sound_volume_db
+		ambient_sound_player.bus = "Master"
+		add_child(ambient_sound_player)
+		ambient_sound_player.play()
+		print("🔥 Sonido ambiente de fuego activado")
+
+func _stop_ambient_fire_sound() -> void:
+	"""Detiene el sonido ambiente del fuego"""
+	if ambient_sound_player:
+		ambient_sound_player.stop()
+		print("🔥 Sonido ambiente de fuego detenido")
 
 # Señal para notificar cuando el fuego se apaga
 signal fire_extinguished
