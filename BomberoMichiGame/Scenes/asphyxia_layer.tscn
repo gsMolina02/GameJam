@@ -1,0 +1,27 @@
+[gd_scene load_steps=4 format=3 uid="uid://dv1va6yarysl"]
+
+[ext_resource type="Script" uid="uid://ccb0dahl5xbx6" path="res://Scripts/asphyxia_effect.gd" id="1_8a7xk"]
+[ext_resource type="Shader" uid="uid://d4lrn2uw3kjb7" path="res://Assets/fondos/level1.gdshader" id="2_jqnjw"]
+[ext_resource type="Texture2D" uid="uid://blpotfx727o5c" path="res://Assets/fondos/nubes sofocado.png" id="3_s2t4w"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6le7m"]
+shader = ExtResource("2_jqnjw")
+shader_parameter/textura_humo = ExtResource("3_s2t4w")
+shader_parameter/intensidad = 1.0
+shader_parameter/color_humo = Color(0.2, 0.2, 0.2, 1)
+shader_parameter/velocidad = Vector2(0.04, 0.01)
+
+[node name="AsphyxiaLayer" type="CanvasLayer"]
+script = ExtResource("1_8a7xk")
+oxygen_threshold_start = 30.0
+cough_interval = 3.0
+recovery_delay = 1.0
+sfx_volume_db = 10.0
+
+[node name="OverlaySupervivencia" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_6le7m")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
