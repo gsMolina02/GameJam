@@ -1,4 +1,4 @@
-[gd_scene load_steps=157 format=3 uid="uid://bfra7nxi2wetn"]
+[gd_scene load_steps=158 format=3 uid="uid://bfra7nxi2wetn"]
 
 [ext_resource type="Script" uid="uid://c13ihlyh4xher" path="res://personajes/personaje_principal/personaje_principal.gd" id="1_yy08j"]
 [ext_resource type="Texture2D" uid="uid://dapbj8px55ekc" path="res://Assets/AxelEstatico/Derech/final-0001.png" id="2_532fo"]
@@ -151,6 +151,9 @@
 [ext_resource type="Texture2D" uid="uid://o8lc8ewvmrs0" path="res://Assets/AxelBombero/Ciclo de caminado_frente/Izq/final-0016.png" id="135_7gs2n"]
 [ext_resource type="Texture2D" uid="uid://bqcfsbrsfjrvo" path="res://Assets/AxelBombero/Ciclo de caminado_frente/Izq/final-0017.png" id="136_oc8b1"]
 [ext_resource type="Texture2D" uid="uid://d3rjuniudl37t" path="res://Assets/AxelBombero/Ciclo de caminado_frente/Izq/final-0018.png" id="137_sc7yw"]
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_fkfoe"]
+polygon = PackedVector2Array(-36.98996, 126.989296, 25.93155, 79.01125, -49.952652, 78.9835)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_acmdk"]
 animations = [{
@@ -692,6 +695,10 @@ scale = Vector2(1.0015259, 0.9999777)
 script = ExtResource("1_yy08j")
 metadata/_edit_group_ = true
 
+[node name="LightOccluder2D" type="LightOccluder2D" parent="."]
+scale = Vector2(1.0000001, 1.0000001)
+occluder = SubResource("OccluderPolygon2D_fkfoe")
+
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
 position = Vector2(-11.504619, 2.2913892)
 scale = Vector2(0.11106659, 0.15014547)
@@ -709,16 +716,17 @@ shape = SubResource("CapsuleShape2D_m8rjq")
 metadata/_edit_group_ = true
 
 [node name="Hitbox" type="Area2D" parent="."]
+visible = false
 position = Vector2(1, -1)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
-visible = false
 shape = SubResource("CapsuleShape2D_m8rjq")
 
 [node name="AttackCooldownTimer" type="Timer" parent="."]
 
 [node name="Axe" type="AnimatedSprite2D" parent="."]
+visible = false
 position = Vector2(135.82521, -88.95229)
 scale = Vector2(0.059978906, 0.041156124)
 sprite_frames = SubResource("SpriteFrames_8x6mv")
@@ -728,6 +736,7 @@ offset = Vector2(-8.662811, -53.667313)
 metadata/_edit_group_ = true
 
 [node name="AxeHitbox" type="Area2D" parent="Axe"]
+visible = false
 position = Vector2(-3491.5725, 511.81085)
 collision_mask = 2
 

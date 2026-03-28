@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://ctqyigfjk6fuk"]
+[gd_scene load_steps=12 format=3 uid="uid://ctqyigfjk6fuk"]
 
 [ext_resource type="Texture2D" uid="uid://d2nenv87iwve1" path="res://Assets/HellhoundCorriendo/SabesoCorriendo00.png" id="1_anyxn"]
 [ext_resource type="Script" uid="uid://bwv5wborokqox" path="res://personajes/HellHound/hellhound.gd" id="1_vlklh"]
@@ -40,6 +40,10 @@ size = Vector2(70.75, 40.75)
 [sub_resource type="CircleShape2D" id="CircleShape2D_0gh2f"]
 radius = 3139.8557
 
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_vlklh"]
+cull_mode = 1
+polygon = PackedVector2Array(35, -1, -28, 0, -36, 7, 3, 12, 46, 3)
+
 [node name="Hellhound" type="CharacterBody2D"]
 script = ExtResource("1_vlklh")
 
@@ -63,3 +67,6 @@ position = Vector2(6, -36)
 position = Vector2(0, 11)
 scale = Vector2(0.029058978, 0.027231827)
 shape = SubResource("CircleShape2D_0gh2f")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="."]
+occluder = SubResource("OccluderPolygon2D_vlklh")

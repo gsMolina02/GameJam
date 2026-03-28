@@ -39,15 +39,11 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	# Actualizar efectos visuales según la vida del fuego
 	var visual_node = sprite if sprite else polygon
-	
+
 	if visual_node:
 		# Hacer el fuego más transparente a medida que se apaga
 		var alpha = current_health / max_fire_health
 		visual_node.modulate.a = clamp(alpha, 0.3, 1.0)
-		
-		# Hacer el fuego más pequeño a medida que se apaga
-		var scale_factor = 0.5 + (current_health / max_fire_health) * 0.5
-		visual_node.scale = Vector2(scale_factor, scale_factor)
 
 func apply_water(water_amount: float) -> void:
 	"""Aplica agua al fuego, reduciéndolo gradualmente"""
@@ -74,19 +70,34 @@ func take_damage(amount: float) -> void:
 func extinguish() -> void:
 	"""Apaga el fuego completamente"""
 	print("¡Fuego extinguido!")
-	
+
 	# Detener sonido ambiente
 	_stop_ambient_fire_sound()
-	
+
 	# Efectos visuales/sonoros de extinción
 	_play_extinguished_effect()
-	
+
 	# Emitir señal si existe
 	if has_signal("fire_extinguished"):
 		emit_signal("fire_extinguished")
-	
-	# Eliminar el fuego de la escena
-	queue_free()
+
+	# Crear tween para desvanecimiento gradual
+	var tween = create_tween()
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.set_ease(Tween.EASE_IN)
+
+	# Desvanecimiento de opacidad del sprite (sin cambiar tamaño)
+	var visual_node = sprite if sprite else polygon
+	if visual_node:
+		tween.tween_property(visual_node, "modulate:a", 0.0, 0.6)
+
+	# Desvanecimiento de la luz también
+	var light = get_node_or_null("PointLight2D")
+	if light:
+		tween.tween_property(light, "energy", 0.0, 0.6)
+
+	# Después del tween, eliminar el nodo
+	tween.tween_callback(queue_free)
 
 func _play_extinguish_effect() -> void:
 	"""Efectos mientras se está apagando el fuego"""
