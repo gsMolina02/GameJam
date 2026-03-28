@@ -301,12 +301,10 @@ func _physics_process(delta):
 		if abs(velocity.x) > 0 or abs(velocity.y) > 0:
 			print_debug("Player clamped -> pos:", global_position, "vel:", velocity)
 
-	# Girar el sprite horizontalmente según la dirección
+	# Este personaje ya tiene animaciones separadas de izquierda/derecha,
+	# por eso no usamos flip_h para evitar invertir visualmente el lado.
 	if character_sprite:
-		if velocity.x < 0:
-			character_sprite.flip_h = true  # Mirar a la izquierda
-		elif velocity.x > 0:
-			character_sprite.flip_h = false   # Mirar a la derecha
+		character_sprite.flip_h = false
 
 	# Actualizar posición y rotación de las armas según la dirección de movimiento
 	_update_weapon_orientation()
@@ -406,11 +404,8 @@ func _handle_input():
 		# Determinar dirección de dash: preferir input vector, caer a dirección mirando
 		var dir = Input.get_vector("left", "right", "up", "down")
 		if dir == Vector2.ZERO:
-			# Si no hay input, dash hacia donde mira el sprite
-			if character_sprite:
-				dir = Vector2(-1, 0) if character_sprite.flip_h else Vector2(1, 0)
-			else:
-				dir = Vector2(1, 0)
+			# Si no hay input, dash hacia la última dirección usada.
+			dir = last_direction.normalized() if last_direction != Vector2.ZERO else Vector2(1, 0)
 
 		# Llamar al dash implementado en la base
 		_start_dash(dir)
@@ -666,21 +661,16 @@ func _try_extinguish_fire(target, water_amount: float):
 	if target == self or target.is_in_group("player") or target.is_in_group("player_main"):
 		return
 	
-	# Debug: imprimir qué está siendo detectado
-	print("Manguera detectó: ", target.name, " - Grupos: ", target.get_groups() if target.has_method("get_groups") else "sin grupos")
-	
 	# Aplicar agua o daño a cualquier objetivo compatible (fuego, enemigos, etc.)
 	if target.has_method("apply_water") or target.has_method("take_damage") or target.is_in_group("Fire") or target.has_method("extinguish"):
 		# Si el objetivo acepta agua, pásale la cantidad de agua usada literalmente
 		if target.has_method("apply_water"):
-			print("  -> Llamando apply_water con ", water_amount)
 			target.apply_water(water_amount)
 		# Si recibe daño, usa el agua como daño directo: 1 agua = 1 daño
 		elif target.has_method("take_damage"):
-			print("  -> Llamando take_damage con ", water_amount)
 			target.take_damage(water_amount)
 		elif target.has_method("extinguish"):
-			print("  -> Llamando extinguish directamente")
+			target.extinguish()
 			target.extinguish()
 			emit_signal("fire_extinguished", target)
 		
@@ -761,7 +751,7 @@ func _animate_axe_swing():
 	tween.set_trans(Tween.TRANS_CUBIC)
 	
 	var direction = 1
-	if character_sprite and character_sprite.flip_h:
+	if last_direction.x < 0:
 		direction = -1
 	
 	# Animación del swing: de vertical a horizontal

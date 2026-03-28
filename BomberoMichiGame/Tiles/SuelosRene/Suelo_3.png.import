@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://svb1r8grf3rq"
-path="res://.godot/imported/piso.png-cc0c85edc334caed57f91992880bacb9.ctex"
+uid="uid://hip8pf2d3v21"
+path="res://.godot/imported/Suelo_3.png-92006e6e0d1de6315c4a04505c131621.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Tiles/piso.png"
-dest_files=["res://.godot/imported/piso.png-cc0c85edc334caed57f91992880bacb9.ctex"]
+source_file="res://Tiles/SuelosRene/Suelo_3.png"
+dest_files=["res://.godot/imported/Suelo_3.png-92006e6e0d1de6315c4a04505c131621.ctex"]
 
 [params]
 
