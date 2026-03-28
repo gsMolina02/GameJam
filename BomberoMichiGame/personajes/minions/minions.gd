@@ -1,5 +1,9 @@
 extends "res://personajes/personaje_base.gd"
 
+# Si este minion es de fuego, instancia una luz de plantilla para crear brillo y flicker
+@export var is_fire_minion: bool = false
+var fire_light_scene = preload("res://Scenes/VisualEffects/fire_light.tscn")
+
 var direccion := Vector2.ZERO
 var tiempo_cambio := 0.5
 var tiempo_actual := 0.0
@@ -62,6 +66,34 @@ func _ready():
 		if hit_area.has_signal("area_entered"):
 			hit_area.area_entered.connect(_on_hit_area_area_entered)
 
+	# Si este minion es de fuego, instanciar la luz de fuego como hijo
+	if is_fire_minion:
+		if fire_light_scene:
+			var light_inst = fire_light_scene.instantiate()
+			if light_inst:
+				add_child(light_inst)
+				# Opcional: ajustar offset si el sprite tiene feet origin
+				light_inst.position = Vector2.ZERO
+
+				# Crear un occluder simple para proyectar sombras (approx caja basada en sprite)
+				var occl = LightOccluder2D.new()
+				var poly = OccluderPolygon2D.new()
+				var sprite_node := get_node_or_null("AnimatedSprite2D")
+				var size = Vector2(24, 24)
+				if sprite_node and sprite_node.frames and sprite_node.frames.get_animation_names().size() > 0:
+					# Intentar tomar el primer frame para estimar tamaño
+					var anim = sprite_node.frames.get_animation_names()[0]
+					if sprite_node.frames.get_frame_count(anim) > 0:
+						var tex = sprite_node.frames.get_frame(anim, 0)
+						if tex:
+							size = tex.get_size() * sprite_node.scale
+				# Construir polígono rectangular centrado
+				var hw = size.x * 0.5
+				var hh = size.y * 0.5
+				poly.polygon = PackedVector2Array([Vector2(-hw, -hh), Vector2(hw, -hh), Vector2(hw, hh), Vector2(-hw, hh)])
+				occl.occluder = poly
+				add_child(occl)
+
 func _setup_animation_frames():
 	# Busca imágenes en res://Assets/minions/ (carpeta opcional)
 	var dir_path = "res://Assets/minions/"
@@ -115,6 +147,11 @@ func shoot():
 		can_shoot = false
 		$AttackTimer.start()
 		var fireball = fireball_scene.instantiate()
+		
+		# Reproducir sonido de ataque de fuego
+		var player_node = get_tree().get_first_node_in_group("player")
+		if player_node and player_node.has_method("_play_fire_attack_sound"):
+			player_node._play_fire_attack_sound()
 		
 		# IMPORTANTE: Establecer shooter ANTES de agregar a la escena
 		# para que _ready() pueda usar esta información para asignar grupos

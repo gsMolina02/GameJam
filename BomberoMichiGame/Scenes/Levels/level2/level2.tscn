@@ -1,10 +1,11 @@
-[gd_scene load_steps=25 format=3 uid="uid://b14whoaid4kvx"]
+[gd_scene load_steps=26 format=3 uid="uid://b14whoaid4kvx"]
 
 [ext_resource type="Texture2D" uid="uid://clv4ndi43ieoa" path="res://Scenes/Levels/level2/level2.jpg" id="1_0ai1i"]
 [ext_resource type="Script" uid="uid://ud6vpwak2bsk" path="res://Scripts/cuarto_2.gd" id="1_r4oe0"]
+[ext_resource type="PackedScene" uid="uid://dv1va6yarysl" path="res://Scenes/asphyxia_layer.tscn" id="2_jslai"]
 [ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="2_s43nd"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="3_gu04i"]
-[ext_resource type="PackedScene" uid="uid://djbbvmt4xxank" path="res://Scenes/Entities/gato_naranjoso.tscn" id="3_tk4ob"]
+[ext_resource type="PackedScene" path="res://Scenes/Entities/gato_naranjoso.tscn" id="3_tk4ob"]
 [ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/fuego.tscn" id="4_02sxl"]
 [ext_resource type="PackedScene" uid="uid://bh08j56ukxtp" path="res://Hub/hub.tscn" id="5_gu04i"]
 [ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="6_02sxl"]
@@ -44,6 +45,8 @@ size = Vector2(576, 68)
 
 [node name="Level2" type="Node2D"]
 script = ExtResource("1_r4oe0")
+
+[node name="AsphyxiaLayer" parent="." instance=ExtResource("2_jslai")]
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(757, 444.00003)
@@ -102,12 +105,14 @@ shape = SubResource("RectangleShape2D_inn2q")
 
 [node name="minions" parent="." instance=ExtResource("2_s43nd")]
 position = Vector2(1256, 549)
+is_fire_minion = true
 
 [node name="personajePrincipal" parent="." instance=ExtResource("3_gu04i")]
 position = Vector2(773.99994, 169)
 
 [node name="minions2" parent="." instance=ExtResource("2_s43nd")]
 position = Vector2(290, 647)
+is_fire_minion = true
 
 [node name="Fuego" parent="." instance=ExtResource("4_02sxl")]
 position = Vector2(532, 119)

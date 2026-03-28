@@ -1,7 +1,7 @@
-[gd_scene load_steps=27 format=3 uid="uid://dgooxxoch0lkq"]
+[gd_scene load_steps=28 format=3 uid="uid://dgooxxoch0lkq"]
 
 [ext_resource type="Texture2D" uid="uid://c0py88gnwk54y" path="res://Scenes/Levels/level1/unnamed.jpg" id="1_5rljr"]
-[ext_resource type="PackedScene" uid="uid://b4cinnlduff6a" path="res://Scenes/Entities/gato_gris.tscn" id="2_2yhdf"]
+[ext_resource type="PackedScene" path="res://Scenes/Entities/gato_gris.tscn" id="2_2yhdf"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_5rljr"]
 [ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/fuego.tscn" id="3_xfvig"]
 [ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="4_fdvuu"]
@@ -12,9 +12,10 @@
 [ext_resource type="PackedScene" uid="uid://oysdlu64rb7d" path="res://Scenes/Entities/puerta.tscn" id="7_gkcdr"]
 [ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="10_2j1q4"]
 [ext_resource type="PackedScene" uid="uid://g6pr41r3rkwt" path="res://Scenes/UI/deathEscene.tscn" id="11_gkcdr"]
-[ext_resource type="AudioStream" uid="uid://b2ofh0vdfq8c5" path="res://Assets/musica/Niveles.ogg" id="12_2j1q4"]
 [ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="13_70f7q"]
+[ext_resource type="AudioStream" uid="uid://cbv76ab0p1ot8" path="res://Assets/musica/Boss Theme.ogg" id="14_2f65u"]
 [ext_resource type="Texture2D" uid="uid://dh0jku72q5qh0" path="res://Assets/Objetos/calaca.png" id="14_3cji1"]
+[ext_resource type="Script" uid="uid://cq4wy7y3crqm" path="res://Scripts/music_loop_controller.gd" id="14_music_loop"]
 [ext_resource type="Script" uid="uid://ccb0dahl5xbx6" path="res://Scripts/asphyxia_effect.gd" id="14_suv00"]
 [ext_resource type="Shader" uid="uid://d4lrn2uw3kjb7" path="res://Assets/fondos/level1.gdshader" id="16_ty6f8"]
 [ext_resource type="Texture2D" uid="uid://blpotfx727o5c" path="res://Assets/fondos/nubes sofocado.png" id="17_6le7m"]
@@ -108,6 +109,7 @@ shape = SubResource("RectangleShape2D_a4g0f")
 [node name="MundoGrisLayer" type="CanvasLayer" parent="."]
 script = ExtResource("14_suv00")
 oxygen_threshold_start = 40.0
+sfx_volume_db = 10.0
 
 [node name="OverlaySupervivencia" type="ColorRect" parent="MundoGrisLayer"]
 material = SubResource("ShaderMaterial_6le7m")
@@ -171,9 +173,9 @@ layer = 20
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="PersonajesYFuegoLayer"]
 position = Vector2(7, 0)
-stream = ExtResource("12_2j1q4")
-volume_db = 24.0
-autoplay = true
+stream = ExtResource("14_2f65u")
+volume_db = -17.301
+script = ExtResource("14_music_loop")
 
 [node name="mascota" parent="PersonajesYFuegoLayer" instance=ExtResource("13_70f7q")]
 position = Vector2(777, 231)
@@ -189,9 +191,9 @@ texture = ExtResource("14_3cji1")
 layer = 20
 
 [node name="MenusLayer" type="CanvasLayer" parent="."]
+process_mode = 3
 layer = 30
 visible = false
-process_mode = 3
 
 [node name="PuseMenu" parent="MenusLayer" instance=ExtResource("10_2j1q4")]
 
