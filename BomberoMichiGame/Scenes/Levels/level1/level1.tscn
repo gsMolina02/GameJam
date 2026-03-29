@@ -185,7 +185,14 @@ nombre_puerta_destino = "Puerta nivel 2"
 [node name="HUD" parent="PersonajesYFuegoLayer" instance=ExtResource("6_w2im6")]
 layer = 20
 
-[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="PersonajesYFuegoLayer"]
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+visible = false
+
+[node name="PuseMenu" parent="CanvasLayer" instance=ExtResource("10_2j1q4")]
+
+[node name="DeathMenu" parent="CanvasLayer" instance=ExtResource("11_gkcdr")]
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
 position = Vector2(7, 0)
 stream = ExtResource("14_2f65u")
 volume_db = -17.301

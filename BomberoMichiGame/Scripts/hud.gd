@@ -59,7 +59,7 @@ func _on_player_vida_actualizada(nueva_vida: float) -> void:
 		else:
 			color_o2 = Color.RED.lerp(Color.YELLOW, nueva_vida / 50.0)
 		oxigeno_bar.tint_progress = color_o2
-	
+
 	# Llamamos al efecto usando 'call' para que no falle si el script no cargó
 	if is_instance_valid(asphyxia_effect):
 		asphyxia_effect.call("update_oxygen", nueva_vida)

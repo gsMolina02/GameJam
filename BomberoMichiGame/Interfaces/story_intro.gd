@@ -1,9 +1,25 @@
 extends Control
 
+func _t(key: String) -> String:
+	if has_node("/root/Localization"):
+		return get_node("/root/Localization").translate(key)
+	return key
+
 # Configuración de las 3 páginas de la historia
 # Cada página tiene una imagen y un texto
 @export var story_pages: Array[Dictionary] = [
-
+	{
+		"image": "res://Assets/fondos/intro001.png",
+		"text": "Hace mucho tiempo, la ciudad de Felinia era un lugar pacífico...\n\nLos gatos y humanos vivían en armonía, protegidos por valientes bomberos."
+	},
+	{
+		"image": "res://Assets/fondos/1.jpg",
+		"text": "Pero un día, misteriosas llamas comenzaron a aparecer en toda la ciudad...\n\nEran llamas que no podían ser apagadas con agua normal."
+	},
+	{
+		"image": "res://Assets/fondos/story3.png",
+		"text": "Un joven bombero llamado Michi descubrió que tenía un don especial...\n\n¡Podía controlar el agua de formas mágicas! Ahora, la esperanza de la ciudad descansa en sus patas."
+	}
 ]
 
 # Escena a la que ir después de la intro (tu nivel o escena de juego)
@@ -65,7 +81,7 @@ func show_page(page_index: int):
 	
 	# Iniciar texto vacío
 	$HBoxContainer/LeftPanel/MarginContainer/VBoxContainer/StoryText.text = ""
-	full_text = page_data["text"]
+	full_text = _t("story.page_" + str(page_index + 1))
 	
 	# Iniciar efecto de escritura
 	start_typing()
@@ -92,9 +108,9 @@ func _input(event):
 	# Verificamos si es un evento de teclado presionado
 	if event is InputEventKey and event.is_pressed():
 		if event.keycode == KEY_P:
-			is_typing = false 
+			is_typing = false
 			go_to_next_scene()
-			return 
+			return
 		elif event.keycode == KEY_ENTER:
 			handle_input()
 	elif event is InputEventMouseButton and event.is_pressed():
@@ -136,3 +152,4 @@ func go_to_next_scene():
 	var error = tree.change_scene_to_file(next_scene)
 	if error != OK:
 		push_error("Failed to load scene: " + next_scene + " Error code: " + str(error))
+	
