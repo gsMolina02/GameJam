@@ -433,8 +433,9 @@ func _play_first_available(names: Array[String]):
 	print("No se encontró ninguna animación en la lista: ", names)
 
 
+
 func _show_death_screen():
-	print("Mostrando video de Game Over con entrada suave...")
+	print("Mostrando video de Game Over localizado...")
 
 	get_tree().paused = true
 
@@ -449,32 +450,39 @@ func _show_death_screen():
 	video_layer.add_child(bg)
 
 	var video_player = VideoStreamPlayer.new()
-	video_player.stream = load("res://Assets/DeathEnd/deahtScreen.ogv")
+
+	# --- NUEVO: Selección de video según el idioma ---
+	# IMPORTANTE: Reemplaza "GlobalManager" por el nombre exacto que
+	# le pusiste a tu script de idiomas en Project Settings > Autoload
+	var idioma_actual = Localization.language
+	var ruta_video = "res://Assets/DeathEnd/deahtScreen.ogv" # Inglés por defecto ("en")
+
+	if idioma_actual == "es":
+		ruta_video = "res://Assets/DeathEnd/deahtScreenES.ogv"
+	elif idioma_actual == "pt":
+		ruta_video = "res://Assets/DeathEnd/deahtScreenBR.ogv"
+
+	video_player.stream = load(ruta_video)
+	# -------------------------------------------------
+
 	video_player.expand = true
 	video_player.set_anchors_preset(Control.PRESET_FULL_RECT)
 
-	# --- NUEVO: Preparamos los valores iniciales para el Fade In ---
-	# Empezamos con el volumen muy bajo (casi silencio absoluto)
+	# Valores iniciales para el Fade In
 	video_player.volume_db = -40.0
-	# Empezamos con el video totalmente transparente (invisible)
 	video_player.modulate.a = 0.0
-	# ---------------------------------------------------------------
 
 	video_layer.add_child(video_player)
-	video_player.play() # Iniciamos el video
+	video_player.play()
 
-	# --- NUEVO: Creamos el Tween para la transición suave ---
+	# Tween para la transición suave
 	var tween = create_tween()
-	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS) # Para que funcione en pausa
+	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 
-	# 1. Subimos el volumen hasta -10.0 dB (ajusta este número si lo quieres más o menos bajo)
-	# El "1.5" al final son los segundos que tarda en llegar a ese volumen.
-	tween.tween_property(video_player, "volume_db", -15.0, 1.5)
+	tween.tween_property(video_player, "volume_db", -10.0, 1.5)
+	tween.parallel().tween_property(video_player, "modulate:a", 1.0, 1.5)
 
-	# 2. Al mismo tiempo (parallel), hacemos que el video aparezca de 0 a 1 en transparencia
-	tween.parallel().tween_property(video_player, "modulate:a", 1.0, 2)
-	# --------------------------------------------------------
-
+	# Reinicio al terminar el video
 	video_player.finished.connect(func():
 		get_tree().paused = false
 		video_layer.queue_free()
