@@ -432,43 +432,54 @@ func _play_first_available(names: Array[String]):
 	# Si no encontró ninguna, loggear para depurar
 	print("No se encontró ninguna animación en la lista: ", names)
 
+
 func _show_death_screen():
-	"""Muestra la pantalla de Game Over cuando el personaje muere"""
-	print("Mostrando pantalla de Game Over...")
-	# Pausar el juego
+	print("Mostrando video de Game Over con entrada suave...")
+
 	get_tree().paused = true
 
-	# Buscar el MenusLayer en la escena actual
-	var menus_layer = get_tree().root.find_child("MenusLayer", true, false)
+	var video_layer = CanvasLayer.new()
+	video_layer.layer = 128
+	video_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	get_tree().root.add_child(video_layer)
 
-	if menus_layer:
-		# Activar el MenusLayer existente
-		menus_layer.visible = true
-		# Asegurarse de que funcione durante la pausa
-		menus_layer.process_mode = Node.PROCESS_MODE_ALWAYS
-		_set_process_mode_recursive(menus_layer, Node.PROCESS_MODE_ALWAYS)
+	var bg = ColorRect.new()
+	bg.color = Color.BLACK
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	video_layer.add_child(bg)
 
-		# Mostrar solo el DeathMenu y ocultar el PauseMenu
-		var death_menu = menus_layer.get_node_or_null("DeathMenu")
-		var pause_menu = menus_layer.get_node_or_null("PuseMenu")
+	var video_player = VideoStreamPlayer.new()
+	video_player.stream = load("res://Assets/DeathEnd/deahtScreen.ogv")
+	video_player.expand = true
+	video_player.set_anchors_preset(Control.PRESET_FULL_RECT)
 
-		if death_menu:
-			death_menu.visible = true
-		if pause_menu:
-			pause_menu.visible = false
+	# --- NUEVO: Preparamos los valores iniciales para el Fade In ---
+	# Empezamos con el volumen muy bajo (casi silencio absoluto)
+	video_player.volume_db = -40.0
+	# Empezamos con el video totalmente transparente (invisible)
+	video_player.modulate.a = 0.0
+	# ---------------------------------------------------------------
 
-		print("✓ MenusLayer activado correctamente")
-	else:
-		# Fallback: Cargar la escena de muerte si no existe MenusLayer
-		print("⚠️ MenusLayer no encontrado, creando instancia de muerte...")
-		var death_scene = load("res://Scenes/UI/deathEscene.tscn")
-		if death_scene:
-			var death_instance = death_scene.instantiate()
-			death_instance.process_mode = Node.PROCESS_MODE_ALWAYS
-			get_tree().root.add_child(death_instance)
-			_set_process_mode_recursive(death_instance, Node.PROCESS_MODE_ALWAYS)
-		else:
-			print("Error: No se pudo cargar deathEscene.tscn")
+	video_layer.add_child(video_player)
+	video_player.play() # Iniciamos el video
+
+	# --- NUEVO: Creamos el Tween para la transición suave ---
+	var tween = create_tween()
+	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS) # Para que funcione en pausa
+
+	# 1. Subimos el volumen hasta -10.0 dB (ajusta este número si lo quieres más o menos bajo)
+	# El "1.5" al final son los segundos que tarda en llegar a ese volumen.
+	tween.tween_property(video_player, "volume_db", -15.0, 1.5)
+
+	# 2. Al mismo tiempo (parallel), hacemos que el video aparezca de 0 a 1 en transparencia
+	tween.parallel().tween_property(video_player, "modulate:a", 1.0, 2)
+	# --------------------------------------------------------
+
+	video_player.finished.connect(func():
+		get_tree().paused = false
+		video_layer.queue_free()
+		get_tree().reload_current_scene()
+	)
 
 func _set_process_mode_recursive(node: Node, mode: Node.ProcessMode):
 	"""Configura el process_mode recursivamente para todos los nodos hijos"""
