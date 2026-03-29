@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 LootManager="*res://Scripts/LootManager.gd"
 GameManager="*res://Scripts/game_manager.gd"
+Localization="*res://Scripts/Localization.gd"
 
 [display]
 

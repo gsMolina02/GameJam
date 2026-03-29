@@ -10,36 +10,38 @@ extends Area2D
 var bloqueada: bool = true
 var label_interactuar: Label = null
 
+func _t(key: String) -> String:
+	if has_node("/root/Localization"):
+		return get_node("/root/Localization").translate(key)
+	return key
+
 func _ready():
-	# Conectar señales
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
-	
-	# Agregar al grupo para fácil acceso
 	add_to_group("puertas")
-	
-	# Crear label de interacción
+	add_to_group("localizable")
+
 	label_interactuar = Label.new()
-	label_interactuar.text = "[F] Entrar"
+	label_interactuar.text = _t("door.enter")
 	label_interactuar.position = Vector2(-30, -50)
 	label_interactuar.visible = false
 	add_child(label_interactuar)
-	
-	# Inicializar estado de bloqueo
+
 	bloqueada = bloqueada_al_inicio
-	
 	print("Puerta configurada:", name, "-> Destino:", escena_destino)
-	print("  Bloqueada:", bloqueada)
+
+func update_texts() -> void:
+	if label_interactuar:
+		label_interactuar.text = _t("door.locked" if bloqueada else "door.enter")
 
 func _on_body_entered(body: Node2D) -> void:
 	if body.is_in_group("player_main"):
-		# Mostrar indicador apropiado
 		if label_interactuar:
 			if bloqueada:
-				label_interactuar.text = "🔒 BLOQUEADA"
+				label_interactuar.text = _t("door.locked")
 				label_interactuar.modulate = Color.RED
 			else:
-				label_interactuar.text = "[F] Entrar"
+				label_interactuar.text = _t("door.enter")
 				label_interactuar.modulate = Color.WHITE
 			label_interactuar.visible = true
 		print("Jugador cerca de la puerta:", name, "Bloqueada:", bloqueada)
