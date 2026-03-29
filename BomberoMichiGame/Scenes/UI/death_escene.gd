@@ -1,21 +1,30 @@
 extends Control
 
-# Índice del botón seleccionado (0 = Sí, 1 = No)
 var selected_button: int = 0
 var buttons: Array = []
 
-# Called when the node enters the scene tree for the first time.
+func _t(key: String) -> String:
+	if has_node("/root/Localization"):
+		return get_node("/root/Localization").translate(key)
+	return key
+
+func update_texts() -> void:
+	var base = $GameOver/PanelContainer/MarginContainer/VBoxContainer
+	if base.has_node("Label"):  base.get_node("Label").text  = _t("death.game_over")
+	if base.has_node("Label2"): base.get_node("Label2").text = _t("death.continue_question")
+	var botonera = base.get_node_or_null("botonera")
+	if botonera:
+		if botonera.has_node("botonYes"): botonera.get_node("botonYes").text = _t("death.yes")
+		if botonera.has_node("botonNo"):  botonera.get_node("botonNo").text  = _t("death.no")
+
 func _ready() -> void:
-	# Asegurarse de que esta UI funcione incluso cuando el juego está pausado
 
 
-	# Mostrar el cursor del sistema en la pantalla de muerte
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-
-	# Ocultar el menú de pausa si estaba visible
+	add_to_group("localizable")
 	_hide_pause_menu()
+	update_texts()
 
-	# Obtener referencias a los botones
 	buttons = [
 		$GameOver/PanelContainer/MarginContainer/VBoxContainer/botonera/botonYes,
 		$GameOver/PanelContainer/MarginContainer/VBoxContainer/botonera/botonNo

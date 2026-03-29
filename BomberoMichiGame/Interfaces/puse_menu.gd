@@ -1,11 +1,24 @@
 extends Control
 
-# Called when the node enters the scene tree for the first time.
+@onready var lbl_title    = $Panel/Label
+@onready var btn_continue = $Panel/VBoxContainer/btnContinue
+@onready var btn_exit     = $Panel/VBoxContainer/btnExit
+
+func _t(key: String) -> String:
+	if has_node("/root/Localization"):
+		return get_node("/root/Localization").translate(key)
+	return key
+
 func _ready() -> void:
-	# Ocultar el menú al inicio
 	hide()
-	# Asegurarse de que el menú funcione durante la pausa
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_to_group("localizable")
+	update_texts()
+
+func update_texts() -> void:
+	if lbl_title:    lbl_title.text    = _t("pause.title")
+	if btn_continue: btn_continue.text = _t("pause.continue")
+	if btn_exit:     btn_exit.text     = _t("pause.exit_menu")
 
 # Alternar entre pausa y continuar (llamado por el personaje o los botones)
 func toggle_pause() -> void:

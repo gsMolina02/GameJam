@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://615vh1g7fw4f"]
+[gd_scene load_steps=21 format=3 uid="uid://615vh1g7fw4f"]
 
 [ext_resource type="Script" uid="uid://x61ygptspjb6" path="res://Interfaces/main_menu.gd" id="1_1flvb"]
 [ext_resource type="Texture2D" uid="uid://do52ny3gouv1r" path="res://Assets/menu/mrnu1.png" id="2_e7qul"]
@@ -9,7 +9,15 @@
 [ext_resource type="Texture2D" uid="uid://dynj7d1cli1t6" path="res://Assets/menu/titulo.png" id="6_vo04r"]
 [ext_resource type="Texture2D" uid="uid://csoagln611h5b" path="res://Assets/menu/salirSin.png" id="7_d5ba2"]
 [ext_resource type="Texture2D" uid="uid://o06xfu4s1m3c" path="res://Assets/menu/salirEscoger.png" id="8_wdg32"]
-[ext_resource type="AudioStream" uid="uid://d26246xgx87o0" path="res://Resources/music/Menu.ogg" id="10_lky5c"]
+[ext_resource type="Texture2D" uid="uid://bg70g4hujksdd" path="res://Assets/menu/TutorialSin.png" id="9_tut01"]
+[ext_resource type="Texture2D" uid="uid://bm4b2btxdo0p5" path="res://Assets/menu/TutorialEscoger.png" id="9_tut02"]
+[ext_resource type="AudioStream" uid="uid://do2n3n0ddv4p" path="res://Resources/music/Menu.ogg" id="10_lky5c"]
+[ext_resource type="Texture2D" path="res://Assets/menu/LangESPSin.png" id="11_lang01"]
+[ext_resource type="Texture2D" path="res://Assets/menu/LangESPEscoger.png" id="11_lang02"]
+[ext_resource type="Texture2D" path="res://Assets/menu/LangENGSin.png" id="12_lang01"]
+[ext_resource type="Texture2D" path="res://Assets/menu/LangENGEscoger.png" id="12_lang02"]
+[ext_resource type="Texture2D" path="res://Assets/menu/LangBRSin.png" id="13_lang01"]
+[ext_resource type="Texture2D" path="res://Assets/menu/LangBREscoger.png" id="13_lang02"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_m685c"]
 texture = ExtResource("2_e7qul")
@@ -57,6 +65,11 @@ layout_mode = 2
 texture_normal = ExtResource("5_lky5c")
 texture_hover = ExtResource("6_qclh8")
 
+[node name="btnTutorial" type="TextureButton" parent="Panel/VBoxContainer"]
+layout_mode = 2
+texture_normal = ExtResource("9_tut01")
+texture_hover = ExtResource("9_tut02")
+
 [node name="btnExit" type="TextureButton" parent="Panel/VBoxContainer"]
 layout_mode = 2
 texture_normal = ExtResource("7_d5ba2")
@@ -67,11 +80,20 @@ position = Vector2(776, 82)
 scale = Vector2(0.5218801, 0.41984734)
 texture = ExtResource("6_vo04r")
 
+[node name="BtnLang" type="TextureButton" parent="."]
+layout_mode = 0
+position = Vector2(1280, 18)
+scale = Vector2(0.55, 0.55)
+texture_normal = ExtResource("11_lang01")
+texture_hover = ExtResource("11_lang02")
+
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("10_lky5c")
 volume_db = 10.0
 autoplay = true
 
+[connection signal="pressed" from="BtnLang" to="." method="_on_btnLang_pressed"]
 [connection signal="pressed" from="Panel/VBoxContainer/btnNewGame" to="." method="_on_btnNewGame_pressed"]
 [connection signal="pressed" from="Panel/VBoxContainer/btnOptions" to="." method="_on_btnOptions_pressed"]
+[connection signal="pressed" from="Panel/VBoxContainer/btnTutorial" to="." method="_on_btnTutorial_pressed"]
 [connection signal="pressed" from="Panel/VBoxContainer/btnExit" to="." method="_on_btnExit_pressed"]
