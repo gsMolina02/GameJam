@@ -4,6 +4,10 @@ extends CanvasLayer
 @onready var oxigeno_bar = $RootControl/OxigenoBar
 @onready var agua_bar = $RootControl/AguaBar
 
+# 2. REFERENCIAS AL HUD DE ARMAS (para el efecto de parpadeo)
+@onready var hud_vida_personaje = $RootControl/HudVidaPersonaje
+@onready var hud_vida_personaje_hacha = $RootControl/HudVidaPersonajeHacha
+
 # Cambiamos 'AsphyxiaEffect' por 'Node' para evitar el Parse Error
 var asphyxia_effect: Node = null
 
@@ -37,6 +41,8 @@ func _register_player(player: Node) -> void:
 		player.vida_actualizada.connect(_on_player_vida_actualizada)
 	if player.has_signal("hose_recharged"):
 		player.hose_recharged.connect(_on_player_hose_recharged)
+	if player.has_signal("weapon_switched"):
+		player.weapon_switched.connect(_on_player_weapon_switched)
 	
 	if "vida_actual" in player:
 		_on_player_vida_actualizada(player.vida_actual)
@@ -72,3 +78,36 @@ func _on_player_hose_recharged(nuevo_porcentaje: float) -> void:
 		else:
 			# Color celeste normal cuando ya se puede usar
 			agua_bar.tint_progress = Color.CYAN
+
+# 6. CAMBIO DE ARMA CON EFECTO DE PARPADEO
+func _on_player_weapon_switched(new_weapon: int) -> void:
+	# new_weapon: 0 = AXE, 1 = HOSE
+	var es_hacha = (new_weapon == 0)
+	cambiar_hud_arma(es_hacha)
+
+func cambiar_hud_arma(es_hacha: bool) -> void:
+	"""Cambia el HUD de arma con efecto de parpadeo"""
+	# Primero ocultamos ambos para resetear el estado
+	hud_vida_personaje.visible = false
+	hud_vida_personaje_hacha.visible = false
+	
+	# Elegimos cuál va a titilar
+	var hud_objetivo = hud_vida_personaje_hacha if es_hacha else hud_vida_personaje
+	hud_objetivo.visible = true
+	
+	# Resetear la opacidad al inicio
+	hud_objetivo.modulate.a = 1.0
+	
+	# Crear el efecto de titileo (Parpadeo) con Tween
+	var tween = create_tween()
+	
+	# Hacemos que parpadee 3 veces cambiando la opacidad
+	for i in range(3):
+		tween.tween_property(hud_objetivo, "modulate:a", 0.0, 0.1) # Desaparece en 0.1s
+		tween.tween_property(hud_objetivo, "modulate:a", 1.0, 0.1) # Aparece en 0.1s
+	
+	# Al terminar el loop, nos aseguramos de que sea totalmente visible
+	tween.tween_property(hud_objetivo, "modulate:a", 1.0, 0.0)
+	
+	# Debug: mostrar qué arma se cambió
+	print("HUD: Cambio de arma - ", "HACHA" if es_hacha else "MANGUERA", " con efecto de parpadeo ✨")
