@@ -1,7 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://dl17mnvx428mm"]
+[gd_scene load_steps=9 format=3 uid="uid://dl17mnvx428mm"]
 
 [ext_resource type="Script" uid="uid://bj3y1j5ow43wf" path="res://Scripts/hud.gd" id="1_sprlj"]
 [ext_resource type="Texture2D" uid="uid://ce62jxl3bprag" path="res://Assets/fondos/HUD_vida_vacio.png" id="2_ny26j"]
+[ext_resource type="Texture2D" uid="uid://c8v3j2gn3r5m" path="res://Assets/fondos/HUD_vida_personaje.png" id="3_vidap"]
+[ext_resource type="Texture2D" uid="uid://d3hjnr27xlhy" path="res://Assets/fondos/HUD_vida_personaje_hacha.png" id="4_vidah"]
 
 [sub_resource type="Gradient" id="Gradient_sprlj"]
 offsets = PackedFloat32Array(0, 0.010869565)
@@ -70,3 +72,15 @@ metadata/_edit_use_anchors_ = true
 position = Vector2(223.00002, 154)
 scale = Vector2(0.33, 0.33)
 texture = ExtResource("2_ny26j")
+
+[node name="HudVidaPersonaje" type="Sprite2D" parent="RootControl"]
+position = Vector2(223.00002, 154)
+scale = Vector2(0.33, 0.33)
+texture = ExtResource("3_vidap")
+visible = true
+
+[node name="HudVidaPersonajeHacha" type="Sprite2D" parent="RootControl"]
+position = Vector2(223.00002, 154)
+scale = Vector2(0.33, 0.33)
+texture = ExtResource("4_vidah")
+visible = false
