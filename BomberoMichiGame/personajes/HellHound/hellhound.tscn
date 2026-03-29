@@ -1,0 +1,72 @@
+[gd_scene load_steps=12 format=3 uid="uid://ctqyigfjk6fuk"]
+
+[ext_resource type="Texture2D" uid="uid://d2nenv87iwve1" path="res://Assets/HellhoundCorriendo/SabesoCorriendo00.png" id="1_anyxn"]
+[ext_resource type="Script" uid="uid://bwv5wborokqox" path="res://personajes/HellHound/hellhound.gd" id="1_vlklh"]
+[ext_resource type="Texture2D" uid="uid://cxdenpoxps87s" path="res://Assets/HellhoundCorriendo/SabesoCorriendo01.png" id="2_vlklh"]
+[ext_resource type="Texture2D" uid="uid://cedwy04b832c0" path="res://Assets/HellhoundCorriendo/SabesoCorriendo02.png" id="3_gtg2f"]
+[ext_resource type="Texture2D" uid="uid://crbasyl7bc5jf" path="res://Assets/HellhoundCorriendo/SabesoCorriendo03.png" id="4_q1myi"]
+[ext_resource type="Texture2D" uid="uid://dcg3ltvsnykf8" path="res://Assets/HellhoundCorriendo/SabesoCorriendo04.png" id="5_ixdfc"]
+[ext_resource type="Texture2D" uid="uid://dwurot37yi82m" path="res://Assets/HellhoundCorriendo/SabesoCorriendo05.png" id="6_87iic"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_mnpsv"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_anyxn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_vlklh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_gtg2f")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_q1myi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_ixdfc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_87iic")
+}],
+"loop": true,
+"name": &"SabuesoRun",
+"speed": 12.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1hvn7"]
+size = Vector2(70.75, 40.75)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_0gh2f"]
+radius = 3139.8557
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_vlklh"]
+cull_mode = 1
+polygon = PackedVector2Array(35, -1, -28, 0, -36, 7, 3, 12, 46, 3)
+
+[node name="Hellhound" type="CharacterBody2D"]
+script = ExtResource("1_vlklh")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(2.000001, -31.000004)
+scale = Vector2(0.09044548, 0.08082123)
+sprite_frames = SubResource("SpriteFrames_mnpsv")
+animation = &"SabuesoRun"
+autoplay = "SabuesoRun"
+frame = 5
+frame_progress = 0.6877657
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(7.625, -20.625)
+shape = SubResource("RectangleShape2D_1hvn7")
+
+[node name="Area2D" type="Area2D" parent="."]
+position = Vector2(6, -36)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(0, 11)
+scale = Vector2(0.029058978, 0.027231827)
+shape = SubResource("CircleShape2D_0gh2f")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="."]
+occluder = SubResource("OccluderPolygon2D_vlklh")

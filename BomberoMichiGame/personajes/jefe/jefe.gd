@@ -133,6 +133,10 @@ func _disparar_triple():
 	if jugador == null:
 		return
 
+	# Reproducir sonido de ataque de fuego
+	if jugador.has_method("_play_fire_attack_sound"):
+		jugador._play_fire_attack_sound()
+
 	var base_dir = (jugador.global_position - global_position).normalized()
 	var spread_deg = 15
 	var dirs = [base_dir.rotated(deg_to_rad(-spread_deg)), base_dir, base_dir.rotated(deg_to_rad(spread_deg))]

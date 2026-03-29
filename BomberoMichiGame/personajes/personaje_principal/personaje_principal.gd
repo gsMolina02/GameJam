@@ -4,6 +4,20 @@ class_name Bomber
 # Propiedades exportadas
 @export var gravity = 100
 @export var axe_damage = 5
+
+# Sonidos del hacha (se alternan secuencialmente)
+@export var axe_attack_sound_1: AudioStream = preload("res://Assets/SFX/hacha/Hacha_ataque_1.ogg")
+@export var axe_attack_sound_2: AudioStream = preload("res://Assets/SFX/hacha/Hacha_ataque_2.ogg")
+@export var axe_sound_volume_db: float = -8.0
+
+# Sonido de roll/dash
+@export var dash_sound: AudioStream = preload("res://Assets/SFX/roll/roll.ogg")
+@export var dash_sound_volume_db: float = -10.0
+
+var axe_sound_player: AudioStreamPlayer
+var axe_attack_sound_index: int = 0
+var dash_sound_player: AudioStreamPlayer
+
 @export var parry_window = 0.4
 @export var attack_cooldown_time = 0.2
 @export var parry_cooldown_time = 0.1
@@ -16,6 +30,15 @@ class_name Bomber
 @export var water_pressure = 10.0  # Daño por segundo al fuego (ajustado para apagar en 0.5s)
 @export var hose_origin_offset = Vector2(50, 0)  # Punto de origen del agua
 @export var hose_nozzle_offset = Vector2(130, 30)  # Punta de la manguera (boquilla)
+@export var water_recharge_rate = 3.0  # Cantidad de agua que se recarga por segundo
+@export var water_recharge_on_box = 20.0  # Cantidad de agua al romper una caja
+
+# Propiedades del oxígeno (sistema de barra de vida mejorado)
+@export var oxygen_loss_rate = 1.0  # Pérdida de oxígeno por segundo en condiciones normales
+@export var oxygen_recovery_rate = 5.0  # Recuperación de oxígeno por segundo sin enemigos/fuego
+@export var oxygen_attack_damage = 10.0  # Pérdida de oxígeno por golpe
+@export var oxygen_tankpickup = 25.0  # Cantidad de oxígeno que recupera un tanque
+@export var oxygen_death_time = 5.0  # Segundos permitidos sin oxígeno antes de morir
 
 # Estados del hacha
 enum AxeState {
@@ -41,11 +64,48 @@ var current_weapon = Weapon.HOSE  # Iniciar con MANGUERA equipada
 var apuntador = null
 var apuntador_offset = Vector2(130, 30)
 var is_dead: bool = false
+var manguera_bloqueada: bool = false  # Bloquea la manguera cuando llega a 0
+
+# Variables de control de oxígeno
+var oxygen_zero_timer = 0.0  # Contador para los 5 segundos permitidos sin oxígeno
+var had_enemies_or_fire = false  # Para detectar cuándo no hay enemigos/fuego
+
+# Sistema de pasos (footsteps)
+@export var footstep_sounds: Array[AudioStream] = [
+	preload("res://Assets/SFX/walk/Walk_1.ogg"),
+	preload("res://Assets/SFX/walk/Walk_2.ogg"),
+	preload("res://Assets/SFX/walk/Walk_3.ogg"),
+	preload("res://Assets/SFX/walk/Walk_4.ogg")
+]
+@export var footstep_interval_slow: float = 1.2  # Intervalo cuando camina lentamente
+@export var footstep_interval_fast: float = 0.4  # Intervalo cuando corre/movimiento constante
+@export var footstep_volume_db: float = -15.0  # Volumen de los pasos (más bajo y natural)
+@export var speed_threshold_run: float = 150.0  # Velocidad mínima para considerar como "corriendo"
+
+var footstep_player: AudioStreamPlayer
+var footstep_timer: float = 0.0
+var was_moving: bool = false  # Para detectar transición entre movimiento y reposo
+
+# Sistema de sonidos de manguera
+@export var hose_water_sound: AudioStream = preload("res://Assets/SFX/agua/Agua_chorro.ogg")
+@export var hose_empty_sound: AudioStream = preload("res://Assets/SFX/agua/Agua_empty.ogg")
+@export var hose_sound_volume_db: float = -10.0  # Volumen de sonidos de manguera
+@export var hose_empty_interval: float = 0.2  # Intervalo entre sonidos de vacío (segundos)
+@export var hose_water_interval: float = 0.5  # Intervalo para repetir sonido de agua (mientras dispara)
+
+var hose_sound_player: AudioStreamPlayer
+var is_playing_water_sound: bool = false  # Para que no se repita constantemente
+var hose_empty_timer: float = 0.0  # Timer para el sonido de vacío
+var hose_water_timer: float = 0.0  # Timer para repetir sonido de agua
+
+# Sistema de sonidos de fuego
+@export var fire_extinguish_sound: AudioStream = preload("res://Assets/SFX/Fuego/Fuego_apago.ogg")
+@export var fire_attack_sound: AudioStream = preload("res://Assets/SFX/Fuego/Fuego_ataque.ogg")
+@export var fire_sound_volume_db: float = -12.0  # Volumen de sonidos de fuego
+
+var fire_sound_player: AudioStreamPlayer
 
 # Marcador calculado para la punta de la manguera
- 
-
-# Referencias a nodos (guardadas con get_node_or_null para evitar errores en escenas de prueba)
 @onready var axe_hitbox = get_node_or_null("Axe/AxeHitbox")
 @onready var axe_sprite = get_node_or_null("Axe")
 @onready var hose_sprite = get_node_or_null("hose")
@@ -77,10 +137,13 @@ signal weapon_switched(new_weapon)
 func _ready():
 	# Llama a la inicialización del padre (conexión Hitbox, init vida, etc.)
 	super._ready()
-	
+
 	# Añadir al grupo para que HUD/etc. nos encuentre
 	add_to_group("player_main")
-	
+
+	# Configurar para que el personaje pueda detectar ESC incluso durante pausa
+	process_mode = Node.PROCESS_MODE_ALWAYS
+
 	# Conectar señal de muerte para pausar el juego solo cuando vida = 0
 	if not is_connected("personaje_muerto", Callable(self, "die")):
 		connect("personaje_muerto", Callable(self, "die"))
@@ -140,6 +203,24 @@ func _ready():
 	emit_signal("vida_actualizada", vida_actual)  # Emitir vida inicial para que el HUD se actualice
 	
 	print("✓ Vida inicial emitida:", vida_actual, "/", vida_maxima)
+	
+	# Configurar sistema de pasos
+	_setup_footstep_system()
+	
+	# Configurar sistema de sonidos de manguera
+	_setup_hose_sound_system()
+	
+	# Configurar sistema de sonidos de fuego
+	_setup_fire_sound_system()
+	
+	# Configurar sistema de sonidos de hacha
+	_setup_axe_sound_system()
+	
+	# Configurar sistema de sonidos de fuego
+	_setup_fire_sound_system()
+	
+	# Configurar sistema de sonidos de dash/roll
+	_setup_dash_sound_system()
 
 func _setup_hose_system():
 	"""Configura los nodos necesarios para el sistema de manguera"""
@@ -262,6 +343,15 @@ func _physics_process(delta):
 	# Input de acciones
 	_handle_input()
 
+	# ========== SISTEMA DE RECARGA AUTOMÁTICA DE AGUA ==========
+	_update_water_recharge(delta)
+	
+	# ========== SISTEMA DE CONSUMO/RECUPERACIÓN DE OXÍGENO ==========
+	_update_oxygen_system(delta)
+	
+	# ========== SISTEMA DE PASOS ==========
+	_update_footsteps(delta)
+
 	# Limitar posición dentro del campo definido (SOLO si enforce_bounds está activo)
 	if enforce_bounds:
 		var minx = (min_x if min_x != null else -1000.0)
@@ -278,12 +368,10 @@ func _physics_process(delta):
 		if abs(velocity.x) > 0 or abs(velocity.y) > 0:
 			print_debug("Player clamped -> pos:", global_position, "vel:", velocity)
 
-	# Girar el sprite horizontalmente según la dirección
+	# Este personaje ya tiene animaciones separadas de izquierda/derecha,
+	# por eso no usamos flip_h para evitar invertir visualmente el lado.
 	if character_sprite:
-		if velocity.x < 0:
-			character_sprite.flip_h = true  # Mirar a la izquierda
-		elif velocity.x > 0:
-			character_sprite.flip_h = false   # Mirar a la derecha
+		character_sprite.flip_h = false
 
 	# Actualizar posición y rotación de las armas según la dirección de movimiento
 	_update_weapon_orientation()
@@ -297,11 +385,50 @@ func _unhandled_input(event):
 	if not vivo:
 		return
 
+	# Detectar ESC para pausar el juego
+	if event.is_action_pressed("ui_cancel"):
+		_toggle_pause_menu()
+		get_viewport().set_input_as_handled()
+		return
+
 	# Detectar scroll del mouse para cambiar arma
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP or event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			if event.pressed:
 				switch_weapon()
+
+func _toggle_pause_menu():
+	"""Activa/desactiva el menú de pausa"""
+	# Buscar el MenusLayer
+	var menus_layer = get_tree().root.find_child("MenusLayer", true, false)
+	if not menus_layer:
+		print("⚠️ MenusLayer no encontrado")
+		return
+
+	# Buscar los menús
+	var pause_menu = menus_layer.get_node_or_null("PuseMenu")
+	var death_menu = menus_layer.get_node_or_null("DeathMenu")
+
+	# No permitir pausar si hay pantalla de muerte activa
+	if death_menu and death_menu.visible:
+		return
+
+	# Alternar pausa
+	var is_paused = not get_tree().paused
+	get_tree().paused = is_paused
+
+	# Mostrar/ocultar menús
+	menus_layer.visible = is_paused
+	if pause_menu:
+		pause_menu.visible = is_paused
+	if death_menu:
+		death_menu.visible = false
+
+	# Mostrar/ocultar cursor
+	if is_paused:
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	else:
+		Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 
 func _handle_input():
 	# Si el personaje está muerto, no procesar input
@@ -318,11 +445,26 @@ func _handle_input():
 	
 	# Sistema de manguera (botón mantenido) - solo si está equipada
 	if current_weapon == Weapon.HOSE:
-		if Input.is_action_pressed("use_hose") and can_use_hose():
-			if not is_using_hose:
-				_activate_hose()
+		if Input.is_action_pressed("use_hose"):
+			if can_use_hose():
+				# Puede usar la manguera, reproducir agua
+				if not is_using_hose:
+					_activate_hose()
+			else:
+				# NO puede usar la manguera, reproducir sonido de vacío con intervalo
+				if is_using_hose:
+					_deactivate_hose()
+				
+				# Decrementar timer de vacío
+				hose_empty_timer -= get_physics_process_delta_time()
+				if hose_empty_timer <= 0.0:
+					_play_hose_empty_sound()  # Reproducir sonido de vacío
+					hose_empty_timer = hose_empty_interval  # Reiniciar timer
 		elif is_using_hose:
 			_deactivate_hose()
+		else:
+			# Si suelta el botón, resetear el timer
+			hose_empty_timer = 0.0
 	else:
 		# Si cambiamos de arma mientras usamos la manguera, desactivarla
 		if is_using_hose:
@@ -344,16 +486,13 @@ func _handle_input():
 		# Determinar dirección de dash: preferir input vector, caer a dirección mirando
 		var dir = Input.get_vector("left", "right", "up", "down")
 		if dir == Vector2.ZERO:
-			# Si no hay input, dash hacia donde mira el sprite
-			if character_sprite:
-				dir = Vector2(-1, 0) if character_sprite.flip_h else Vector2(1, 0)
-			else:
-				dir = Vector2(1, 0)
+			# Si no hay input, dash hacia la última dirección usada.
+			dir = last_direction.normalized() if last_direction != Vector2.ZERO else Vector2(1, 0)
 
 		# Llamar al dash implementado en la base
 		_start_dash(dir)
-
-# ============================================
+		# Reproducir sonido de roll
+		_play_dash_sound()
 # SISTEMA DE ORIENTACIÓN DE ARMAS
 # ============================================
 
@@ -472,10 +611,13 @@ func _activate_hose():
 	"""Activa la manguera de agua"""
 	if not can_use_hose():
 		print("¡Manguera sin carga!")
+		_play_hose_empty_sound()  # Reproducir sonido de vacío
 		return
 	
 	is_using_hose = true
 	emit_signal("hose_activated")
+	_play_hose_water_sound()  # Reproducir sonido de agua
+	hose_water_timer = hose_water_interval  # Resetear timer para repetición
 	
 	# Activar área de detección Y su CollisionShape2D
 	if hose_area:
@@ -508,7 +650,13 @@ func _activate_hose():
 func _deactivate_hose():
 	"""Desactiva la manguera de agua"""
 	is_using_hose = false
+	is_playing_water_sound = false
 	emit_signal("hose_deactivated")
+	
+	# Detener sonido de agua
+	if hose_sound_player:
+		hose_sound_player.stop()
+		print("⏹️ Sonido de agua detenido")
 	
 	# Desactivar área de detección Y su CollisionShape2D
 	if hose_area:
@@ -533,6 +681,13 @@ func _update_hose(delta):
 	var safe_drain_rate = hose_drain_rate if hose_drain_rate != null else 10.0
 	reduce_hose_charge(safe_drain_rate * delta)
 	
+	# Control de sonido de agua (repetir mientras esté activo)
+	if is_using_hose:
+		hose_water_timer -= delta
+		if hose_water_timer <= 0.0:
+			_play_hose_water_sound()
+			hose_water_timer = hose_water_interval
+	
 	# Calcular daño de agua usando water_pressure
 	var safe_water_pressure = water_pressure if water_pressure != null else 5.0
 	var water_damage = safe_water_pressure * delta
@@ -543,10 +698,13 @@ func _update_hose(delta):
 	# Detectar y apagar fuego con el daño calculado
 	_detect_and_extinguish_fire(water_damage)
 	
-	# Si se acabó la carga, desactivar
+	# SI LLEGA A 0: Bloqueo inmediato
 	if hose_charge <= 0:
+		hose_charge = 0
+		manguera_bloqueada = true
+		_play_hose_empty_sound()  # Reproducir sonido de vacío
 		_deactivate_hose()
-		print("¡Manguera vacía!")
+		print("⚠️ Manguera agotada. Esperando recarga al 20%...")
 
 func _update_hose_direction():
 	"""Actualiza la dirección de la manguera hacia la posición del mouse"""
@@ -602,21 +760,16 @@ func _try_extinguish_fire(target, water_amount: float):
 	if target == self or target.is_in_group("player") or target.is_in_group("player_main"):
 		return
 	
-	# Debug: imprimir qué está siendo detectado
-	print("Manguera detectó: ", target.name, " - Grupos: ", target.get_groups() if target.has_method("get_groups") else "sin grupos")
-	
 	# Aplicar agua o daño a cualquier objetivo compatible (fuego, enemigos, etc.)
 	if target.has_method("apply_water") or target.has_method("take_damage") or target.is_in_group("Fire") or target.has_method("extinguish"):
 		# Si el objetivo acepta agua, pásale la cantidad de agua usada literalmente
 		if target.has_method("apply_water"):
-			print("  -> Llamando apply_water con ", water_amount)
 			target.apply_water(water_amount)
 		# Si recibe daño, usa el agua como daño directo: 1 agua = 1 daño
 		elif target.has_method("take_damage"):
-			print("  -> Llamando take_damage con ", water_amount)
 			target.take_damage(water_amount)
 		elif target.has_method("extinguish"):
-			print("  -> Llamando extinguish directamente")
+			target.extinguish()
 			target.extinguish()
 			emit_signal("fire_extinguished", target)
 		
@@ -653,11 +806,18 @@ func die() -> void:
 # ============================================
 func attack():
 	if can_attack and current_axe_state == AxeState.IDLE:
+		# Reproducir sonido de ataque de hacha secuencial (hachaataque1, hacha_ataque2)
+		_play_axe_attack_sound()
+		
 		current_axe_state = AxeState.ATTACKING
 		can_attack = false
 		
 		if axe_hitbox:
 			axe_hitbox.monitoring = true
+
+		# Reproducir la animación del hacha si existe en el AnimatedSprite2D
+		if axe_sprite and axe_sprite.has_method("play") and axe_sprite.sprite_frames and axe_sprite.sprite_frames.has_animation("animacionHacha"):
+			axe_sprite.play("animacionHacha")
 		
 		if animation_player and animation_player.has_animation("axe_attack"):
 			animation_player.play("axe_attack")
@@ -673,6 +833,12 @@ func attack():
 		if axe_hitbox:
 			axe_hitbox.monitoring = false
 		
+		# Volver a la animación base del hacha (idle) si existe
+		if axe_sprite and axe_sprite.sprite_frames and axe_sprite.sprite_frames.has_animation("hacha"):
+			axe_sprite.play("hacha")
+		elif axe_sprite and axe_sprite.has_method("stop"):
+			axe_sprite.stop()
+
 		_reset_axe_position()
 		var safe_cooldown = attack_cooldown_time if attack_cooldown_time != null else 0.2
 		attack_cooldown_timer.start(safe_cooldown)
@@ -687,7 +853,7 @@ func _animate_axe_swing():
 	tween.set_trans(Tween.TRANS_CUBIC)
 	
 	var direction = 1
-	if character_sprite and character_sprite.flip_h:
+	if last_direction.x < 0:
 		direction = -1
 	
 	# Animación del swing: de vertical a horizontal
@@ -791,12 +957,12 @@ func _play_parry_effect():
 func _break_extinguisher_box(box):
 	# Recarga la manguera al romper la caja
 	var old_charge = hose_charge
-	hose_charge = min(hose_charge + 25.0, 100.0)
+	var safe_recharge = water_recharge_on_box if water_recharge_on_box != null else 20.0
+	set_hose_charge(hose_charge + safe_recharge)
 	var actual_recharge = hose_charge - old_charge
 
 	print("¡Caja rota! Agua recargada: +", actual_recharge, "% (", old_charge, "% → ", hose_charge, "%)")
 	
-	emit_signal("hose_recharged", hose_charge)
 	emit_signal("extinguisher_box_broken")
 
 	_play_box_break_effect(box)
@@ -846,7 +1012,8 @@ func get_hose_charge() -> float:
 	return hose_charge
 
 func can_use_hose() -> bool:
-	return hose_charge > 0
+	# Solo puede usar la manguera si tiene carga Y no está bloqueada
+	return hose_charge > 0.0 and not manguera_bloqueada
 
 func is_hose_active() -> bool:
 	return is_using_hose
@@ -866,3 +1033,226 @@ func reduce_hose_charge(amount: float):
 func add_hose_charge(amount: float):
 	"""Añade carga a la manguera"""
 	set_hose_charge(hose_charge + amount)
+
+# ============================================
+# SISTEMA DE RECARGA AUTOMÁTICA DE AGUA
+# ============================================
+func _update_water_recharge(delta):
+	"""Recarga automática de agua: +3 por segundo y control de bloqueo"""
+	if not is_using_hose:
+		# Recarga normal cuando no se usa
+		set_hose_charge(hose_charge + (water_recharge_rate * delta))
+		
+		# SI ESTABA BLOQUEADA: Revisar si ya recuperó el 20% para desbloquear
+		if manguera_bloqueada and hose_charge >= 20.0:
+			manguera_bloqueada = false
+			print("✅ Manguera recuperada. ¡Puedes disparar!")
+
+# ============================================
+# SISTEMA DE CONSUMO/RECUPERACIÓN DE OXÍGENO
+# ============================================
+func _update_oxygen_system(delta):
+	"""
+	Maneja el sistema de oxígeno:
+	- Consume -1 por segundo normalmente
+	- Recupera +5 por segundo sin enemigos/fuego
+	- Contar 5 segundos si llega a 0
+	"""
+	# Si el personaje está muerto, no hacer nada
+	if not vivo:
+		return
+	
+	# Detectar si hay enemigos o fuego activos en la escena
+	var enemies = get_tree().get_nodes_in_group("enemy")
+	var minions = get_tree().get_nodes_in_group("minion")
+	var fire_nodes = get_tree().get_nodes_in_group("Fire")
+	
+	var has_enemies_or_fire = (enemies.size() > 0 or minions.size() > 0 or fire_nodes.size() > 0)
+	
+	# Si oxígeno es cero, iniciar contador de muerte
+	if vida_actual <= 0.0:
+		if oxygen_zero_timer <= 0.0:
+			oxygen_zero_timer = oxygen_death_time
+			print("⚠️ ¡OXÍGENO AGOTADO! Tienes ", oxygen_death_time, " segundos para obtener oxígeno")
+		
+		oxygen_zero_timer -= delta
+		
+		# Si se acaba el tiempo sin oxígeno, morir
+		if oxygen_zero_timer <= 0.0 and not is_dead:
+			is_dead = true
+			print("💀 ¡TIEMPO AGOTADO! Game Over sin oxígeno")
+		return
+	else:
+		# Resetear contador si hay oxígeno
+		oxygen_zero_timer = 0.0
+	
+	# Si hay enemigos o fuego: consumir oxígeno (-1 por segundo)
+	if has_enemies_or_fire:
+		recibir_dano(oxygen_loss_rate * delta)
+	else:
+		# Sin enemigos/fuego: recuperar oxígeno (+5 por segundo)
+		if vida_actual < vida_maxima:
+			curar(oxygen_recovery_rate * delta)
+
+# ============================================
+# SISTEMA DE PASOS (FOOTSTEPS)
+# ============================================
+func _setup_footstep_system():
+	"""Inicializa el sistema de pasos"""
+	footstep_player = AudioStreamPlayer.new()
+	footstep_player.bus = "Master"
+	footstep_player.volume_db = footstep_volume_db
+	add_child(footstep_player)
+	print("🚶 Sistema de pasos inicializado")
+
+func _update_footsteps(delta):
+	"""Controla la reproducción de pasos según el movimiento y velocidad"""
+	var input_vector = Input.get_vector("left", "right", "up", "down")
+	var is_moving = input_vector.length() > 0.0
+	
+	if is_moving and not is_dashing:
+		# Calcular velocidad actual del personaje
+		var current_speed = velocity.length()
+		
+		# Determinar el intervalo según la velocidad
+		var dynamic_interval = footstep_interval_slow
+		
+		# Si se está moviendo rápido (corriendo/movimiento constante), usar intervalo más frecuente
+		if current_speed >= speed_threshold_run:
+			dynamic_interval = footstep_interval_fast
+		else:
+			# Interpolación lineal entre intervalo lento y rápido
+			var speed_ratio = current_speed / speed_threshold_run
+			dynamic_interval = lerp(footstep_interval_slow, footstep_interval_fast, speed_ratio)
+		
+		# Reproducir paso si es tiempo
+		footstep_timer -= delta
+		if footstep_timer <= 0.0:
+			_play_random_footstep()
+			footstep_timer = dynamic_interval
+	else:
+		# Personaje no se está moviendo, resetear timer
+		if was_moving:
+			footstep_timer = 0.0
+	
+	was_moving = is_moving
+
+func _play_random_footstep():
+	"""Reproduce un sonido de paso aleatorio de los 4 disponibles"""
+	if footstep_player and footstep_sounds.size() > 0:
+		var random_index = randi() % footstep_sounds.size()
+		var selected_sound = footstep_sounds[random_index]
+		var current_speed = velocity.length()
+		
+		footstep_player.stream = selected_sound
+		footstep_player.volume_db = footstep_volume_db
+		footstep_player.play()
+		print("👣 Paso ", random_index + 1, " (Velocidad: ", int(current_speed), " px/s)")
+
+# ============================================
+# SISTEMA DE SONIDOS DE MANGUERA
+# ============================================
+func _setup_hose_sound_system():
+	"""Inicializa el sistema de sonidos de manguera"""
+	hose_sound_player = AudioStreamPlayer.new()
+	hose_sound_player.bus = "Master"
+	hose_sound_player.volume_db = hose_sound_volume_db
+	add_child(hose_sound_player)
+	print("💧 Sistema de sonidos de manguera inicializado")
+
+func _play_hose_water_sound():
+	"""Reproduce el sonido del agua cuando dispara"""
+	if hose_sound_player and hose_water_sound and not is_playing_water_sound:
+		hose_sound_player.stream = hose_water_sound
+		hose_sound_player.volume_db = hose_sound_volume_db
+		hose_sound_player.play()
+		is_playing_water_sound = true
+		print("💦 Sonido de agua activado")
+
+func _play_hose_empty_sound():
+	"""Reproduce el sonido de vacío cuando no hay carga"""
+	if hose_sound_player and hose_empty_sound:
+		hose_sound_player.stream = hose_empty_sound
+		hose_sound_player.volume_db = hose_sound_volume_db
+		hose_sound_player.play()
+		print("🚫 ¡Manguera vacía!")
+
+func _setup_fire_sound_system():
+	"""Inicializa el sistema de sonidos de fuego"""
+	fire_sound_player = AudioStreamPlayer.new()
+	fire_sound_player.bus = "Master"
+	fire_sound_player.volume_db = fire_sound_volume_db
+	add_child(fire_sound_player)
+	print("🔥 Sistema de sonidos de fuego inicializado")
+
+func _setup_axe_sound_system():
+	"""Inicializa el sistema de sonidos de hacha"""
+	axe_sound_player = AudioStreamPlayer.new()
+	axe_sound_player.bus = "Master"
+	axe_sound_player.volume_db = axe_sound_volume_db
+	add_child(axe_sound_player)
+	print("🪓 Sistema de sonidos de hacha inicializado")
+
+func _setup_dash_sound_system():
+	"""Inicializa el sistema de sonidos de dash/roll"""
+	dash_sound_player = AudioStreamPlayer.new()
+	# Usar bus por defecto si "Master" no existe
+	if AudioServer.get_bus_index("Master") >= 0:
+		dash_sound_player.bus = "Master"
+	dash_sound_player.volume_db = dash_sound_volume_db
+	add_child(dash_sound_player)
+	print("🎬 Sistema de sonidos de dash/roll inicializado")
+
+func _play_axe_attack_sound():
+	"""Reproduce sonido de ataque de hacha en orden secuencial"""
+	if not axe_sound_player:
+		return
+
+	var sound_stream = null
+	if axe_attack_sound_index == 0:
+		sound_stream = axe_attack_sound_1
+	else:
+		sound_stream = axe_attack_sound_2
+
+	if sound_stream:
+		axe_sound_player.stream = sound_stream
+		axe_sound_player.volume_db = axe_sound_volume_db
+		axe_sound_player.play()
+		print("🪓 Sonido de ataque de hacha", axe_attack_sound_index + 1)
+
+	axe_attack_sound_index = (axe_attack_sound_index + 1) % 2
+
+func _play_fire_extinguish_sound():
+	"""Reproduce el sonido al apagar fuego"""
+	if fire_sound_player and fire_extinguish_sound:
+		fire_sound_player.stream = fire_extinguish_sound
+		fire_sound_player.volume_db = fire_sound_volume_db
+		fire_sound_player.play()
+		print("💨 ¡Fuego apagado!")
+
+func _play_fire_attack_sound():
+	"""Reproduce el sonido cuando minions/jefe lanzan bolsa de fuego"""
+	if fire_sound_player and fire_attack_sound:
+		fire_sound_player.stream = fire_attack_sound
+		fire_sound_player.volume_db = fire_sound_volume_db
+		fire_sound_player.play()
+		print("🎯 ¡Ataque de fuego!")
+
+func _play_dash_sound():
+	"""Reproduce el sonido de roll cuando hace un dash"""
+	print("Debug: _play_dash_sound() llamado")
+	print("Debug: dash_sound_player =", dash_sound_player)
+	print("Debug: dash_sound =", dash_sound)
+	
+	if not dash_sound_player:
+		print("ERROR: dash_sound_player es null!")
+		return
+	
+	if not dash_sound:
+		print("ERROR: dash_sound es null!")
+		return
+	
+	dash_sound_player.stream = dash_sound
+	dash_sound_player.volume_db = dash_sound_volume_db
+	dash_sound_player.play()
+	print("💨 ¡Roll! (Reproduciendo sonido a volumen:", dash_sound_volume_db, "db)")
