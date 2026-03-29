@@ -1,10 +1,17 @@
 extends "res://personajes/personaje_base.gd"
 
+# Si este minion es de fuego, instancia una luz de plantilla para crear brillo y flicker
+@export var is_fire_minion: bool = false
+var fire_light_scene = preload("res://Scenes/VisualEffects/fire_light.tscn")
+
 var direccion := Vector2.ZERO
 var tiempo_cambio := 0.5
 var tiempo_actual := 0.0
 var tiempo_disparo := 0.0
 var tiempo_desde_disparo := 0.0
+
+# Variable para el movimiento de flotado (levitación dinámica)
+var levitation_time := 0.0
 
 var can_shoot = true
 var fireball_scene = preload("res://personajes/minions/fireball_visual.tscn")
@@ -14,11 +21,38 @@ var max_health: float = 10.0  # Vida máxima del minion (ajustado para 1 segundo
 var health: float = 10.0
 var is_being_extinguished: bool = false
 
+# Helper: búsqueda segura del player por grupo o por nombres comunes
+func _find_node_by_name(root: Node, target_name: String) -> Node:
+	if root == null:
+		return null
+	if root.name == target_name:
+		return root
+	for child in root.get_children():
+		var found = _find_node_by_name(child, target_name)
+		if found:
+			return found
+	return null
+
+func _find_player() -> Node:
+	# Preferir buscar por grupo
+	var grouped = get_tree().get_nodes_in_group("player")
+	if grouped.size() > 0:
+		return grouped[0]
+	# Buscar por nombres comunes
+	var candidate_names = ["personaje_principal", "personajePrincipal", "player", "Player"]
+	var root = get_tree().get_root()
+	for n in candidate_names:
+		var p = _find_node_by_name(root, n)
+		if p:
+			return p
+	return null
+
 func _ready():
 	# no se usan disparos en minions ahora, pero conectamos el timer por si se re-activa
 	$AttackTimer.timeout.connect(_on_AttackTimer_timeout)
 	anim_player = $AnimatedSprite2D
-	_setup_animation_frames()
+	if anim_player:
+		_setup_animation_frames()
 	# Ensure this node is recognized as an enemy for collisions/filters
 	add_to_group("enemy")
 	add_to_group("minion")
@@ -36,32 +70,60 @@ func _ready():
 		if hit_area.has_signal("area_entered"):
 			hit_area.area_entered.connect(_on_hit_area_area_entered)
 
+	# Si este minion es de fuego, instanciar la luz de fuego como hijo
+	if is_fire_minion:
+		if fire_light_scene:
+			var light_inst = fire_light_scene.instantiate()
+			if light_inst:
+				add_child(light_inst)
+				# Opcional: ajustar offset si el sprite tiene feet origin
+				light_inst.position = Vector2.ZERO
+
+				# Crear un occluder simple para proyectar sombras (approx caja basada en sprite)
+				var occl = LightOccluder2D.new()
+				var poly = OccluderPolygon2D.new()
+				var size = Vector2(24, 24)
+				if anim_player != null and anim_player.sprite_frames != null and anim_player.sprite_frames.get_animation_names().size() > 0:
+					# Intentar tomar el primer frame para estimar tamaño
+					var anim = anim_player.sprite_frames.get_animation_names()[0]
+					if anim_player.sprite_frames.get_frame_count(anim) > 0:
+						var tex = anim_player.sprite_frames.get_frame(anim, 0)
+						if tex:
+							size = tex.get_size() * anim_player.scale
+				# Construir polígono rectangular centrado
+				var hw = size.x * 0.5
+				var hh = size.y * 0.5
+				poly.polygon = PackedVector2Array([Vector2(-hw, -hh), Vector2(hw, -hh), Vector2(hw, hh), Vector2(-hw, hh)])
+				occl.occluder = poly
+				add_child(occl)
+
 func _setup_animation_frames():
 	# Busca imágenes en res://Assets/minions/ (carpeta opcional)
 	var dir_path = "res://Assets/minions/"
 	var fs = DirAccess.open(dir_path)
-	if not fs:
-		return
-	
+
 	var frames = []
-	fs.list_dir_begin()
-	var fname = fs.get_next()
-	while fname != "":
-		if not fs.current_is_dir():
-			if fname.to_lower().ends_with(".png") or fname.to_lower().ends_with(".webp") or fname.to_lower().ends_with(".jpg"):
-				frames.append(dir_path + fname)
-		fname = fs.get_next()
-	fs.list_dir_end()
-	frames.sort()
-	if frames.size() == 0:
-		return
+	if fs:
+		fs.list_dir_begin()
+		var fname = fs.get_next()
+		while fname != "":
+			if not fs.current_is_dir():
+				if fname.to_lower().ends_with(".png") or fname.to_lower().ends_with(".webp") or fname.to_lower().ends_with(".jpg"):
+					frames.append(dir_path + fname)
+			fname = fs.get_next()
+		fs.list_dir_end()
+		frames.sort()
+
+	# Siempre crear un SpriteFrames, aunque sea vacío
 	var sf = SpriteFrames.new()
 	sf.add_animation("walk")
-	for f in frames:
-		var tex = load(f)
-		sf.add_frame("walk", tex)
-	anim_player.frames = sf
-	anim_player.frames = sf
+
+	if frames.size() > 0:
+		for f in frames:
+			var tex = load(f)
+			sf.add_frame("walk", tex)
+
+	anim_player.sprite_frames = sf
 	anim_player.animation = "walk"
 	anim_player.play()
 	# Aumenta velocidad por defecto (multiplicador)
@@ -78,13 +140,7 @@ func shoot():
 		var player = null
 		if current_scene:
 			# Try common node names, prefer the snake_case `personaje_principal`
-			player = current_scene.get_node_or_null("personaje_principal")
-			if not player:
-				player = current_scene.get_node_or_null("personajePrincipal")
-			if not player:
-				player = current_scene.find_node("personaje_principal", true, false)
-			if not player:
-				player = current_scene.find_node("personajePrincipal", true, false)
+			player = _find_player()
 		if player:
 			# Calcular dirección desde la posición del minion hacia la posición del player
 			target_dir = (player.global_position - global_position).normalized()
@@ -95,6 +151,11 @@ func shoot():
 		can_shoot = false
 		$AttackTimer.start()
 		var fireball = fireball_scene.instantiate()
+		
+		# Reproducir sonido de ataque de fuego
+		var player_node = get_tree().get_first_node_in_group("player")
+		if player_node and player_node.has_method("_play_fire_attack_sound"):
+			player_node._play_fire_attack_sound()
 		
 		# IMPORTANTE: Establecer shooter ANTES de agregar a la escena
 		# para que _ready() pueda usar esta información para asignar grupos
@@ -171,6 +232,13 @@ func mover_personaje(delta):
 			anim_player.flip_h = true
 		elif direccion.x > 0:
 			anim_player.flip_h = false
+
+func _process(delta):
+	# Actualizar el movimiento de flotado del sprite
+	levitation_time += delta * 2.0  # Velocidad del flotado
+	# Mueve el sprite un poquito arriba y abajo
+	if anim_player:
+		anim_player.position.y = sin(levitation_time) * 5.0
 
 func _physics_process(delta):
 	mover_personaje(delta)

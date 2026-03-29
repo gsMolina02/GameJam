@@ -8,7 +8,8 @@ extends CharacterBody2D
 # --- Vida / Knockback (from HEAD) ---
 # Salud (por defecto 5 -> personaje principal)
 # CAMBIADO A FLOAT para soportar daño de 0.5 de las bolas de minions
-@export var vida_maxima: float = 5.0
+# ACTUALIZADO A 100.0 para usar escala 0-100 (oxígeno)
+@export var vida_maxima: float = 100.0
 var vida_actual: float = 0.0
 var vivo: bool = true
 
@@ -90,6 +91,7 @@ func mover_personaje(delta):
 
 	# Si está haciendo dash, manejar el dash por frame
 	if is_dashing:
+		_play_dash_roll_animation()
 		_handle_dash(delta)
 		return
 
@@ -179,14 +181,9 @@ func _on_Hitbox_area_entered(area):
 
 	# Daño por ataque de minion (grupo 'ataque_minion')
 	if area.is_in_group("ataque_minion"):
-		# Si el área tiene una propiedad 'damage', usarla; si no, usar 1
-		var damage_amount = 1.0
-		if area.has_method("get") and area.get("damage") != null:
-			damage_amount = area.get("damage")
-			print(self.name, " - 🔥 Golpeado por ataque de minion! Daño:", damage_amount)
-		else:
-			print(self.name, " - Golpeado por minion! Daño: 1")
-		
+		# Restar -10 de oxígeno (daño a la barra de vida que representa oxígeno)
+		var damage_amount = 10.0
+		print(self.name, " - 🔥 Golpeado por ataque de minion! Oxígeno perdido:", damage_amount)
 		recibir_dano(damage_amount)
 		var dir = (global_position - area.global_position).normalized()
 		if dir == Vector2.ZERO:
@@ -197,14 +194,9 @@ func _on_Hitbox_area_entered(area):
 
 	# Daño por ataque de jefe (grupo 'ataque_jefe')
 	if area.is_in_group("ataque_jefe"):
-		# Si el área tiene una propiedad 'damage', usarla; si no, usar 1
-		var damage_amount = 1.0
-		if area.has_method("get") and area.get("damage") != null:
-			damage_amount = area.get("damage")
-			print(self.name, " - 💥 Golpeado por ataque de jefe! Daño:", damage_amount)
-		else:
-			print(self.name, " - Golpeado por jefe! Daño: 1")
-		
+		# Restar -10 de oxígeno (daño a la barra de vida que representa oxígeno)
+		var damage_amount = 10.0
+		print(self.name, " - 💥 Golpeado por ataque de jefe! Oxígeno perdido:", damage_amount)
 		recibir_dano(damage_amount)
 		var dir = (global_position - area.global_position).normalized()
 		if dir == Vector2.ZERO:
@@ -222,11 +214,11 @@ func _on_Hitbox_area_entered(area):
 	if area.is_in_group("pickup_vida"):
 		# Solo recoger si la vida no está al máximo
 		if vida_actual < vida_maxima:
-			curar(1.0)
+			curar(25.0)  # Recupera +25% de oxígeno
 			area.queue_free()
-			print(self.name, " - Tanque de oxígeno recogido. Vida: ", vida_actual, "/", vida_maxima)
+			print(self.name, " - Tanque de oxígeno recogido (+25). Oxígeno: ", vida_actual, "/", vida_maxima)
 		else:
-			print(self.name, " - Vida al máximo, no se puede recoger el tanque")
+			print(self.name, " - Oxígeno al máximo, no se puede recoger el tanque")
 		return
 
 # --- Dash functions (from main) ---
@@ -324,46 +316,54 @@ func _update_animation(input_vector: Vector2):
 
 	# 0° = derecha, 90° = abajo, 180° = izquierda, 270° = arriba
 	if degrees >= 337.5 or degrees < 22.5:
-		# Derecha
+		# Derecha (frontal)
 		candidates = [
-			"move_right", "move-right",  # nombres alternativos
-			"lat_inf_der", "lat_sup_der",  # fallbacks diagonales si no hay derecha pura
-			"move_down", "move_up"  # último recurso, que algo se mueva
+			"AxeWalkinFrontDer", "AxelWalkinFrontDer",
+			"AxeWalkinFront", "AxelWalkinFront"
 		]
 	elif degrees >= 22.5 and degrees < 67.5:
-		# Diagonal inferior derecha
+		# Diagonal inferior derecha (frontal)
 		candidates = [
-			"lat_inf_der", "move_right", "move-right", "move_down"
+			"AxeWalkinFrontDer", "AxelWalkinFrontDer",
+			"AxeWalkinFront", "AxelWalkinFront"
 		]
 	elif degrees >= 67.5 and degrees < 112.5:
-		# Abajo
+		# Abajo (frontal)
 		candidates = [
-			"move_down", "lat_inf_der", "lat_inf_izq", "idle_frente", "idl_frente", "lat_frente"
+			"AxeWalkinFront", "AxelWalkinFront",
+			"AxeWalkinFrontDer", "AxelWalkinFrontDer",
+			"AxeWalkinFrontIzq", "AxelWalkinFrontIzq"
 		]
 	elif degrees >= 112.5 and degrees < 157.5:
-		# Diagonal inferior izquierda
+		# Diagonal inferior izquierda (frontal)
 		candidates = [
-			"lat_inf_izq", "move_left", "move-left", "move_down"
+			"AxeWalkinFrontIzq", "AxelWalkinFrontIzq",
+			"AxeWalkinFront", "AxelWalkinFront"
 		]
 	elif degrees >= 157.5 and degrees < 202.5:
-		# Izquierda
+		# Izquierda (frontal)
 		candidates = [
-			"move_left", "move-left", "lat_inf_izq", "lat_sup_izq", "lat_frente"
+			"AxeWalkinFrontIzq", "AxelWalkinFrontIzq",
+			"AxeWalkinFront", "AxelWalkinFront"
 		]
 	elif degrees >= 202.5 and degrees < 247.5:
 		# Diagonal superior izquierda
 		candidates = [
-			"lat_sup_izq", "move_left", "move-left", "move_up"
+			"AxeWalkBackIzq", "AxelWalkBackIzq",
+			"AxeWalkBack", "AxelWalkBack"
 		]
 	elif degrees >= 247.5 and degrees < 292.5:
 		# Arriba
 		candidates = [
-			"move_up", "lat_sup_der", "lat_sup_izq", "idle_up", "atras"
+			"AxeWalkBack", "AxelWalkBack",
+			"AxeWalkBackDer", "AxelWalkBackDer",
+			"AxeWalkBackIzq", "AxelWalkBackIzq"
 		]
 	elif degrees >= 292.5 and degrees < 337.5:
 		# Diagonal superior derecha
 		candidates = [
-			"lat_sup_der", "move_right", "move-right", "move_up"
+			"AxeWalkBackDer", "AxelWalkBackDer",
+			"AxeWalkBack", "AxelWalkBack"
 		]
 
 	_play_first_available(candidates)
@@ -373,13 +373,38 @@ func _play_idle_animation():
 	if not animated_sprite:
 		return
 
-	# Intentar animaciones de idle conocidas
+	# Intentar idle del set nuevo
 	if animated_sprite.sprite_frames:
 		var played_before := animated_sprite.animation
-		_play_first_available(["idl_frente", "idle_frente", "idle"])  # prioriza tu 'idl_frente'
+		_play_first_available(["AxeIdl", "AxelIdl"])
 		# Si ninguna idle existe, detener para mantener el último frame
 		if animated_sprite.animation == played_before and animated_sprite.is_playing():
 			animated_sprite.stop()
+
+func _play_dash_roll_animation():
+	"""Reproduce roll según dirección del dash."""
+	if not animated_sprite or not animated_sprite.sprite_frames:
+		return
+
+	var dir := dash_direction
+	if dir == Vector2.ZERO:
+		dir = last_direction
+	if dir == Vector2.ZERO:
+		_play_first_available(["AxeRollFrontDer", "AxelRollFrontDer"])
+		return
+
+	if dir.y < -0.35:
+		if dir.x < -0.2:
+			_play_first_available(["AxeRollBackIzq", "AxelRollBackIzq"])
+		elif dir.x > 0.2:
+			_play_first_available(["AxeRollBackDer", "AxelRollBackDer"])
+		else:
+			_play_first_available(["AxeRollBackDer", "AxelRollBackDer", "AxeRollBackIzq", "AxelRollBackIzq"])
+	else:
+		if dir.x < 0:
+			_play_first_available(["AxeRollFrontIzq", "AxelRollFrontIzq"])
+		else:
+			_play_first_available(["AxeRollFrontDer", "AxelRollFrontDer"])
 
 func _play_animation(anim_name: String):
 	"""Reproduce una animación si existe"""
@@ -412,18 +437,38 @@ func _show_death_screen():
 	print("Mostrando pantalla de Game Over...")
 	# Pausar el juego
 	get_tree().paused = true
-	# Cargar la escena de muerte
-	var death_scene = load("res://Scenes/UI/deathEscene.tscn")
-	if death_scene:
-		var death_instance = death_scene.instantiate()
-		# Asegurarse de que el menú de muerte no esté pausado (configurar ANTES de agregar)
-		death_instance.process_mode = Node.PROCESS_MODE_ALWAYS
-		# Agregar a la escena raíz para que aparezca sobre todo
-		get_tree().root.add_child(death_instance)
-		# Configurar todos los hijos para que también funcionen durante la pausa
-		_set_process_mode_recursive(death_instance, Node.PROCESS_MODE_ALWAYS)
+
+	# Buscar el MenusLayer en la escena actual
+	var menus_layer = get_tree().root.find_child("MenusLayer", true, false)
+
+	if menus_layer:
+		# Activar el MenusLayer existente
+		menus_layer.visible = true
+		# Asegurarse de que funcione durante la pausa
+		menus_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+		_set_process_mode_recursive(menus_layer, Node.PROCESS_MODE_ALWAYS)
+
+		# Mostrar solo el DeathMenu y ocultar el PauseMenu
+		var death_menu = menus_layer.get_node_or_null("DeathMenu")
+		var pause_menu = menus_layer.get_node_or_null("PuseMenu")
+
+		if death_menu:
+			death_menu.visible = true
+		if pause_menu:
+			pause_menu.visible = false
+
+		print("✓ MenusLayer activado correctamente")
 	else:
-		print("Error: No se pudo cargar deathEscene.tscn")
+		# Fallback: Cargar la escena de muerte si no existe MenusLayer
+		print("⚠️ MenusLayer no encontrado, creando instancia de muerte...")
+		var death_scene = load("res://Scenes/UI/deathEscene.tscn")
+		if death_scene:
+			var death_instance = death_scene.instantiate()
+			death_instance.process_mode = Node.PROCESS_MODE_ALWAYS
+			get_tree().root.add_child(death_instance)
+			_set_process_mode_recursive(death_instance, Node.PROCESS_MODE_ALWAYS)
+		else:
+			print("Error: No se pudo cargar deathEscene.tscn")
 
 func _set_process_mode_recursive(node: Node, mode: Node.ProcessMode):
 	"""Configura el process_mode recursivamente para todos los nodos hijos"""

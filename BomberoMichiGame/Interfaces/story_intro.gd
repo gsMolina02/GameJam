@@ -8,7 +8,7 @@ extends Control
 		"text": "Hace mucho tiempo, la ciudad de Felinia era un lugar pacífico...\n\nLos gatos y humanos vivían en armonía, protegidos por valientes bomberos."
 	},
 	{
-		"image": "res://Assets/fondos/1.jpg", 
+		"image": "res://Assets/fondos/1.jpg",
 		"text": "Pero un día, misteriosas llamas comenzaron a aparecer en toda la ciudad...\n\nEran llamas que no podían ser apagadas con agua normal."
 	},
 	{
@@ -100,10 +100,15 @@ func _on_timer_timeout():
 	can_advance = true
 
 func _input(event):
-	# Solo responder a Enter o click de mouse (NO Space)
-	if event is InputEventMouseButton and event.is_pressed():
-		handle_input()
-	elif event is InputEventKey and event.is_pressed() and event.keycode == KEY_ENTER:
+	# Verificamos si es un evento de teclado presionado
+	if event is InputEventKey and event.is_pressed():
+		if event.keycode == KEY_P:
+			is_typing = false
+			go_to_next_scene()
+			return
+		elif event.keycode == KEY_ENTER:
+			handle_input()
+	elif event is InputEventMouseButton and event.is_pressed():
 		handle_input()
 
 func handle_input():

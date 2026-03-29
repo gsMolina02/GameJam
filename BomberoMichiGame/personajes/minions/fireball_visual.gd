@@ -3,7 +3,7 @@ extends Area2D
 @export var radius := 12.0
 @export var color := Color(1.0, 0.45, 0.0)
 
-@export var speed := 800
+@export var speed := 640
 @export var lifetime := 10.0
 var velocity := Vector2.ZERO
 var damage := 1.0  # Daño base, se ajustará según el shooter

@@ -498,10 +498,6 @@ position = Vector2(471, 268.99988)
 rotation = -0.00036524187
 script = ExtResource("1_l41yb")
 vida_maxima = 50
-<<<<<<< HEAD
-=======
-metadata/_edit_group_ = true
->>>>>>> c807aab42ce1584c5d9340a6e743ff25700c7e56
 
 [node name="bossAnimated" type="AnimatedSprite2D" parent="."]
 scale = Vector2(0.24804088, 0.27370667)
