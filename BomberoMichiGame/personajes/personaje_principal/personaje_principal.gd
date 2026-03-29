@@ -10,8 +10,13 @@ class_name Bomber
 @export var axe_attack_sound_2: AudioStream = preload("res://Assets/SFX/hacha/Hacha_ataque_2.ogg")
 @export var axe_sound_volume_db: float = -8.0
 
+# Sonido de roll/dash
+@export var dash_sound: AudioStream = preload("res://Assets/SFX/roll/roll.ogg")
+@export var dash_sound_volume_db: float = -10.0
+
 var axe_sound_player: AudioStreamPlayer
 var axe_attack_sound_index: int = 0
+var dash_sound_player: AudioStreamPlayer
 
 @export var parry_window = 0.4
 @export var attack_cooldown_time = 0.2
@@ -213,6 +218,9 @@ func _ready():
 	
 	# Configurar sistema de sonidos de fuego
 	_setup_fire_sound_system()
+	
+	# Configurar sistema de sonidos de dash/roll
+	_setup_dash_sound_system()
 
 func _setup_hose_system():
 	"""Configura los nodos necesarios para el sistema de manguera"""
@@ -483,8 +491,8 @@ func _handle_input():
 
 		# Llamar al dash implementado en la base
 		_start_dash(dir)
-
-# ============================================
+		# Reproducir sonido de roll
+		_play_dash_sound()
 # SISTEMA DE ORIENTACIÓN DE ARMAS
 # ============================================
 
@@ -1185,6 +1193,16 @@ func _setup_axe_sound_system():
 	add_child(axe_sound_player)
 	print("🪓 Sistema de sonidos de hacha inicializado")
 
+func _setup_dash_sound_system():
+	"""Inicializa el sistema de sonidos de dash/roll"""
+	dash_sound_player = AudioStreamPlayer.new()
+	# Usar bus por defecto si "Master" no existe
+	if AudioServer.get_bus_index("Master") >= 0:
+		dash_sound_player.bus = "Master"
+	dash_sound_player.volume_db = dash_sound_volume_db
+	add_child(dash_sound_player)
+	print("🎬 Sistema de sonidos de dash/roll inicializado")
+
 func _play_axe_attack_sound():
 	"""Reproduce sonido de ataque de hacha en orden secuencial"""
 	if not axe_sound_player:
@@ -1219,3 +1237,22 @@ func _play_fire_attack_sound():
 		fire_sound_player.volume_db = fire_sound_volume_db
 		fire_sound_player.play()
 		print("🎯 ¡Ataque de fuego!")
+
+func _play_dash_sound():
+	"""Reproduce el sonido de roll cuando hace un dash"""
+	print("Debug: _play_dash_sound() llamado")
+	print("Debug: dash_sound_player =", dash_sound_player)
+	print("Debug: dash_sound =", dash_sound)
+	
+	if not dash_sound_player:
+		print("ERROR: dash_sound_player es null!")
+		return
+	
+	if not dash_sound:
+		print("ERROR: dash_sound es null!")
+		return
+	
+	dash_sound_player.stream = dash_sound
+	dash_sound_player.volume_db = dash_sound_volume_db
+	dash_sound_player.play()
+	print("💨 ¡Roll! (Reproduciendo sonido a volumen:", dash_sound_volume_db, "db)")
