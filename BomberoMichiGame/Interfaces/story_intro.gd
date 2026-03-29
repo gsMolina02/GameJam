@@ -1,5 +1,10 @@
 extends Control
 
+func _t(key: String) -> String:
+	if has_node("/root/Localization"):
+		return get_node("/root/Localization").translate(key)
+	return key
+
 # Configuración de las 3 páginas de la historia
 # Cada página tiene una imagen y un texto
 @export var story_pages: Array[Dictionary] = [
@@ -76,7 +81,7 @@ func show_page(page_index: int):
 	
 	# Iniciar texto vacío
 	$HBoxContainer/LeftPanel/MarginContainer/VBoxContainer/StoryText.text = ""
-	full_text = page_data["text"]
+	full_text = _t("story.page_" + str(page_index + 1))
 	
 	# Iniciar efecto de escritura
 	start_typing()
@@ -147,3 +152,4 @@ func go_to_next_scene():
 	var error = tree.change_scene_to_file(next_scene)
 	if error != OK:
 		push_error("Failed to load scene: " + next_scene + " Error code: " + str(error))
+	

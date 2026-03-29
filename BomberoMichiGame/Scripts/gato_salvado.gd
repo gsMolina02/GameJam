@@ -1,5 +1,10 @@
 extends Node2D
 
+func _t(key: String) -> String:
+	if has_node("/root/Localization"):
+		return get_node("/root/Localization").translate(key)
+	return key
+
 # Configuración del diálogo
 @export var nombre_gato: String = "Miel"
 @export var mensaje_agradecimiento: String = "¡Miau! Gracias por salvarme~"
@@ -27,11 +32,11 @@ func _ready():
 	
 	# Agregar al grupo de gatos salvados
 	add_to_group("gatos_salvados")
+	add_to_group("localizable")
 	print("🐱 Gato", nombre_gato, "agregado al grupo 'gatos_salvados'")
-	
-	# Crear label de interacción
+
 	label_interactuar = Label.new()
-	label_interactuar.text = "[F] Hablar"
+	label_interactuar.text = _t("npc.talk")
 	label_interactuar.position = Vector2(-30, -80)
 	label_interactuar.visible = false
 	label_interactuar.add_theme_color_override("font_color", Color.YELLOW)
@@ -72,6 +77,10 @@ func _physics_process(_delta: float) -> void:
 	if jugador_cerca and not dialogo_activo:
 		if Input.is_action_just_pressed("interact"):
 			_mostrar_dialogo()
+
+func update_texts() -> void:
+	if label_interactuar:
+		label_interactuar.text = _t("npc.talk")
 
 func _on_interaction_area_body_entered(body: Node2D) -> void:
 	if body.is_in_group("player_main"):
