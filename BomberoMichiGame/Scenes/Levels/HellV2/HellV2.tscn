@@ -10505,10 +10505,10 @@ tile_set = SubResource("TileSet_ng4k4")
 
 [node name="personajePrincipal" parent="TileMapHell" instance=ExtResource("1_l8nt6")]
 position = Vector2(130.99976, 186.99988)
-scale = Vector2(0.5733461, 0.46033266)
+scale = Vector2(0.5733461, 0.5733461)
 
 [node name="Camera2D" type="Camera2D" parent="TileMapHell/personajePrincipal"]
-position = Vector2(-18.066597, -133.29529)
+position = Vector2(-12, -112)
 limit_left = -2
 limit_top = -1
 limit_right = 4088

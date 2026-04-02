@@ -17,6 +17,7 @@ class_name Bomber
 var axe_sound_player: AudioStreamPlayer
 var axe_attack_sound_index: int = 0
 var dash_sound_player: AudioStreamPlayer
+var last_mouse_button_time: float = 0.0
 
 @export var parry_window = 0.4
 @export var attack_cooldown_time = 0.2
@@ -32,6 +33,8 @@ var dash_sound_player: AudioStreamPlayer
 @export var hose_nozzle_offset = Vector2(130, 30)  # Punta de la manguera (boquilla)
 @export var water_recharge_rate = 3.0  # Cantidad de agua que se recarga por segundo
 @export var water_recharge_on_box = 20.0  # Cantidad de agua al romper una caja
+@export var aim_deadzone_px: float = 22.0  # Evita cambios bruscos cuando el mouse esta sobre el jugador
+@export var aim_smoothing_speed: float = 18.0  # Sensacion tipo twin-stick: alto = mas responsivo
 
 # Propiedades del oxígeno (sistema de barra de vida mejorado)
 @export var oxygen_loss_rate = 1.0  # Pérdida de oxígeno por segundo en condiciones normales
@@ -39,6 +42,7 @@ var dash_sound_player: AudioStreamPlayer
 @export var oxygen_attack_damage = 10.0  # Pérdida de oxígeno por golpe
 @export var oxygen_tankpickup = 25.0  # Cantidad de oxígeno que recupera un tanque
 @export var oxygen_death_time = 5.0  # Segundos permitidos sin oxígeno antes de morir
+@export var oxygen_scan_interval: float = 0.25  # Intervalo de escaneo de enemigos/fuego para evitar tirones
 
 # Estados del hacha
 enum AxeState {
@@ -63,12 +67,14 @@ var is_using_hose = false
 var current_weapon = Weapon.HOSE  # Iniciar con MANGUERA equipada
 var apuntador = null
 var apuntador_offset = Vector2(130, 30)
+var current_aim_direction: Vector2 = Vector2.RIGHT
 var is_dead: bool = false
 var manguera_bloqueada: bool = false  # Bloquea la manguera cuando llega a 0
 
 # Variables de control de oxígeno
 var oxygen_zero_timer = 0.0  # Contador para los 5 segundos permitidos sin oxígeno
 var had_enemies_or_fire = false  # Para detectar cuándo no hay enemigos/fuego
+var oxygen_scan_timer = 0.0
 
 # Sistema de pasos (footsteps)
 @export var footstep_sounds: Array[AudioStream] = [
@@ -81,6 +87,7 @@ var had_enemies_or_fire = false  # Para detectar cuándo no hay enemigos/fuego
 @export var footstep_interval_fast: float = 0.4  # Intervalo cuando corre/movimiento constante
 @export var footstep_volume_db: float = -15.0  # Volumen de los pasos (más bajo y natural)
 @export var speed_threshold_run: float = 150.0  # Velocidad mínima para considerar como "corriendo"
+@export var footstep_debug_logs: bool = false
 
 var footstep_player: AudioStreamPlayer
 var footstep_timer: float = 0.0
@@ -109,6 +116,8 @@ var fire_sound_player: AudioStreamPlayer
 @onready var axe_hitbox = get_node_or_null("Axe/AxeHitbox")
 @onready var axe_sprite = get_node_or_null("Axe")
 @onready var hose_sprite = get_node_or_null("hose")
+@onready var axe_pivot = get_node_or_null("AxePivot")
+@onready var hose_pivot = get_node_or_null("HosePivot")
 @onready var attack_cooldown_timer = get_node_or_null("AttackCooldownTimer")
 @onready var animation_player = get_node_or_null("AnimationPlayer")  # Para animaciones
 @onready var character_sprite = get_node_or_null("AnimatedSprite")  # Sprite del bombero para detectar dirección
@@ -117,6 +126,12 @@ var fire_sound_player: AudioStreamPlayer
 @onready var hose_area = get_node_or_null("HoseArea")  # Area2D para detectar fuego
 @onready var hose_raycast = get_node_or_null("HoseRaycast")  # RayCast2D para dirección
 @onready var water_particles = get_node_or_null("WaterParticles")  # Partículas de agua (opcional)
+var axe_base_scale: Vector2 = Vector2.ONE
+var hose_base_scale: Vector2 = Vector2.ONE
+var axe_pivot_base_position: Vector2 = Vector2.ZERO
+var hose_pivot_base_position: Vector2 = Vector2.ZERO
+@export var axe_pivot_extra_offset: Vector2 = Vector2.ZERO
+@export var hose_pivot_extra_offset: Vector2 = Vector2.ZERO
 
 # Señales
 signal hose_recharged(new_charge)
@@ -137,6 +152,8 @@ signal weapon_switched(new_weapon)
 func _ready():
 	# Llama a la inicialización del padre (conexión Hitbox, init vida, etc.)
 	super._ready()
+	_configure_mouse_combat_bindings()
+	_ensure_weapon_pivots()
 
 	# Añadir al grupo para que HUD/etc. nos encuentre
 	add_to_group("player_main")
@@ -174,6 +191,18 @@ func _ready():
 	
 	# Configurar sistema de manguera
 	_setup_hose_system()
+
+	# Guardar escalas base de armas para mantener tamaño al voltear
+	if axe_sprite:
+		axe_base_scale = axe_sprite.scale
+	if hose_sprite:
+		hose_base_scale = hose_sprite.scale
+
+	# Guardar posición base de los pivotes para respetar ajuste manual en editor
+	if axe_pivot:
+		axe_pivot_base_position = axe_pivot.position
+	if hose_pivot:
+		hose_pivot_base_position = hose_pivot.position
 	
 	# Actualizar visuales iniciales (manguera visible, hacha oculta)
 	_update_weapon_visuals()
@@ -207,20 +236,55 @@ func _ready():
 	# Configurar sistema de pasos
 	_setup_footstep_system()
 	
-	# Configurar sistema de sonidos de manguera
+	# Configurar sistemas de sonido
 	_setup_hose_sound_system()
-	
-	# Configurar sistema de sonidos de fuego
 	_setup_fire_sound_system()
-	
-	# Configurar sistema de sonidos de hacha
 	_setup_axe_sound_system()
-	
-	# Configurar sistema de sonidos de fuego
-	_setup_fire_sound_system()
-	
-	# Configurar sistema de sonidos de dash/roll
 	_setup_dash_sound_system()
+
+func _ensure_weapon_pivots() -> void:
+	"""Crea pivotes si faltan y reubica las armas para rotarlas de forma estable."""
+	# Buscar pivotes existentes en cualquier nivel (por si quedaron como hijos de Axe/hose).
+	if not axe_pivot:
+		axe_pivot = find_child("AxePivot", true, false) as Marker2D
+	if not hose_pivot:
+		hose_pivot = find_child("HosePivot", true, false) as Marker2D
+
+	if not axe_pivot:
+		axe_pivot = Marker2D.new()
+		axe_pivot.name = "AxePivot"
+		add_child(axe_pivot)
+
+	if not hose_pivot:
+		hose_pivot = Marker2D.new()
+		hose_pivot.name = "HosePivot"
+		add_child(hose_pivot)
+
+	# Si el pivote está dentro del sprite (configuración invertida), sácalo al root.
+	if axe_sprite and axe_pivot and axe_sprite.is_ancestor_of(axe_pivot):
+		axe_pivot.reparent(self, true)
+	if hose_sprite and hose_pivot and hose_sprite.is_ancestor_of(hose_pivot):
+		hose_pivot.reparent(self, true)
+
+	if axe_sprite and axe_sprite.get_parent() != axe_pivot:
+		axe_sprite.reparent(axe_pivot, true)
+		axe_sprite.position = Vector2.ZERO
+		axe_sprite.rotation = 0.0
+		axe_sprite.z_index = 0
+
+	if axe_sprite:
+		# El pivote controla la profundidad; el sprite no debe sumar z_index local.
+		axe_sprite.z_index = 0
+
+	if hose_sprite and hose_sprite.get_parent() != hose_pivot:
+		hose_sprite.reparent(hose_pivot, true)
+		hose_sprite.position = Vector2.ZERO
+		hose_sprite.rotation = 0.0
+		hose_sprite.z_index = 0
+
+	if hose_sprite:
+		# El pivote controla la profundidad; el sprite no debe sumar z_index local.
+		hose_sprite.z_index = 0
 
 func _setup_hose_system():
 	"""Configura los nodos necesarios para el sistema de manguera"""
@@ -329,6 +393,9 @@ func _physics_process(delta):
 	
 	# Movimiento estándar (mover_personaje en la base maneja dash internamente)
 	mover_personaje(delta)
+
+	# Actualizar apuntado antes de procesar la manguera para usar una direccion consistente.
+	_update_weapon_orientation(delta)
 	
 	# Actualizar timer de parry
 	if current_axe_state == AxeState.PARRYING:
@@ -373,9 +440,6 @@ func _physics_process(delta):
 	if character_sprite:
 		character_sprite.flip_h = false
 
-	# Actualizar posición y rotación de las armas según la dirección de movimiento
-	_update_weapon_orientation()
-
 	# adicionalmente asegurar que el personaje no salga del viewport
 	# (no-op porque clamp_to_viewport está desactivado para el jugador)
 	# keep_in_viewport()
@@ -391,11 +455,32 @@ func _unhandled_input(event):
 		get_viewport().set_input_as_handled()
 		return
 
-	# Detectar scroll del mouse para cambiar arma
+	# Detectar cambio de arma por mouse - click derecho
 	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			last_mouse_button_time = Time.get_ticks_msec()
+			switch_weapon()
+			get_viewport().set_input_as_handled()
+			return
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP or event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			if event.pressed:
 				switch_weapon()
+
+func _configure_mouse_combat_bindings():
+	"""Asegurar que click derecho esté asignado a switch_weapon."""
+	if not InputMap.has_action("switch_weapon"):
+		InputMap.add_action("switch_weapon")
+
+	var has_right_click: bool = false
+	for existing_event in InputMap.action_get_events("switch_weapon"):
+		if existing_event is InputEventMouseButton and existing_event.button_index == MOUSE_BUTTON_RIGHT:
+			has_right_click = true
+			break
+
+	if not has_right_click:
+		var right_click := InputEventMouseButton.new()
+		right_click.button_index = MOUSE_BUTTON_RIGHT
+		InputMap.action_add_event("switch_weapon", right_click)
 
 func _toggle_pause_menu():
 	"""Activa/desactiva el menú de pausa"""
@@ -436,11 +521,7 @@ func _handle_input():
 		return
 	
 	# Intercambiar arma con Q
-	if Input.is_action_just_pressed("ui_focus_next"):  # Q por defecto
-		switch_weapon()
-	
-	# También puedes usar una acción personalizada si la configuras
-	if Input.is_action_just_pressed("switch_weapon"):
+	if Input.is_action_just_pressed("ui_focus_next"):
 		switch_weapon()
 	
 	# Sistema de manguera (botón mantenido) - solo si está equipada
@@ -496,17 +577,24 @@ func _handle_input():
 # SISTEMA DE ORIENTACIÓN DE ARMAS
 # ============================================
 
-func _update_weapon_orientation():
+func _update_weapon_orientation(delta: float):
 	"""Actualiza la posición y rotación de las armas hacia la posición del mouse"""
-	# Obtener la posición del mouse en el mundo
+	# Obtener direccion objetivo hacia el mouse
 	var mouse_pos = get_global_mouse_position()
+	var to_mouse = mouse_pos - global_position
+	var target_direction = current_aim_direction
 	
-	# Calcular la dirección desde el personaje hacia el mouse
-	var direction = (mouse_pos - global_position).normalized()
-	
-	# Si el mouse está muy cerca del personaje, usar dirección por defecto
-	if (mouse_pos - global_position).length() < 10:
-		direction = Vector2.RIGHT
+	# En zona cercana mantenemos la ultima direccion para evitar "temblores".
+	if to_mouse.length() >= aim_deadzone_px:
+		target_direction = to_mouse.normalized()
+
+	# Suavizado exponencial estable por frame rate.
+	var blend = 1.0 - exp(-aim_smoothing_speed * delta)
+	current_aim_direction = current_aim_direction.lerp(target_direction, blend).normalized()
+	if current_aim_direction == Vector2.ZERO:
+		current_aim_direction = target_direction
+
+	var direction = current_aim_direction
 	
 	# Calcular el ángulo de la dirección
 	var angle = direction.angle()
@@ -525,35 +613,65 @@ func _update_weapon_orientation():
 		_orient_hose(direction, angle)
 
 func _orient_axe(direction: Vector2, angle: float):
-	"""Orienta el hacha según la dirección de movimiento"""
+	"""Orienta el hacha según la dirección del mouse con volteo visual"""
 	var base_offset = 50.0  # Distancia desde el centro del personaje
 	
 	# Calcular posición del hacha alrededor del personaje
-	var axe_position = direction * base_offset
+	var axe_position = axe_pivot_base_position + direction * base_offset + Vector2(0, 10.0) + axe_pivot_extra_offset
+
+	if axe_pivot:
+		axe_pivot.position = axe_position
 	
-	# Ajustar la posición vertical para que no esté en el centro exacto
-	axe_position.y += 10.0
+	# Voltear el hacha por lado, pero corrigiendo el offset angular
+	# para que la punta siempre apunte al objetivo.
+	var facing_right := direction.x > 0.0
+	axe_sprite.scale.x = abs(axe_base_scale.x)
+	axe_sprite.scale.y = abs(axe_base_scale.y) * (1.0 if facing_right else -1.0)
 	
-	axe_sprite.position = axe_position
+	# El offset cambia según el espejo para mantener la punta alineada.
+	var angle_offset := PI / 2 if facing_right else -PI / 2
+	if axe_pivot:
+		axe_pivot.rotation = angle + angle_offset
+		axe_sprite.rotation = 0.0
+	else:
+		axe_sprite.rotation = angle + angle_offset
 	
-	# Rotar el hacha para que apunte en la dirección de movimiento
-	# +90 grados porque el sprite del hacha está orientado verticalmente
-	axe_sprite.rotation = angle + PI / 2
+	# Mantener arma siempre delante del personaje para evitar cambios molestos de profundidad.
+	if axe_pivot:
+		axe_pivot.z_index = 0
+		axe_pivot.show_behind_parent = false
+	else:
+		axe_sprite.z_index = 0
+		axe_sprite.show_behind_parent = false
 
 func _orient_hose(direction: Vector2, angle: float):
-	"""Orienta la manguera según la dirección de movimiento"""
+	"""Orienta la manguera según la dirección del mouse con volteo visual"""
 	var base_offset = 60.0  # Un poco más lejos que el hacha
 	
 	# Calcular posición de la manguera
-	var hose_position = direction * base_offset
+	var hose_position = hose_pivot_base_position + direction * base_offset + Vector2(0, 15.0) + hose_pivot_extra_offset
+
+	if hose_pivot:
+		hose_pivot.position = hose_position
 	
-	# Ajustar posición vertical
-	hose_position.y += 15.0
-	
-	hose_sprite.position = hose_position
+	# Aplicar volteo visual según la dirección horizontal
+	hose_sprite.scale.x = abs(hose_base_scale.x)
+	hose_sprite.scale.y = abs(hose_base_scale.y) * (1.0 if direction.x > 0 else -1.0)
 	
 	# Rotar la manguera para que apunte en la dirección de movimiento
-	hose_sprite.rotation = angle
+	if hose_pivot:
+		hose_pivot.rotation = angle
+		hose_sprite.rotation = 0.0
+	else:
+		hose_sprite.rotation = angle
+	
+	# Mantener arma siempre delante del personaje para evitar cambios molestos de profundidad.
+	if hose_pivot:
+		hose_pivot.z_index = 0
+		hose_pivot.show_behind_parent = false
+	else:
+		hose_sprite.z_index = 0
+		hose_sprite.show_behind_parent = false
 	
 	# Actualizar también la dirección de las partículas de agua si están activas
 	if water_particles:
@@ -568,17 +686,14 @@ func _orient_hose(direction: Vector2, angle: float):
 
 func switch_weapon():
 	"""Intercambia entre hacha y manguera"""
+	print("🔄 switch_weapon() called - current weapon: ", current_weapon)
 	# Desactivar manguera si está activa
 	if is_using_hose:
 		_deactivate_hose()
 	
 	# Cambiar arma
-	if current_weapon == Weapon.AXE:
-		current_weapon = Weapon.HOSE
-		print("✓ Arma cambiada a: MANGUERA (Carga: ", hose_charge, "%)")
-	else:
-		current_weapon = Weapon.AXE
-		print("✓ Arma cambiada a: HACHA")
+	current_weapon = Weapon.HOSE if current_weapon == Weapon.AXE else Weapon.AXE
+	print("✓ Arma cambiada a: ", "MANGUERA" if current_weapon == Weapon.HOSE else "HACHA")
 	
 	# Actualizar visuales
 	_update_weapon_visuals()
@@ -588,19 +703,16 @@ func switch_weapon():
 
 func _update_weapon_visuals():
 	"""Actualiza los visuales según el arma equipada"""
+	var is_axe_equipped = (current_weapon == Weapon.AXE)
+	var is_hose_equipped = (current_weapon == Weapon.HOSE)
+	
 	if axe_sprite:
-		axe_sprite.visible = (current_weapon == Weapon.AXE)
-	
-	# Mostrar/Ocultar sprite de la manguera
+		axe_sprite.visible = is_axe_equipped
 	if hose_sprite:
-		hose_sprite.visible = (current_weapon == Weapon.HOSE)
-	
-	# Ocultar las partículas de agua cuando no está equipada la manguera
+		hose_sprite.visible = is_hose_equipped
 	if water_particles:
-		if current_weapon == Weapon.HOSE:
-			water_particles.visible = true
-		else:
-			water_particles.visible = false
+		water_particles.visible = is_hose_equipped
+		if not is_hose_equipped:
 			water_particles.emitting = false
 
 # ============================================
@@ -678,8 +790,7 @@ func _deactivate_hose():
 func _update_hose(delta):
 	"""Actualiza el sistema de manguera mientras está activa"""
 	# Consumir carga de agua
-	var safe_drain_rate = hose_drain_rate if hose_drain_rate != null else 10.0
-	reduce_hose_charge(safe_drain_rate * delta)
+	reduce_hose_charge(hose_drain_rate * delta)
 	
 	# Control de sonido de agua (repetir mientras esté activo)
 	if is_using_hose:
@@ -688,54 +799,38 @@ func _update_hose(delta):
 			_play_hose_water_sound()
 			hose_water_timer = hose_water_interval
 	
-	# Calcular daño de agua usando water_pressure
-	var safe_water_pressure = water_pressure if water_pressure != null else 5.0
-	var water_damage = safe_water_pressure * delta
-	
 	# Actualizar dirección de la manguera según hacia dónde mira el personaje
 	_update_hose_direction()
 	
 	# Detectar y apagar fuego con el daño calculado
-	_detect_and_extinguish_fire(water_damage)
+	_detect_and_extinguish_fire(water_pressure * delta)
 	
 	# SI LLEGA A 0: Bloqueo inmediato
 	if hose_charge <= 0:
 		hose_charge = 0
 		manguera_bloqueada = true
-		_play_hose_empty_sound()  # Reproducir sonido de vacío
+		_play_hose_empty_sound()
 		_deactivate_hose()
 		print("⚠️ Manguera agotada. Esperando recarga al 20%...")
 
 func _update_hose_direction():
 	"""Actualiza la dirección de la manguera hacia la posición del mouse"""
-	# Valores seguros para evitar operaciones con null
-	var safe_hose_range = hose_range if hose_range != null else 50
-	var safe_tile_size = tile_size if tile_size != null else 20
-	
-	# Obtener la dirección hacia el mouse
-	var mouse_pos = get_global_mouse_position()
-	var direction = (mouse_pos - global_position).normalized()
-	
-	# Si el mouse está muy cerca, usar dirección por defecto
-	if (mouse_pos - global_position).length() < 10:
+	var direction = current_aim_direction
+	if direction == Vector2.ZERO:
 		direction = Vector2.RIGHT
 	
-	# Calcular el ángulo para el área de colisión
 	var angle = direction.angle()
+	var range_distance = hose_range * tile_size / 2.0
 	
-	# Actualizar posición y rotación del área de colisión de la manguera
+	# Actualizar posición y rotación del área de colisión
 	if hose_area and hose_area.get_child_count() > 0:
 		var collision = hose_area.get_child(0)
-		var range_distance = (safe_hose_range * safe_tile_size) / 2.0
-		
-		# Posicionar el área en la dirección de apuntado
 		collision.position = direction * range_distance
 		collision.rotation = angle
 	
 	# Actualizar dirección del raycast
 	if hose_raycast:
-		hose_raycast.target_position = direction * (safe_hose_range * safe_tile_size)
-		hose_raycast.rotation = 0  # El raycast usa target_position relativo
+		hose_raycast.target_position = direction * hose_range * tile_size
 
 func _detect_and_extinguish_fire(water_amount: float):
 	"""Detecta y apaga el fuego en el área de la manguera"""
@@ -772,14 +867,6 @@ func _try_extinguish_fire(target, water_amount: float):
 			target.extinguish()
 			target.extinguish()
 			emit_signal("fire_extinguished", target)
-		
-		if target.has_method("get_global_position"):
-			_play_water_hit_effect(target.global_position)
-
-func _play_water_hit_effect(_hit_position: Vector2):
-	"""Reproduce efectos visuales cuando el agua golpea algo"""
-	# Aquí puedes instanciar partículas de salpicadura, etc.
-	pass
 
 # ============================================
 # SISTEMA DE MUERTE DEL JUGADOR
@@ -815,10 +902,7 @@ func attack():
 		if axe_hitbox:
 			axe_hitbox.monitoring = true
 
-		# Reproducir la animación del hacha si existe en el AnimatedSprite2D
-		if axe_sprite and axe_sprite.has_method("play") and axe_sprite.sprite_frames and axe_sprite.sprite_frames.has_animation("animacionHacha"):
-			axe_sprite.play("animacionHacha")
-		
+		# Sin animación visual del personaje, solo daño físico del hacha.
 		if animation_player and animation_player.has_animation("axe_attack"):
 			animation_player.play("axe_attack")
 		else:
@@ -832,7 +916,7 @@ func attack():
 		await get_tree().create_timer(0.2).timeout
 		if axe_hitbox:
 			axe_hitbox.monitoring = false
-		
+
 		# Volver a la animación base del hacha (idle) si existe
 		if axe_sprite and axe_sprite.sprite_frames and axe_sprite.sprite_frames.has_animation("hacha"):
 			axe_sprite.play("hacha")
@@ -1001,25 +1085,15 @@ func _on_axe_area_hit(area):
 		elif area.get_parent():
 			_process_attack_target(area.get_parent())
 
-# Getters
+# Getters auxiliares
 func is_parrying() -> bool:
 	return current_axe_state == AxeState.PARRYING
 
 func is_attacking() -> bool:
 	return current_axe_state == AxeState.ATTACKING
 
-func get_hose_charge() -> float:
-	return hose_charge
-
 func can_use_hose() -> bool:
-	# Solo puede usar la manguera si tiene carga Y no está bloqueada
 	return hose_charge > 0.0 and not manguera_bloqueada
-
-func is_hose_active() -> bool:
-	return is_using_hose
-
-func get_current_weapon() -> Weapon:
-	return current_weapon
 
 # Setters
 func set_hose_charge(value: float):
@@ -1062,12 +1136,17 @@ func _update_oxygen_system(delta):
 	if not vivo:
 		return
 	
-	# Detectar si hay enemigos o fuego activos en la escena
-	var enemies = get_tree().get_nodes_in_group("enemy")
-	var minions = get_tree().get_nodes_in_group("minion")
-	var fire_nodes = get_tree().get_nodes_in_group("Fire")
+	# Detectar si hay enemigos o fuego activos con un intervalo (no cada frame)
+	oxygen_scan_timer -= delta
+	if oxygen_scan_timer <= 0.0:
+		oxygen_scan_timer = oxygen_scan_interval
+		had_enemies_or_fire = (
+			get_tree().get_first_node_in_group("enemy") != null
+			or get_tree().get_first_node_in_group("minion") != null
+			or get_tree().get_first_node_in_group("Fire") != null
+		)
 	
-	var has_enemies_or_fire = (enemies.size() > 0 or minions.size() > 0 or fire_nodes.size() > 0)
+	var has_enemies_or_fire = had_enemies_or_fire
 	
 	# Si oxígeno es cero, iniciar contador de muerte
 	if vida_actual <= 0.0:
@@ -1147,7 +1226,8 @@ func _play_random_footstep():
 		footstep_player.stream = selected_sound
 		footstep_player.volume_db = footstep_volume_db
 		footstep_player.play()
-		print("👣 Paso ", random_index + 1, " (Velocidad: ", int(current_speed), " px/s)")
+		if footstep_debug_logs:
+			print("👣 Paso ", random_index + 1, " (Velocidad: ", int(current_speed), " px/s)")
 
 # ============================================
 # SISTEMA DE SONIDOS DE MANGUERA
@@ -1240,19 +1320,7 @@ func _play_fire_attack_sound():
 
 func _play_dash_sound():
 	"""Reproduce el sonido de roll cuando hace un dash"""
-	print("Debug: _play_dash_sound() llamado")
-	print("Debug: dash_sound_player =", dash_sound_player)
-	print("Debug: dash_sound =", dash_sound)
-	
-	if not dash_sound_player:
-		print("ERROR: dash_sound_player es null!")
-		return
-	
-	if not dash_sound:
-		print("ERROR: dash_sound es null!")
-		return
-	
-	dash_sound_player.stream = dash_sound
-	dash_sound_player.volume_db = dash_sound_volume_db
-	dash_sound_player.play()
-	print("💨 ¡Roll! (Reproduciendo sonido a volumen:", dash_sound_volume_db, "db)")
+	if dash_sound_player and dash_sound:
+		dash_sound_player.stream = dash_sound
+		dash_sound_player.volume_db = dash_sound_volume_db
+		dash_sound_player.play()
