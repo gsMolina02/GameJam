@@ -4,6 +4,7 @@ extends CharacterBody2D
 @export var speed: float = 400.0
 @export var screen_margin: int = 8
 @export var clamp_to_viewport := true
+@export var movement_debug_logs: bool = false
 
 # --- Vida / Knockback (from HEAD) ---
 # Salud (por defecto 5 -> personaje principal)
@@ -99,8 +100,8 @@ func mover_personaje(delta):
 	var input_vector = Input.get_vector("left", "right", "up", "down")
 	velocity = input_vector * speed
 	
-	# Debug para diagonal arriba-izquierda
-	if input_vector.x < 0 and input_vector.y < 0:
+	# Debug para movimiento (opcional)
+	if movement_debug_logs and input_vector.x < 0 and input_vector.y < 0:
 		print_debug("⬉ Movimiento diagonal arriba-izquierda detectado")
 		print_debug("  Input:", input_vector, "Speed:", speed)
 		print_debug("  Velocity ANTES:", velocity)
@@ -108,8 +109,8 @@ func mover_personaje(delta):
 	
 	move_and_slide()
 	
-	# Debug DESPUÉS del move_and_slide
-	if input_vector.x < 0 and input_vector.y < 0:
+	# Debug DESPUÉS del move_and_slide (opcional)
+	if movement_debug_logs and input_vector.x < 0 and input_vector.y < 0:
 		print_debug("  Velocity DESPUÉS:", velocity)
 		print_debug("  Position DESPUÉS:", global_position)
 		print_debug("  is_on_wall():", is_on_wall())
@@ -369,16 +370,21 @@ func _update_animation(input_vector: Vector2):
 	_play_first_available(candidates)
 
 func _play_idle_animation():
-	"""Reproduce la animación idle frontal si existe; si no, detiene la animación."""
+	"""Reproduce la animación idle según la última dirección; con fallbacks."""
 	if not animated_sprite:
 		return
 
-	# Intentar idle del set nuevo
+	# Priorizar idle mirando a izquierda/derecha según la última dirección.
+	# Mantiene aliases para escenas antiguas.
 	if animated_sprite.sprite_frames:
-		var played_before := animated_sprite.animation
-		_play_first_available(["AxeIdl", "AxelIdl"])
+		var idle_candidates: Array[String] = []
+		if last_direction.x < 0:
+			idle_candidates = ["AxelIdleFrIzq", "AxeIdleFrIzq", "AxeIdl", "AxelIdl"]
+		else:
+			idle_candidates = ["AxelIdleFrDer", "AxeIdleFrDer", "AxeIdl", "AxelIdl"]
+		var played_idle := _play_first_available(idle_candidates)
 		# Si ninguna idle existe, detener para mantener el último frame
-		if animated_sprite.animation == played_before and animated_sprite.is_playing():
+		if not played_idle and animated_sprite.is_playing():
 			animated_sprite.stop()
 
 func _play_dash_roll_animation():
@@ -421,16 +427,17 @@ func _play_animation(anim_name: String):
 	else:
 		print("Advertencia: Animación '", anim_name, "' no encontrada")
 
-func _play_first_available(names: Array[String]):
+func _play_first_available(names: Array[String]) -> bool:
 	if not animated_sprite or not animated_sprite.sprite_frames:
-		return
+		return false
 	for n in names:
 		if animated_sprite.sprite_frames.has_animation(n):
 			if animated_sprite.animation != n:
 				animated_sprite.play(n)
-			return
+			return true
 	# Si no encontró ninguna, loggear para depurar
 	print("No se encontró ninguna animación en la lista: ", names)
+	return false
 
 
 

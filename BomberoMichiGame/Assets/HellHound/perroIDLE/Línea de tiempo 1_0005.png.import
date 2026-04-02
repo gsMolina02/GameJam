@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cfbfnu4tm4an1"
-path="res://.godot/imported/hacha.png-c9f1090dfa6c12320cc4c620ee9e1009.ctex"
+uid="uid://cb7v6gu2p8pda"
+path="res://.godot/imported/Línea de tiempo 1_0005.png-15558c26b884c730ed5372c1cac76f45.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Hacha y bola de fuego/hacha.png"
-dest_files=["res://.godot/imported/hacha.png-c9f1090dfa6c12320cc4c620ee9e1009.ctex"]
+source_file="res://Assets/HellHound/perroIDLE/Línea de tiempo 1_0005.png"
+dest_files=["res://.godot/imported/Línea de tiempo 1_0005.png-15558c26b884c730ed5372c1cac76f45.ctex"]
 
 [params]
 

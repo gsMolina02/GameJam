@@ -1,0 +1,25 @@
+[gd_scene load_steps=4 format=3 uid="uid://b0mm45y6irpur"]
+
+[ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="1_15rts"]
+[ext_resource type="PackedScene" uid="uid://ctqyigfjk6fuk" path="res://personajes/HellHound/hellhound.tscn" id="2_55m3x"]
+[ext_resource type="Script" uid="uid://cimupq7td4btn" path="res://Scenes/Levels/NewHellLevel/dynamic_cam.gd" id="3_55m3x"]
+
+[node name="PruebaHellHounds" type="Node2D"]
+scale = Vector2(2, 2)
+
+[node name="Hellhound" parent="." instance=ExtResource("2_55m3x")]
+position = Vector2(552, 221.5)
+
+[node name="personajePrincipal" parent="." instance=ExtResource("1_15rts")]
+position = Vector2(130.99976, 186.99988)
+scale = Vector2(0.4267724, 0.5161712)
+
+[node name="Camera2D" type="Camera2D" parent="personajePrincipal"]
+position = Vector2(-18.066597, -133.29529)
+limit_left = -2
+limit_top = -1
+limit_right = 4088
+limit_bottom = 2408
+position_smoothing_enabled = true
+position_smoothing_speed = 6.0
+script = ExtResource("3_55m3x")
