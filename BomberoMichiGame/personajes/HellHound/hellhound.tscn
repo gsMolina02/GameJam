@@ -1,4 +1,4 @@
-[gd_scene load_steps=70 format=3 uid="uid://ctqyigfjk6fuk"]
+[gd_scene load_steps=72 format=3 uid="uid://ctqyigfjk6fuk"]
 
 [ext_resource type="Script" uid="uid://bwv5wborokqox" path="res://personajes/HellHound/hellhound.gd" id="1_vlklh"]
 [ext_resource type="Texture2D" uid="uid://w4yd2yro3gn3" path="res://Assets/HellHound/perroAtaqueQuieto/Línea de tiempo 1_0001.png" id="2_d6uxl"]
@@ -95,7 +95,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"SabuesoAtackIdle",
-"speed": 15.0
+"speed": 13.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -237,7 +237,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"SabuesoMuert",
-"speed": 9.0
+"speed": 7.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -307,20 +307,35 @@ size = Vector2(70.75, 40.75)
 [sub_resource type="CircleShape2D" id="CircleShape2D_0gh2f"]
 radius = 3139.8557
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_health_bg"]
+bg_color = Color(0.13, 0.09, 0.09, 0.95)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_health_fill"]
+bg_color = Color(0.87, 0.16, 0.16, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_vlklh"]
 cull_mode = 1
 polygon = PackedVector2Array(35, -1, -28, 0, -36, 7, 3, 12, 46, 3)
 
 [node name="Hellhound" type="CharacterBody2D"]
+position = Vector2(-2, 2)
 script = ExtResource("1_vlklh")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(2.000001, -31.000004)
-scale = Vector2(0.09044548, 0.08082123)
+scale = Vector2(0.0908904, 0.08559667)
 sprite_frames = SubResource("SpriteFrames_mnpsv")
-animation = &"SabuesoIdle"
+animation = &"SabuesoAtackIdle"
 autoplay = "SabuesoIdle"
-frame_progress = 0.2210668
+frame_progress = 0.5091193
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 visible = false
@@ -328,13 +343,26 @@ position = Vector2(7.625, -20.625)
 shape = SubResource("RectangleShape2D_1hvn7")
 
 [node name="Area2D" type="Area2D" parent="."]
-position = Vector2(6, -36)
+visible = false
+collision_layer = 0
+collision_mask = 3
+monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
-visible = false
-position = Vector2(0, 11)
-scale = Vector2(0.029058978, 0.027231827)
 shape = SubResource("CircleShape2D_0gh2f")
+
+[node name="HealthBar" type="ProgressBar" parent="."]
+z_index = 20
+offset_left = -23.0
+offset_top = -44.0
+offset_right = 20.0
+offset_bottom = -40.0
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_health_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_health_fill")
+max_value = 40.0
+value = 40.0
+show_percentage = false
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="."]
 occluder = SubResource("OccluderPolygon2D_vlklh")
