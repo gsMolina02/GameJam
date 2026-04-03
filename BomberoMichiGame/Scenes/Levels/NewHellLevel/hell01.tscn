@@ -29600,6 +29600,7 @@ sources/3 = SubResource("TileSetAtlasSource_iyvsa")
 [node name="levelNew" type="Node2D"]
 
 [node name="TileMapLayers" type="Node2D" parent="."]
+y_sort_enabled = true
 position = Vector2(134, 63)
 scale = Vector2(2, 2)
 
@@ -29635,8 +29636,8 @@ tile_set = SubResource("TileSet_3venu")
 
 [node name="Hellhound" parent="TileMapLayers" instance=ExtResource("11_3venu")]
 z_index = 20
-position = Vector2(875.5, 406.5)
-scale = Vector2(0.5, 0.5)
+position = Vector2(561.5, 346.5)
+scale = Vector2(0.76934415, 0.7653947)
 
 [node name="HUD" parent="." instance=ExtResource("4_hkfbn")]
 scale = Vector2(0.5, 0.5)

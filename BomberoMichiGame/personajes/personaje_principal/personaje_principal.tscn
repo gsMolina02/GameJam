@@ -810,15 +810,14 @@ autoplay = "AxelIdleFrDer"
 metadata/_edit_group_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-visible = false
-position = Vector2(-7.0086813, 52.998634)
-scale = Vector2(-2.2975502, 0.5290583)
+position = Vector2(-21.708796, 8.701454)
+scale = Vector2(-1.372868, 0.9906442)
 shape = SubResource("CapsuleShape2D_m8rjq")
 metadata/_edit_group_ = true
 
 [node name="Hitbox" type="Area2D" parent="."]
-visible = false
-position = Vector2(1, -1)
+position = Vector2(-25.13596, 8.700263)
+scale = Vector2(1.9932108, 0.5825263)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
@@ -839,13 +838,13 @@ offset = Vector2(-8.662811, -53.667313)
 metadata/_edit_group_ = true
 
 [node name="AxeHitbox" type="Area2D" parent="Axe"]
-position = Vector2(-3425.4194, 610.92303)
-scale = Vector2(1.0019077, 1.0190207)
+position = Vector2(-3433.323, 579.7481)
+scale = Vector2(1.0056263, 0.9891769)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Axe/AxeHitbox"]
 position = Vector2(3512.3857, -836.23)
-scale = Vector2(1.0000004, 1.0000001)
+scale = Vector2(1.015499, 2.1213129)
 shape = SubResource("RectangleShape2D_m8rjq")
 
 [node name="AxePivot" type="Marker2D" parent="Axe"]
@@ -855,6 +854,7 @@ scale = Vector2(6.6075177, 6.106821)
 skew = -0.0013791323
 
 [node name="hose" type="Sprite2D" parent="."]
+visible = false
 z_index = 1
 position = Vector2(92.55942, -67.46257)
 scale = Vector2(0.12778527, 0.06167657)
