@@ -300,12 +300,6 @@ func _setup_hose_system():
 		hose_area.name = "HoseArea"
 		add_child(hose_area)
 		
-		# Configurar la máscara de colisión para que NO detecte al jugador
-		# Asumiendo que el jugador está en la capa 1 (collision_layer = 1)
-		# El HoseArea debería detectar enemigos y fuego, no al jugador
-		hose_area.collision_mask = 0  # Resetear máscara
-		hose_area.set_collision_mask_value(2, true)  # Detectar capa 2 (enemigos/fuego)
-		
 		var collision = CollisionShape2D.new()
 		var shape = RectangleShape2D.new()
 		shape.size = Vector2(safe_hose_range * safe_tile_size, safe_hose_width)
@@ -322,6 +316,12 @@ func _setup_hose_system():
 			if collision.shape:
 				collision.shape.size = Vector2(safe_hose_range * safe_tile_size, safe_hose_width)
 				collision.position = Vector2((safe_hose_range * safe_tile_size) / 2.0, 0) + safe_hose_nozzle_offset
+
+	# Siempre forzar máscara correcta, incluso si HoseArea ya existía.
+	# Capa 1: cuerpos que quedaron en default. Capa 2: enemigos/fuego configurados.
+	hose_area.collision_mask = 0
+	hose_area.set_collision_mask_value(1, true)
+	hose_area.set_collision_mask_value(2, true)
 	
 	if not hose_raycast:
 		hose_raycast = RayCast2D.new()
@@ -873,7 +873,6 @@ func _try_extinguish_fire(target, water_amount: float):
 # ============================================
 func take_damage(amount: float) -> void:
 	"""Recibe daño de enemigos - usa el sistema de vida heredado"""
-	print_debug("Bombero recibió", amount, "de daño!")
 	# Usar el sistema de vida del padre (personaje_base) - ahora acepta float
 	recibir_dano(amount)
 
@@ -976,13 +975,20 @@ func _perform_axe_attack():
 			_process_attack_target(area.get_parent())
 
 func _process_attack_target(target):
+	# Si el hit llegó a un Area2D/child, intentar subir al dueño real del daño.
+	if target and not target.has_method("take_damage") and target.get_parent():
+		var parent_target = target.get_parent()
+		if parent_target:
+			target = parent_target
+
 	# Ignorar al propio jugador - no atacarse a sí mismo
 	if target == self or target.is_in_group("player"):
 		return
 	
 	# Parry de bolas de fuego - destruir proyectiles
-	if target.is_in_group("Fire") or target.is_in_group("enemy"):
-		if target.has_method("queue_free") and (target.has_method("apply_water") or target.has_method("extinguish")):
+	var is_fire_projectile: bool = target.is_in_group("Fire") and (target.has_method("apply_water") or target.has_method("extinguish"))
+	if is_fire_projectile:
+		if target.has_method("queue_free"):
 			# Es una bola de fuego - ¡parry exitoso!
 			print("¡Parry exitoso! Bola de fuego destruida")
 			emit_signal("parry_successful")
@@ -995,7 +1001,11 @@ func _process_attack_target(target):
 		_break_extinguisher_box(target)
 	elif target.has_method("take_damage"):
 		var safe_axe_damage = axe_damage if axe_damage != null else 5
-		target.take_damage(safe_axe_damage)
+		if target.is_in_group("hellhound"):
+			# HellHound distingue fuente de daño para animaciones específicas.
+			target.take_damage(safe_axe_damage, &"hacha")
+		else:
+			target.take_damage(safe_axe_damage)
 	elif target.has_method("break_object"):
 		target.break_object()
 
@@ -1079,8 +1089,8 @@ func _on_axe_hit(body):
 
 func _on_axe_area_hit(area):
 	if current_axe_state == AxeState.ATTACKING:
-		# Procesar el área directamente si es una bola de fuego
-		if area.is_in_group("Fire") or area.is_in_group("enemy"):
+		# Procesar el área directamente solo si es bola de fuego.
+		if area.is_in_group("Fire"):
 			_process_attack_target(area)
 		elif area.get_parent():
 			_process_attack_target(area.get_parent())

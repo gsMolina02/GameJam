@@ -13,6 +13,7 @@ extends CharacterBody2D
 @export var vida_maxima: float = 100.0
 var vida_actual: float = 0.0
 var vivo: bool = true
+var _last_health_percentage: int = 100  # Para rastrear cambios de porcentaje
 
 # Knockback settings: al tocar fuego empujar al personaje fuera y aplicar daño
 @export var knockback_duration: float = 0.12
@@ -129,7 +130,7 @@ func recibir_dano(cantidad: float):
 		return
 	vida_actual = max(0.0, vida_actual - cantidad)
 	emit_signal("vida_actualizada", vida_actual)
-	print(self.name, " - Daño recibido:", cantidad, " Vida:", vida_actual, "/", vida_maxima)
+	_check_health_percentage()
 	if vida_actual <= 0.0:
 		_vencer()
 
@@ -140,7 +141,27 @@ func curar(cantidad: float):
 		return
 	vida_actual = min(vida_maxima, vida_actual + cantidad)
 	emit_signal("vida_actualizada", vida_actual)
-	print(self.name, " - Curado. Vida:", vida_actual)
+	_check_health_percentage()
+
+func _check_health_percentage() -> void:
+	"""Muestra el porcentaje de salud solo cuando cambia de rango (25%, 50%, 75%, 100%)"""
+	var health_percentage: int = int((vida_actual / vida_maxima) * 100)
+	
+	# Determinar rango
+	var current_range: int
+	if health_percentage <= 25:
+		current_range = 25
+	elif health_percentage <= 50:
+		current_range = 50
+	elif health_percentage <= 75:
+		current_range = 75
+	else:
+		current_range = 100
+	
+	# Solo mostrar si cambió el rango
+	if current_range != _last_health_percentage:
+		_last_health_percentage = current_range
+		print("❤️  ", self.name, " - Salud: ", current_range, "%")
 
 func _vencer():
 	vivo = false
