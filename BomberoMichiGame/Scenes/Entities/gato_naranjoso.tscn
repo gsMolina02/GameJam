@@ -56,8 +56,9 @@ animations = [{
 position = Vector2(-394, -197)
 script = ExtResource("1_geexe")
 nombre_gato = "Pelusa"
-mensaje_agradecimiento = "¡Miau! ¡Onii-chan o Salvarme!"
+mensaje_agradecimiento = "¡Purr... creí que no lo lograría! Las llamas me tenían acorralada... ¡eres increíble, bombero! Nunca olvidaré esto."
 mostrar_dialogo_automatico = true
+tipo_poder = "capacidad_manguera"
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(554, 356.00003)
