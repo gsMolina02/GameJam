@@ -1,4 +1,4 @@
-[gd_scene load_steps=186 format=3 uid="uid://bfra7nxi2wetn"]
+[gd_scene load_steps=201 format=3 uid="uid://bfra7nxi2wetn"]
 
 [ext_resource type="Script" uid="uid://c13ihlyh4xher" path="res://personajes/personaje_principal/personaje_principal.gd" id="1_yy08j"]
 [ext_resource type="Texture2D" uid="uid://dapbj8px55ekc" path="res://Assets/AxelEstatico/Derech/final-0001.png" id="2_532fo"]
@@ -178,7 +178,9 @@
 [ext_resource type="Texture2D" uid="uid://o8lc8ewvmrs0" path="res://Assets/AxelBombero/Ciclo de caminado_frente/Izq/final-0016.png" id="135_7gs2n"]
 [ext_resource type="Texture2D" uid="uid://bqcfsbrsfjrvo" path="res://Assets/AxelBombero/Ciclo de caminado_frente/Izq/final-0017.png" id="136_oc8b1"]
 [ext_resource type="Texture2D" uid="uid://d3rjuniudl37t" path="res://Assets/AxelBombero/Ciclo de caminado_frente/Izq/final-0018.png" id="137_sc7yw"]
+[ext_resource type="Texture2D" uid="uid://b6eleyjvnaf0d" path="res://Assets/Water_Blast/Water Blast - End.png" id="180_h4jm7"]
 [ext_resource type="Texture2D" uid="uid://c4afqjv6hujj" path="res://Assets/Hacha y bola de fuego/Hacha_der.png" id="181_3v7jm"]
+[ext_resource type="Texture2D" uid="uid://c2kxrui6xve06" path="res://Assets/Water_Blast/Water Blast - Startup and Infinite.png" id="181_jooco"]
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_fkfoe"]
 polygon = PackedVector2Array(-36.98996, 126.989296, 25.93155, 79.01125, -49.952652, 78.9835)
@@ -790,26 +792,128 @@ size = Vector2(103.796875, 157.71915)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yy08j"]
 size = Vector2(64, 56)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_lw4rg"]
+atlas = ExtResource("180_h4jm7")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hewet"]
+atlas = ExtResource("180_h4jm7")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ujnfd"]
+atlas = ExtResource("180_h4jm7")
+region = Rect2(0, 128, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qckdv"]
+atlas = ExtResource("180_h4jm7")
+region = Rect2(0, 256, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xlfyh"]
+atlas = ExtResource("180_h4jm7")
+region = Rect2(128, 256, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_am54b"]
+atlas = ExtResource("180_h4jm7")
+region = Rect2(128, 128, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_clufn"]
+atlas = ExtResource("180_h4jm7")
+region = Rect2(256, 256, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3v7jm"]
+atlas = ExtResource("180_h4jm7")
+region = Rect2(256, 128, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2ts6c"]
+atlas = ExtResource("181_jooco")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_03dik"]
+atlas = ExtResource("181_jooco")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_at142"]
+atlas = ExtResource("181_jooco")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_61i35"]
+atlas = ExtResource("181_jooco")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_3aix0"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lw4rg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hewet")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ujnfd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qckdv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xlfyh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_am54b")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_clufn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3v7jm")
+}],
+"loop": true,
+"name": &"agua_end",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2ts6c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_03dik")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_at142")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_61i35")
+}],
+"loop": false,
+"name": &"agua_inf",
+"speed": 12.0
+}]
+
 [node name="personajePrincipal" type="CharacterBody2D" groups=["player_main"]]
-position = Vector2(300.00003, 118.99999)
+position = Vector2(762.00006, 363.00003)
 rotation = -0.00036524187
 scale = Vector2(0.8753578, 0.9185894)
 script = ExtResource("1_yy08j")
+hose_nozzle_offset = Vector2(130, 0)
 metadata/_edit_group_ = true
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="."]
+visible = false
 scale = Vector2(1.0000001, 1.0000001)
 occluder = SubResource("OccluderPolygon2D_fkfoe")
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
-position = Vector2(-11.504619, 2.2913892)
-scale = Vector2(0.17986457, 0.16951919)
+position = Vector2(-5.7149353, 7.6183567)
+scale = Vector2(0.18574882, 0.24968486)
 sprite_frames = SubResource("SpriteFrames_acmdk")
 animation = &"AtaqueAxeDer"
 autoplay = "AxelIdleFrDer"
+frame = 1
+frame_progress = 0.46073297
 metadata/_edit_group_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
 position = Vector2(-21.708796, 8.701454)
 scale = Vector2(-1.372868, 0.9906442)
 shape = SubResource("CapsuleShape2D_m8rjq")
@@ -821,11 +925,13 @@ scale = Vector2(1.9932108, 0.5825263)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+visible = false
 shape = SubResource("CapsuleShape2D_m8rjq")
 
 [node name="AttackCooldownTimer" type="Timer" parent="."]
 
 [node name="Axe" type="AnimatedSprite2D" parent="."]
+visible = false
 z_index = 1
 position = Vector2(18.978315, -19.9935)
 rotation = 0.008740753
@@ -854,7 +960,6 @@ scale = Vector2(6.6075177, 6.106821)
 skew = -0.0013791323
 
 [node name="hose" type="Sprite2D" parent="."]
-visible = false
 z_index = 1
 position = Vector2(92.55942, -67.46257)
 scale = Vector2(0.12778527, 0.06167657)
@@ -871,5 +976,14 @@ shape = SubResource("RectangleShape2D_yy08j")
 [node name="HoseRaycast" type="RayCast2D" parent="hose"]
 
 [node name="HosePivot" type="Marker2D" parent="hose"]
-position = Vector2(-885.2511, 1076.0457)
+position = Vector2(-903.2387, 1658.5005)
 scale = Vector2(9.394479, 18.565634)
+
+[node name="WaterJetSprite" type="AnimatedSprite2D" parent="."]
+z_index = 2
+position = Vector2(130, 30)
+rotation = 1.9562457
+sprite_frames = SubResource("SpriteFrames_3aix0")
+animation = &"agua_inf"
+frame = 3
+frame_progress = 0.08953253

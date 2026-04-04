@@ -480,7 +480,7 @@ func _trigger_random_attack() -> void:
 	_is_attacking = true
 	_attack_state = "windup"
 
-	var jump_chance := 0.35
+	var jump_chance: float = 0.35
 	if _is_phase_two():
 		jump_chance = clampf(phase_two_jump_chance, 0.0, 1.0)
 
