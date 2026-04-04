@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cxdenpoxps87s"
-path="res://.godot/imported/SabesoCorriendo01.png-99670e1af83e7c04e5bc5ed46b7738eb.ctex"
+uid="uid://c2kxrui6xve06"
+path="res://.godot/imported/Water Blast - Startup and Infinite.png-32334c25282299c2cc938711af5ae56f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/HellhoundCorriendo/SabesoCorriendo01.png"
-dest_files=["res://.godot/imported/SabesoCorriendo01.png-99670e1af83e7c04e5bc5ed46b7738eb.ctex"]
+source_file="res://Assets/Water_Blast/Water Blast - Startup and Infinite.png"
+dest_files=["res://.godot/imported/Water Blast - Startup and Infinite.png-32334c25282299c2cc938711af5ae56f.ctex"]
 
 [params]
 
