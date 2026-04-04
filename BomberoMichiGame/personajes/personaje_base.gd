@@ -15,6 +15,15 @@ var vida_actual: float = 0.0
 var vivo: bool = true
 var _last_health_percentage: int = 100  # Para rastrear cambios de porcentaje
 
+# i-frames y feedback de daño del jugador principal
+@export var player_iframe_duration: float = 0.45
+@export var player_hit_flash_time: float = 0.12
+@export var player_hit_shake_time: float = 0.10
+@export var player_hit_shake_strength: float = 4.0
+
+var _damage_invulnerable_until_ms: int = 0
+var _is_hit_feedback_playing: bool = false
+
 # Knockback settings: al tocar fuego empujar al personaje fuera y aplicar daño
 @export var knockback_duration: float = 0.12
 @export var knockback_strength: float = 700.0
@@ -128,6 +137,14 @@ func mover_personaje(delta):
 func recibir_dano(cantidad: float):
 	if not vivo:
 		return
+
+	if _is_player_main() and _is_in_damage_iframes():
+		return
+
+	if _is_player_main():
+		_start_damage_iframes()
+		_play_player_hit_feedback()
+
 	vida_actual = max(0.0, vida_actual - cantidad)
 	emit_signal("vida_actualizada", vida_actual)
 	_check_health_percentage()
@@ -174,6 +191,45 @@ func _vencer():
 	# Si es el personaje principal, mostrar pantalla de Game Over
 	if is_in_group("player_main"):
 		_show_death_screen()
+
+func _is_player_main() -> bool:
+	return is_in_group("player_main")
+
+func _is_in_damage_iframes() -> bool:
+	return Time.get_ticks_msec() < _damage_invulnerable_until_ms
+
+func _start_damage_iframes() -> void:
+	var safe_duration: float = max(player_iframe_duration, 0.0)
+	_damage_invulnerable_until_ms = Time.get_ticks_msec() + int(safe_duration * 1000.0)
+
+func _play_player_hit_feedback() -> void:
+	if _is_hit_feedback_playing:
+		return
+
+	_is_hit_feedback_playing = true
+
+	var hit_sprite: AnimatedSprite2D = animated_sprite
+	if hit_sprite == null:
+		hit_sprite = get_node_or_null("AnimatedSprite") as AnimatedSprite2D
+
+	if hit_sprite:
+		hit_sprite.modulate = Color(1.0, 0.45, 0.45, 1.0)
+		var flash_tween: Tween = create_tween()
+		flash_tween.tween_property(hit_sprite, "modulate", Color(1, 1, 1, 1), max(player_hit_flash_time, 0.03))
+
+	var cam: Camera2D = get_viewport().get_camera_2d()
+	if cam:
+		var original_offset: Vector2 = cam.offset
+		var shake_until: int = Time.get_ticks_msec() + int(max(player_hit_shake_time, 0.03) * 1000.0)
+		while Time.get_ticks_msec() < shake_until:
+			cam.offset = original_offset + Vector2(
+				randf_range(-player_hit_shake_strength, player_hit_shake_strength),
+				randf_range(-player_hit_shake_strength, player_hit_shake_strength)
+			)
+			await get_tree().process_frame
+		cam.offset = original_offset
+
+	_is_hit_feedback_playing = false
 
 # --- Detección por Hitbox ---
 func _on_Hitbox_area_entered(area):
