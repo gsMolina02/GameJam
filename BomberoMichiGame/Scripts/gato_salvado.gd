@@ -9,6 +9,8 @@ func _t(key: String) -> String:
 @export var nombre_gato: String = "Miel"
 @export var mensaje_agradecimiento: String = "¡Miau! Gracias por salvarme~"
 @export var mostrar_dialogo_automatico: bool = true
+@export var portrait_texture: Texture2D = null   # Foto del gato para la caja de diálogo
+@export var tipo_poder: String = "resistencia_pulmonar"  # "resistencia_pulmonar" | "capacidad_manguera"
 
 # Referencias
 var dialogo_activo: bool = false
@@ -21,78 +23,95 @@ var animated_sprite: AnimatedSprite2D = null
 var fuego_apagado: bool = false
 var enemigos_derrotados: bool = false
 var dialogo_final_mostrado: bool = false
+var regalo_entregado: bool = false
+var flecha_nodo: Label = null
 
 # Señal para cuando el jugador interactúa
 signal dialogo_iniciado
 signal dialogo_terminado
 
+const INTERACT_RADIUS := 130.0  # píxeles en espacio mundo
+
 func _ready():
-	# Configurar para que funcione durante pausa
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	
-	# Agregar al grupo de gatos salvados
+
 	add_to_group("gatos_salvados")
 	add_to_group("localizable")
 	print("🐱 Gato", nombre_gato, "agregado al grupo 'gatos_salvados'")
 
-	label_interactuar = Label.new()
-	label_interactuar.text = _t("npc.talk")
-	label_interactuar.position = Vector2(-30, -80)
-	label_interactuar.visible = false
-	label_interactuar.add_theme_color_override("font_color", Color.YELLOW)
-	add_child(label_interactuar)
-	
-	# Buscar el AnimatedSprite2D para controlar la animación
+	# Buscar el AnimatedSprite2D primero para poder usarlo en el label
 	if has_node("AnimatedSprite2D"):
 		animated_sprite = $AnimatedSprite2D
 	else:
-		# Buscar en hijos si no está directamente
 		for child in get_children():
 			if child is AnimatedSprite2D:
 				animated_sprite = child
 				break
-	
-	# Buscar el Area2D de interacción (debe estar en la escena)
-	if has_node("InteractionArea"):
-		var area = $InteractionArea
-		area.body_entered.connect(_on_interaction_area_body_entered)
-		area.body_exited.connect(_on_interaction_area_body_exited)
-	
+
+	# Registrar tecla E como acción de interacción con gatos
+	if not InputMap.has_action("interact_cat"):
+		InputMap.add_action("interact_cat")
+	# Agregar E si no está ya
+	var tiene_e := false
+	for ev in InputMap.action_get_events("interact_cat"):
+		if ev is InputEventKey and ev.keycode == KEY_E:
+			tiene_e = true
+			break
+	if not tiene_e:
+		var e_key := InputEventKey.new()
+		e_key.keycode = KEY_E
+		InputMap.action_add_event("interact_cat", e_key)
+
+	# Label "[E] Hablar" posicionado encima del sprite visual
+	label_interactuar = Label.new()
+	label_interactuar.text = "[E] " + _t("npc.talk").substr(4)  # quitar "[F] "
+	label_interactuar.visible = false
+	label_interactuar.add_theme_color_override("font_color", Color.YELLOW)
+	label_interactuar.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+	label_interactuar.add_theme_constant_override("outline_size", 3)
+	label_interactuar.add_theme_font_size_override("font_size", 14)
+	if animated_sprite:
+		label_interactuar.position = animated_sprite.position + Vector2(-28, -50)
+	else:
+		label_interactuar.position = Vector2(-28, -80)
+	add_child(label_interactuar)
+
 	print("🐱 Gato", nombre_gato, "salvado apareció en la escena")
-	
-	# Solo mostrar diálogo automático si está configurado
-	# El RoomManager puede desactivar esto para controlarlo manualmente
+
 	if mostrar_dialogo_automatico:
 		await get_tree().create_timer(0.5).timeout
 		_mostrar_dialogo()
 
 func _physics_process(_delta: float) -> void:
-	# Verificar si se completó el rescate (fuego apagado y enemigos derrotados)
+	# Verificar si se completó el rescate
 	if fuego_apagado and enemigos_derrotados and not dialogo_final_mostrado:
 		_detener_animacion()
-		_mostrar_dialogo_final()
+		_crear_flecha_interaccion()
 		dialogo_final_mostrado = true
-	
-	# Detectar si el jugador presiona F cuando está cerca
-	if jugador_cerca and not dialogo_activo:
-		if Input.is_action_just_pressed("interact"):
-			_mostrar_dialogo()
+
+	# Detectar proximidad del jugador por distancia (no depende del Area2D)
+	var ref_pos = animated_sprite.global_position if animated_sprite else global_position
+	var players = get_tree().get_nodes_in_group("player_main")
+	var estaba_cerca := jugador_cerca
+	jugador_cerca = false
+	for p in players:
+		if ref_pos.distance_to(p.global_position) <= INTERACT_RADIUS:
+			jugador_cerca = true
+			break
+
+	# Label solo aparece si el rescate fue completado y el regalo aún no fue entregado
+	var puede_interactuar = dialogo_final_mostrado and not regalo_entregado
+	if label_interactuar:
+		label_interactuar.visible = jugador_cerca and not dialogo_activo and puede_interactuar
+
+	# Interacción con tecla E — solo si el rescate ya ocurrió
+	if jugador_cerca and not dialogo_activo and puede_interactuar:
+		if Input.is_action_just_pressed("interact_cat"):
+			_mostrar_dialogo_rescate()
 
 func update_texts() -> void:
 	if label_interactuar:
-		label_interactuar.text = _t("npc.talk")
-
-func _on_interaction_area_body_entered(body: Node2D) -> void:
-	if body.is_in_group("player_main"):
-		jugador_cerca = true
-		if label_interactuar and not dialogo_activo:
-			label_interactuar.visible = true
-
-func _on_interaction_area_body_exited(body: Node2D) -> void:
-	if body.is_in_group("player_main"):
-		jugador_cerca = false
-		if label_interactuar:
-			label_interactuar.visible = false
+		label_interactuar.text = "[E] " + _t("npc.talk").substr(4)
 
 func _mostrar_dialogo() -> void:
 	if dialogo_activo:
@@ -164,7 +183,7 @@ func _crear_dialogo_ui() -> void:
 	
 	# Label del nombre
 	var nombre_label = Label.new()
-	nombre_label.text = "🐱 " + nombre_gato + ":"
+	nombre_label.text = " " + nombre_gato + ":"
 	nombre_label.add_theme_color_override("font_color", Color(1, 0.6, 0))  # Naranja
 	nombre_label.add_theme_font_size_override("font_size", 18)
 	vbox.add_child(nombre_label)
@@ -246,88 +265,279 @@ func marcar_enemigos_derrotados() -> void:
 	enemigos_derrotados = true
 	print("⚔️ Enemigos derrotados registrados en gato", nombre_gato)
 
-func _mostrar_dialogo_final() -> void:
-	"""Muestra el diálogo final de agradecimiento cuando todo está completado"""
-	print("💬 Mostrando diálogo FINAL del gato:", nombre_gato)
-	
-	# Limpiar cualquier diálogo anterior que pueda estar en la escena
+func _crear_flecha_interaccion() -> void:
+	"""Flecha verde animada encima del gato que indica que puede interactuar"""
+	if flecha_nodo and is_instance_valid(flecha_nodo):
+		return
+	if regalo_entregado:
+		return
+
+	flecha_nodo = Label.new()
+	flecha_nodo.text = "▼"
+	flecha_nodo.add_theme_color_override("font_color", Color(0.15, 0.95, 0.25))
+	flecha_nodo.add_theme_color_override("font_outline_color", Color(0.0, 0.25, 0.0))
+	flecha_nodo.add_theme_constant_override("outline_size", 4)
+	flecha_nodo.add_theme_font_size_override("font_size", 22)
+
+	var base_pos: Vector2
+	if animated_sprite:
+		base_pos = animated_sprite.position + Vector2(-6, -35)
+	else:
+		base_pos = Vector2(-6, -80)
+
+	flecha_nodo.position = base_pos
+	add_child(flecha_nodo)
+
+	# Animación de rebote suave
+	var tween = create_tween()
+	tween.set_loops()
+	tween.tween_property(flecha_nodo, "position:y", base_pos.y - 12, 0.45).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(flecha_nodo, "position:y", base_pos.y,      0.45).set_ease(Tween.EASE_IN_OUT)
+	print("✅ Flecha de interacción creada encima del gato")
+
+func _mostrar_dialogo_rescate() -> void:
+	"""Caja de pergamino con cat.rescue_message; entrega el poder y muestra notificación"""
+	if dialogo_activo:
+		return
+
 	_limpiar_dialogos_anteriores()
-	
 	dialogo_activo = true
 	emit_signal("dialogo_iniciado")
-	
-	# Crear UI de diálogo final
+
 	var canvas_layer = CanvasLayer.new()
-	canvas_layer.name = "DialogoFinalCanvasLayer"
+	canvas_layer.name = "DialogoRescateCanvasLayer"
 	canvas_layer.layer = 100
 	canvas_layer.process_mode = Node.PROCESS_MODE_ALWAYS
-	canvas_layer.add_to_group("dialogo_gato")  # Agregar al grupo para limpieza
-	
-	dialogo_ui = Control.new()
-	dialogo_ui.name = "DialogoFinalGato"
-	dialogo_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
-	canvas_layer.add_child(dialogo_ui)
-	
-	# Panel del diálogo (encima del gato)
-	var panel = Panel.new()
-	panel.custom_minimum_size = Vector2(450, 120)
-	# Posicionar encima del gato
-	var pos_gato = global_position
-	panel.position = Vector2(pos_gato.x - 225, pos_gato.y - 170)  # Encima del gato
-	panel.size = Vector2(450, 120)
-	
-	# Estilo del panel - fondo semi-transparente oscuro
-	var style_box = StyleBoxFlat.new()
-	style_box.bg_color = Color(0.05, 0.15, 0.05, 0.9)  # Verde muy oscuro (rescate exitoso)
-	style_box.border_color = Color(0.2, 1, 0.3, 1)  # Verde brillante (éxito)
-	style_box.border_width_left = 4
-	style_box.border_width_right = 4
-	style_box.border_width_top = 4
-	style_box.border_width_bottom = 4
-	style_box.corner_radius_top_left = 12
-	style_box.corner_radius_top_right = 12
-	style_box.corner_radius_bottom_left = 12
-	style_box.corner_radius_bottom_right = 12
-	panel.add_theme_stylebox_override("panel", style_box)
-	dialogo_ui.add_child(panel)
-	
-	# Contenedor vertical
-	var vbox = VBoxContainer.new()
-	vbox.position = Vector2(15, 15)
-	vbox.custom_minimum_size = Vector2(420, 90)
-	panel.add_child(vbox)
-	
-	# Label del nombre
-	var nombre_label = Label.new()
-	nombre_label.text = "🐱✨ " + nombre_gato
-	nombre_label.add_theme_color_override("font_color", Color(0.3, 1, 0.4))  # Verde claro
-	nombre_label.add_theme_font_size_override("font_size", 20)
-	nombre_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(nombre_label)
-	
-	# Espaciador
-	var spacer1 = Control.new()
-	spacer1.custom_minimum_size = Vector2(0, 8)
-	vbox.add_child(spacer1)
-	
-	# Label del mensaje final
-	var mensaje_label = Label.new()
-	mensaje_label.text = "¡Gracias por salvarme! 💕\n¡Eres mi héroe!"
-	mensaje_label.add_theme_color_override("font_color", Color.WHITE)
-	mensaje_label.add_theme_font_size_override("font_size", 16)
-	mensaje_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	mensaje_label.custom_minimum_size.x = 420
-	mensaje_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(mensaje_label)
-	
-	# Agregar a la escena
+	canvas_layer.add_to_group("dialogo_gato")
+
+	var control = Control.new()
+	control.set_anchors_preset(Control.PRESET_FULL_RECT)
+	canvas_layer.add_child(control)
+
+	var vp = get_viewport().get_visible_rect().size
+
+	const BOX_H      := 120.0
+	const BOX_W      := 620.0
+	const BANNER_H   := 28.0
+	const PORTRAIT_W := 90.0
+	var   box_x       = (vp.x - BOX_W) * 0.5
+
+	var box = Panel.new()
+	box.position = Vector2(box_x, vp.y - BOX_H - 10.0)
+	box.size     = Vector2(BOX_W, BOX_H)
+	var pstyle = StyleBoxFlat.new()
+	pstyle.bg_color                   = Color(0.86, 0.77, 0.57, 0.97)
+	pstyle.border_color               = Color(0.42, 0.25, 0.07)
+	pstyle.border_width_left          = 3
+	pstyle.border_width_right         = 3
+	pstyle.border_width_top           = 3
+	pstyle.border_width_bottom        = 3
+	pstyle.corner_radius_top_left     = 10
+	pstyle.corner_radius_top_right    = 10
+	pstyle.corner_radius_bottom_left  = 10
+	pstyle.corner_radius_bottom_right = 10
+	pstyle.shadow_color  = Color(0, 0, 0, 0.45)
+	pstyle.shadow_size   = 6
+	pstyle.shadow_offset = Vector2(2, 3)
+	box.add_theme_stylebox_override("panel", pstyle)
+	control.add_child(box)
+
+	var banner = Panel.new()
+	banner.position = Vector2(0, 0)
+	banner.size     = Vector2(BOX_W, BANNER_H)
+	var bstyle = StyleBoxFlat.new()
+	bstyle.bg_color                   = Color(0.22, 0.12, 0.03, 0.96)
+	bstyle.corner_radius_top_left     = 10
+	bstyle.corner_radius_top_right    = 10
+	bstyle.corner_radius_bottom_left  = 0
+	bstyle.corner_radius_bottom_right = 0
+	banner.add_theme_stylebox_override("panel", bstyle)
+	box.add_child(banner)
+
+	var lbl_name = Label.new()
+	lbl_name.text = "  " + nombre_gato
+	lbl_name.set_anchors_preset(Control.PRESET_FULL_RECT)
+	lbl_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl_name.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
+	lbl_name.add_theme_color_override("font_color", Color(1.0, 0.87, 0.45))
+	lbl_name.add_theme_font_size_override("font_size", 15)
+	banner.add_child(lbl_name)
+
+	var portrait_rect = TextureRect.new()
+	portrait_rect.position     = Vector2(8, BANNER_H + 6)
+	portrait_rect.size         = Vector2(PORTRAIT_W, BOX_H - BANNER_H - 12)
+	portrait_rect.expand_mode  = TextureRect.EXPAND_IGNORE_SIZE
+	portrait_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	if portrait_texture:
+		portrait_rect.texture = portrait_texture
+	elif animated_sprite and animated_sprite.sprite_frames:
+		portrait_rect.texture = animated_sprite.sprite_frames.get_frame_texture(
+			animated_sprite.animation, 0)
+	else:
+		var fallback = load("res://Assets/gatos/GatoGris_0000.png")
+		if fallback:
+			portrait_rect.texture = fallback
+	box.add_child(portrait_rect)
+
+	var msg_x = PORTRAIT_W + 14
+	var msg_margin = MarginContainer.new()
+	msg_margin.position = Vector2(msg_x, BANNER_H)
+	msg_margin.size     = Vector2(BOX_W - msg_x - 6, BOX_H - BANNER_H)
+	msg_margin.add_theme_constant_override("margin_left",   8)
+	msg_margin.add_theme_constant_override("margin_right",  8)
+	msg_margin.add_theme_constant_override("margin_top",    10)
+	msg_margin.add_theme_constant_override("margin_bottom", 10)
+	box.add_child(msg_margin)
+
+	var lbl_msg = Label.new()
+	lbl_msg.text                = mensaje_agradecimiento
+	lbl_msg.autowrap_mode       = TextServer.AUTOWRAP_WORD_SMART
+	lbl_msg.vertical_alignment  = VERTICAL_ALIGNMENT_CENTER
+	lbl_msg.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	lbl_msg.add_theme_color_override("font_color", Color(0.14, 0.07, 0.02))
+	lbl_msg.add_theme_font_size_override("font_size", 14)
+	msg_margin.add_child(lbl_msg)
+
+	var arrow_lbl = Label.new()
+	arrow_lbl.text     = "▼"
+	arrow_lbl.position = Vector2(BOX_W - 24, BOX_H - 22)
+	arrow_lbl.add_theme_color_override("font_color", Color(0.42, 0.25, 0.07, 0.8))
+	arrow_lbl.add_theme_font_size_override("font_size", 13)
+	box.add_child(arrow_lbl)
+
 	get_tree().root.add_child(canvas_layer)
-	print("✅ Diálogo FINAL agregado a la pantalla")
-	
-	# Cerrar automáticamente después de 3 segundos
-	# Usar un Timer en lugar de await para evitar problemas si el nodo se elimina
-	var timer = get_tree().create_timer(3.0)
-	timer.timeout.connect(func(): 
+
+	# Entregar poder inmediatamente al interactuar
+	_entregar_regalo()
+
+	var timer = get_tree().create_timer(5.0)
+	timer.timeout.connect(func():
 		if is_instance_valid(canvas_layer):
 			_cerrar_dialogo(canvas_layer)
+		var clave_mensaje = "cat.gift_message_" + tipo_poder
+		_mostrar_notificacion_pantalla(_t(clave_mensaje))
 	)
+
+func _entregar_regalo() -> void:
+	"""Aplica el poder del gato al jugador según tipo_poder, oculta la flecha"""
+	if regalo_entregado:
+		return
+	regalo_entregado = true
+
+	if flecha_nodo and is_instance_valid(flecha_nodo):
+		flecha_nodo.queue_free()
+		flecha_nodo = null
+
+	var players = get_tree().get_nodes_in_group("player_main")
+	if players.size() == 0:
+		return
+	var player = players[0]
+
+	match tipo_poder:
+		"resistencia_pulmonar":
+			if player.has_method("aumentar_resistencia_pulmonar"):
+				player.aumentar_resistencia_pulmonar()
+				print("💨 Resistencia pulmonar aumentada")
+		"capacidad_manguera":
+			if player.has_method("mejorar_manguera"):
+				player.mejorar_manguera()
+				print("💧 Manguera mejorada")
+
+func _mostrar_notificacion_pantalla(texto: String) -> void:
+	"""Notificación flotante dorada centrada en pantalla con el mensaje del poder recibido"""
+	var vp = get_viewport().get_visible_rect().size
+	var pw := 460.0
+
+	var cl = CanvasLayer.new()
+	cl.layer = 110
+	cl.process_mode = Node.PROCESS_MODE_ALWAYS
+
+	# Raíz: Control que ocupa toda la pantalla
+	var root_ctrl = Control.new()
+	root_ctrl.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root_ctrl.modulate = Color(1, 1, 1, 0)
+	cl.add_child(root_ctrl)
+
+	# Contenedor: centrado horizontalmente, justo debajo del HUD (top-center)
+	var container = VBoxContainer.new()
+	container.custom_minimum_size = Vector2(pw, 0)
+	container.position = Vector2((vp.x - pw) * 0.5, 20.0)
+	root_ctrl.add_child(container)
+
+	# --- Borde dorado exterior (Panel que envuelve todo el VBox) ---
+	var outer = Panel.new()
+	var ostyle = StyleBoxFlat.new()
+	ostyle.bg_color                   = Color(0.72, 0.55, 0.05, 1.0)
+	ostyle.corner_radius_top_left     = 12
+	ostyle.corner_radius_top_right    = 12
+	ostyle.corner_radius_bottom_left  = 12
+	ostyle.corner_radius_bottom_right = 12
+	ostyle.shadow_color  = Color(0.9, 0.7, 0.0, 0.55)
+	ostyle.shadow_size   = 16
+	ostyle.shadow_offset = Vector2(0, 0)
+	ostyle.content_margin_left   = 4
+	ostyle.content_margin_right  = 4
+	ostyle.content_margin_top    = 4
+	ostyle.content_margin_bottom = 4
+	outer.add_theme_stylebox_override("panel", ostyle)
+	outer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	container.add_child(outer)
+
+	# --- Fondo oscuro interior con VBoxContainer para el contenido ---
+	var inner_vbox = VBoxContainer.new()
+	inner_vbox.add_theme_constant_override("separation", 6)
+	var inner_style = StyleBoxFlat.new()
+	inner_style.bg_color                   = Color(0.07, 0.05, 0.02, 0.97)
+	inner_style.corner_radius_top_left     = 9
+	inner_style.corner_radius_top_right    = 9
+	inner_style.corner_radius_bottom_left  = 9
+	inner_style.corner_radius_bottom_right = 9
+	inner_style.content_margin_left   = 20
+	inner_style.content_margin_right  = 20
+	inner_style.content_margin_top    = 14
+	inner_style.content_margin_bottom = 14
+	inner_vbox.add_theme_stylebox_override("panel", inner_style)
+	# Usar un PanelContainer para aplicar el estilo al VBox
+	var inner_panel = PanelContainer.new()
+	inner_panel.add_theme_stylebox_override("panel", inner_style)
+	inner_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	outer.add_child(inner_panel)
+	inner_panel.add_child(inner_vbox)
+
+	# Título
+	var title_lbl = Label.new()
+	title_lbl.text = "— PODER OBTENIDO —"
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_lbl.add_theme_color_override("font_color", Color(1.0, 0.88, 0.25))
+	title_lbl.add_theme_color_override("font_outline_color", Color(0.2, 0.10, 0.0, 1.0))
+	title_lbl.add_theme_constant_override("outline_size", 3)
+	title_lbl.add_theme_font_size_override("font_size", 20)
+	inner_vbox.add_child(title_lbl)
+
+	# Separador dorado
+	var sep = ColorRect.new()
+	sep.color = Color(1.0, 0.80, 0.10, 0.5)
+	sep.custom_minimum_size = Vector2(0, 1)
+	sep.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	inner_vbox.add_child(sep)
+
+	# Texto del poder
+	var lbl = Label.new()
+	lbl.text = texto
+	lbl.horizontal_alignment  = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.autowrap_mode         = TextServer.AUTOWRAP_WORD_SMART
+	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lbl.add_theme_color_override("font_color", Color(1.0, 0.97, 0.88))
+	lbl.add_theme_color_override("font_outline_color", Color(0.1, 0.06, 0.0, 1.0))
+	lbl.add_theme_constant_override("outline_size", 2)
+	lbl.add_theme_font_size_override("font_size", 15)
+	inner_vbox.add_child(lbl)
+
+	get_tree().root.add_child(cl)
+
+	# Fade in → esperar → fade out → eliminar
+	var tw = cl.create_tween()
+	tw.tween_property(root_ctrl, "modulate", Color(1, 1, 1, 1), 0.5).set_ease(Tween.EASE_OUT)
+	tw.tween_interval(3.5)
+	tw.tween_property(root_ctrl, "modulate", Color(1, 1, 1, 0), 0.6)
+	tw.tween_callback(cl.queue_free)
