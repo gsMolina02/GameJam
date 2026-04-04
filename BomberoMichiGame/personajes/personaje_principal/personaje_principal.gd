@@ -24,17 +24,17 @@ var last_mouse_button_time: float = 0.0
 @export var parry_cooldown_time = 0.1
 
 # Propiedades de la manguera
-@export var hose_range = 50  # Alcance en cuadros (tiles) - AUMENTADO
+@export var hose_range = 15  # Alcance en cuadros (tiles) - Reducido para que coincida con alcance real de partículas (~300px)
 @export var tile_size = 20  # Tamaño de cada cuadro en píxeles
-@export var hose_width = 40  # Ancho del chorro de agua
+@export var hose_width = 30  # Ancho del chorro de agua - Reducido para mejor precisión
 @export var hose_drain_rate = 4.0  # Carga consumida por segundo (reducida para mayor duración)
 @export var water_pressure = 10.0  # Daño por segundo al fuego (ajustado para apagar en 0.5s)
 @export var hose_origin_offset = Vector2(50, 0)  # Punto de origen del agua
 @export var hose_nozzle_offset = Vector2(130, 30)  # Punta de la manguera (boquilla)
 @export var water_recharge_rate = 3.0  # Cantidad de agua que se recarga por segundo
 @export var water_recharge_on_box = 20.0  # Cantidad de agua al romper una caja
-@export var aim_deadzone_px: float = 22.0  # Evita cambios bruscos cuando el mouse esta sobre el jugador
-@export var aim_smoothing_speed: float = 18.0  # Sensacion tipo twin-stick: alto = mas responsivo
+@export var aim_deadzone_px: float = 8.0  # Deadzone menor para evitar sensacion pegajosa al apuntar
+@export var aim_smoothing_speed: float = 24.0  # Mas responsivo para seguir mejor el mouse
 
 # Propiedades del oxígeno (sistema de barra de vida mejorado)
 @export var oxygen_loss_rate = 1.0  # Pérdida de oxígeno por segundo en condiciones normales
@@ -126,6 +126,7 @@ var fire_sound_player: AudioStreamPlayer
 @onready var hose_area = get_node_or_null("HoseArea")  # Area2D para detectar fuego
 @onready var hose_raycast = get_node_or_null("HoseRaycast")  # RayCast2D para dirección
 @onready var water_particles = get_node_or_null("WaterParticles")  # Partículas de agua (opcional)
+@onready var water_jet_sprite = get_node_or_null("WaterJetSprite")  # Sprite animado del chorro de agua
 var axe_base_scale: Vector2 = Vector2.ONE
 var hose_base_scale: Vector2 = Vector2.ONE
 var axe_pivot_base_position: Vector2 = Vector2.ZERO
@@ -244,6 +245,9 @@ func _ready():
 
 func _ensure_weapon_pivots() -> void:
 	"""Crea pivotes si faltan y reubica las armas para rotarlas de forma estable."""
+	var axe_pivot_was_nested := false
+	var hose_pivot_was_nested := false
+
 	# Buscar pivotes existentes en cualquier nivel (por si quedaron como hijos de Axe/hose).
 	if not axe_pivot:
 		axe_pivot = find_child("AxePivot", true, false) as Marker2D
@@ -262,9 +266,24 @@ func _ensure_weapon_pivots() -> void:
 
 	# Si el pivote está dentro del sprite (configuración invertida), sácalo al root.
 	if axe_sprite and axe_pivot and axe_sprite.is_ancestor_of(axe_pivot):
+		axe_pivot_was_nested = true
 		axe_pivot.reparent(self, true)
 	if hose_sprite and hose_pivot and hose_sprite.is_ancestor_of(hose_pivot):
+		hose_pivot_was_nested = true
 		hose_pivot.reparent(self, true)
+
+	if axe_pivot:
+		axe_pivot.scale = Vector2.ONE
+		axe_pivot.skew = 0.0
+	if hose_pivot:
+		hose_pivot.scale = Vector2.ONE
+		hose_pivot.skew = 0.0
+
+	# Si venian con transformaciones corruptas por estar anidados, normalizar posiciones base.
+	if axe_pivot and (axe_pivot_was_nested or axe_pivot.position.length() > 300.0):
+		axe_pivot.position = Vector2(20.0, -4.0)
+	if hose_pivot and (hose_pivot_was_nested or hose_pivot.position.length() > 300.0):
+		hose_pivot.position = Vector2(18.0, -2.0)
 
 	if axe_sprite and axe_sprite.get_parent() != axe_pivot:
 		axe_sprite.reparent(axe_pivot, true)
@@ -343,48 +362,66 @@ func _setup_hose_system():
 		
 		# Configurar propiedades de las partículas
 		water_particles.emitting = false
-		water_particles.amount = 80
-		water_particles.lifetime = 0.9
+		water_particles.amount = 120  # Más partículas para mejor densidad
+		water_particles.lifetime = 1.2  # Más tiempo de vida para mejor animación
 		water_particles.speed_scale = 1.0
 		
 		# Dirección y velocidad
 		water_particles.direction = Vector2(1, 0)
-		water_particles.spread = 10.0
-		water_particles.initial_velocity_min = 350.0
-		water_particles.initial_velocity_max = 600.0
+		water_particles.spread = 20.0  # Mayor dispersión para efecto más disperso
+		water_particles.initial_velocity_min = 300.0
+		water_particles.initial_velocity_max = 550.0
 		
-		# Gravedad
-		water_particles.gravity = Vector2(0, 60)
-		water_particles.damping_min = 6.0
-		water_particles.damping_max = 12.0
+		# Gravedad y física
+		water_particles.gravity = Vector2(0, 150)  # Mayor gravedad para caída más rápida
+		water_particles.damping_min = 8.0
+		water_particles.damping_max = 15.0
 		
-		# Apariencia
-		water_particles.scale_amount_min = 6.0
-		water_particles.scale_amount_max = 10.0
-		water_particles.color = Color(0.3, 0.7, 1.0, 0.8)  # Azul agua
+		# Apariencia - Color azul más saturado como el sprite
+		water_particles.scale_amount_min = 4.0
+		water_particles.scale_amount_max = 8.0
+		water_particles.color = Color(0.2, 0.6, 1.0, 0.9)  # Azul más saturado y brillante
+		
+		# Variación de color para más vitalidad
+		water_particles.color_initial_ramp = Gradient.new()
 		
 		# Emisión en rectángulo
 		water_particles.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
 		# Pequeño rectángulo en la boquilla
-		water_particles.emission_rect_extents = Vector2(2, 4)
+		water_particles.emission_rect_extents = Vector2(3, 6)
 		
 		# Posición inicial en la boquilla de la manguera
 		water_particles.position = safe_hose_nozzle_offset
 		water_particles.visible = true  # Visible al inicio (manguera equipada)
+		
+		# Sincronizar sprite del agua
+		if water_jet_sprite:
+			water_jet_sprite.position = safe_hose_nozzle_offset
+			water_jet_sprite.rotation = 0.0
 		
 		print("Partículas de agua creadas automáticamente")
 	else:
 		# Actualizar configuración para mayor alcance
 		water_particles.emitting = false
 		water_particles.visible = true  # Visible al inicio
-		water_particles.lifetime = 0.9
-		water_particles.initial_velocity_min = 350.0
-		water_particles.initial_velocity_max = 600.0
-		water_particles.gravity = Vector2(0, 60)
-		water_particles.damping_min = 6.0
-		water_particles.damping_max = 12.0
-		water_particles.emission_rect_extents = Vector2(2, 4)
+		water_particles.lifetime = 1.2
+		water_particles.initial_velocity_min = 300.0
+		water_particles.initial_velocity_max = 550.0
+		water_particles.gravity = Vector2(0, 150)
+		water_particles.damping_min = 8.0
+		water_particles.damping_max = 15.0
+		water_particles.spread = 20.0
+		water_particles.amount = 120
+		water_particles.scale_amount_min = 4.0
+		water_particles.scale_amount_max = 8.0
+		water_particles.color = Color(0.2, 0.6, 1.0, 0.9)
+		water_particles.emission_rect_extents = Vector2(3, 6)
 		water_particles.position = safe_hose_nozzle_offset
+		
+		# Sincronizar sprite del agua
+		if water_jet_sprite:
+			water_jet_sprite.position = safe_hose_nozzle_offset
+			water_jet_sprite.rotation = 0.0
 
 func _physics_process(delta):
 	# Si el personaje está muerto, no procesar nada
@@ -646,10 +683,8 @@ func _orient_axe(direction: Vector2, angle: float):
 
 func _orient_hose(direction: Vector2, angle: float):
 	"""Orienta la manguera según la dirección del mouse con volteo visual"""
-	var base_offset = 60.0  # Un poco más lejos que el hacha
-	
-	# Calcular posición de la manguera
-	var hose_position = hose_pivot_base_position + direction * base_offset + Vector2(0, 15.0) + hose_pivot_extra_offset
+	# Mantener pivote fijo cerca de la mano para que no "orbite" alrededor del cuerpo.
+	var hose_position = hose_pivot_base_position + hose_pivot_extra_offset
 
 	if hose_pivot:
 		hose_pivot.position = hose_position
@@ -675,10 +710,19 @@ func _orient_hose(direction: Vector2, angle: float):
 	
 	# Actualizar también la dirección de las partículas de agua si están activas
 	if water_particles:
-		# Posicionar las partículas en la punta de la manguera
-		var nozzle_offset = direction * (base_offset + 30.0)
+		# Posicionar las partículas en la punta real de la manguera segun rotacion actual.
+		var nozzle_offset = hose_nozzle_offset.rotated(angle)
 		water_particles.position = nozzle_offset
 		water_particles.direction = direction
+		
+		# Sincronizar sprite del agua para que siga la misma posición y rotación
+		if water_jet_sprite:
+			water_jet_sprite.position = nozzle_offset
+			# Sumar PI/2 para compensar la orientación natural del sprite (dibujado verticalmente)
+			water_jet_sprite.rotation = angle + PI/2
+			
+			# Usar flip_h para volteo horizontal según dirección del personaje
+			water_jet_sprite.flip_h = direction.x < 0
 
 # ============================================
 # SISTEMA DE INTERCAMBIO DE ARMAS
@@ -757,6 +801,13 @@ func _activate_hose():
 	else:
 		print("ERROR: WaterParticles no encontrado!")
 	
+	# Activar sprite del agua y su animación
+	if water_jet_sprite:
+		water_jet_sprite.visible = true
+		water_jet_sprite.frame = 0  # Empezar desde el primer frame
+		water_jet_sprite.play("agua_inf")
+		print("✓ Animación de agua iniciada (se mantendrá en último frame)")
+	
 	print("Manguera activada - Carga: ", hose_charge, "%")
 
 func _deactivate_hose():
@@ -786,6 +837,12 @@ func _deactivate_hose():
 	# Desactivar partículas de agua
 	if water_particles:
 		water_particles.emitting = false
+	
+	# Desactivar sprite del agua
+	if water_jet_sprite:
+		water_jet_sprite.stop()
+		water_jet_sprite.frame = 0  # Resetear al primer frame
+		water_jet_sprite.visible = false
 
 func _update_hose(delta):
 	"""Actualiza el sistema de manguera mientras está activa"""
