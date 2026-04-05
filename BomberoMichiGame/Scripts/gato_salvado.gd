@@ -88,6 +88,8 @@ func _physics_process(_delta: float) -> void:
 		_detener_animacion()
 		_crear_flecha_interaccion()
 		dialogo_final_mostrado = true
+		# ✅ Marcar como rescatado apenas se completan las condiciones		GameManager.marcar_gato_rescatado(nombre_gato)
+		print("✅ ¡OSIRIS RESCATADO! Puerta desbloqueada")
 
 	# Detectar proximidad del jugador por distancia (no depende del Area2D)
 	var ref_pos = animated_sprite.global_position if animated_sprite else global_position
