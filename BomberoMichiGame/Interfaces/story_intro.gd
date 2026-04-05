@@ -71,7 +71,7 @@ func show_page(page_index: int):
 	var page_data = story_pages[current_page]
 	var texture = load(page_data["image"])
 	if texture:
-		$HBoxContainer/StoryImage.texture = texture
+		$StoryImage.texture = texture
 	else:
 		push_warning("No se pudo cargar la imagen: " + page_data["image"])
 	
@@ -80,7 +80,7 @@ func show_page(page_index: int):
 	await $AnimationPlayer.animation_finished
 	
 	# Iniciar texto vacío
-	$HBoxContainer/LeftPanel/MarginContainer/VBoxContainer/StoryText.text = ""
+	$BottomPanel/MarginContainer/VBoxContainer/StoryText.text = ""
 	full_text = _t("story.page_" + str(page_index + 1))
 	
 	# Iniciar efecto de escritura
@@ -91,7 +91,7 @@ func start_typing():
 	current_char = 0
 	
 	while current_char < full_text.length() and is_typing:
-		$HBoxContainer/LeftPanel/MarginContainer/VBoxContainer/StoryText.text = full_text.substr(0, current_char + 1)
+		$BottomPanel/MarginContainer/VBoxContainer/StoryText.text = full_text.substr(0, current_char + 1)
 		current_char += 1
 		await get_tree().create_timer(1.0 / typing_speed).timeout
 	
@@ -120,7 +120,7 @@ func handle_input():
 	if is_typing:
 		# Si está escribiendo, mostrar todo el texto inmediatamente
 		is_typing = false
-		$HBoxContainer/LeftPanel/MarginContainer/VBoxContainer/StoryText.text = full_text
+		$BottomPanel/MarginContainer/VBoxContainer/StoryText.text = full_text
 		$Timer.wait_time = wait_after_text
 		$Timer.start()
 	elif can_advance:

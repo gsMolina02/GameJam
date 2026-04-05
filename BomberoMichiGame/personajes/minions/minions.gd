@@ -48,6 +48,11 @@ func _find_player() -> Node:
 	return null
 
 func _ready():
+	# Si ya fue destruido (y guardado), no reaparecer
+	if "nodos_destruidos" in GameManager and str(get_path()) in GameManager.nodos_destruidos:
+		queue_free()
+		return
+
 	# no se usan disparos en minions ahora, pero conectamos el timer por si se re-activa
 	$AttackTimer.timeout.connect(_on_AttackTimer_timeout)
 	anim_player = $AnimatedSprite2D
@@ -299,6 +304,9 @@ func _flash_damage() -> void:
 func die() -> void:
 	"""Minion muere"""
 	print("¡Minion eliminado!")
+	
+	if "nodos_destruidos" in GameManager:
+		GameManager.registrar_nodo_destruido(str(get_path()))
 	
 	# Llamar al LootManager para posible drop
 	if LootManager and LootManager.has_method("al_morir_minion"):
