@@ -5,6 +5,7 @@ var language: String = "es"
 var translations = {
 	"es": {
 		"menu.new_game": "NUEVO JUEGO",
+		"menu.continue": "CONTINUAR",
 		"menu.options": "OPCIONES",
 		"menu.tutorial": "TUTORIAL",
 		"menu.exit": "SALIR",
@@ -28,6 +29,7 @@ var translations = {
 		# Pausa
 		"pause.title": "PAUSA",
 		"pause.continue": "CONTINUAR",
+		"pause.save_exit": "GUARDAR Y SALIR",
 		"pause.exit_menu": "SALIR AL MENÚ",
 		
 		# Game Over
@@ -69,6 +71,7 @@ var translations = {
 	},
 	"en": {
 		"menu.new_game": "NEW GAME",
+		"menu.continue": "CONTINUE",
 		"menu.options": "OPTIONS",
 		"menu.tutorial": "TUTORIAL",
 		"menu.exit": "EXIT",
@@ -92,6 +95,7 @@ var translations = {
 		# Pausa
 		"pause.title": "PAUSE",
 		"pause.continue": "CONTINUE",
+		"pause.save_exit": "SAVE & EXIT",
 		"pause.exit_menu": "EXIT TO MENU",
 		
 		# Game Over
@@ -133,6 +137,7 @@ var translations = {
 	},
 	"pt": {
 		"menu.new_game": "NOVO JOGO",
+		"menu.continue": "CONTINUAR",
 		"menu.options": "OPÇÕES",
 		"menu.tutorial": "TUTORIAL",
 		"menu.exit": "SAIR",
@@ -156,6 +161,7 @@ var translations = {
 		# Pausa
 		"pause.title": "PAUSA",
 		"pause.continue": "CONTINUAR",
+		"pause.save_exit": "SALVAR E SAIR",
 		"pause.exit_menu": "SAIR PARA O MENU",
 		
 		# Game Over

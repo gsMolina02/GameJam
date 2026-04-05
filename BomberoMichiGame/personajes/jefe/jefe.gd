@@ -61,6 +61,11 @@ func _physics_process(delta):
 
 
 func _ready():
+	# Si ya fue destruido, no reaparecer
+	if "nodos_destruidos" in GameManager and str(get_path()) in GameManager.nodos_destruidos:
+		queue_free()
+		return
+
 	FireballScene = load("res://personajes/minions/fireball_visual.tscn")
 	minion_scene = load("res://personajes/minions/minions.tscn")
 	
@@ -321,6 +326,10 @@ func apply_water(amount: float) -> void:
 func die() -> void:
 	"""Muerte del jefe"""
 	print("¡Jefe derrotado!")
+	
+	if "nodos_destruidos" in GameManager:
+		GameManager.registrar_nodo_destruido(str(get_path()))
+		
 	# Aquí puedes agregar efectos de muerte, sonidos, etc.
 	queue_free()
 
