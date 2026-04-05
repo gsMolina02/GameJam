@@ -192,10 +192,6 @@
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_fkfoe"]
 polygon = PackedVector2Array(-36.98996, 126.989296, 25.93155, 79.01125, -49.952652, 78.9835)
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_m8rjq"]
-radius = 15.209938
-height = 68.04974
-
 [sub_resource type="SpriteFrames" id="SpriteFrames_acmdk"]
 animations = [{
 "frames": [{
@@ -919,7 +915,7 @@ animations = [{
 }]
 
 [node name="personajePrincipal" type="CharacterBody2D" groups=["player_main"]]
-position = Vector2(755.00006, 365.00003)
+position = Vector2(735.00006, 424.00003)
 rotation = -0.00036524187
 scale = Vector2(0.8753578, 0.9185894)
 script = ExtResource("1_yy08j")
@@ -927,20 +923,19 @@ hose_nozzle_offset = Vector2(130, 0)
 metadata/_edit_group_ = true
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="."]
-visible = false
 scale = Vector2(1.0000001, 1.0000001)
 occluder = SubResource("OccluderPolygon2D_fkfoe")
 
-[node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite_old" type="AnimatedSprite2D" parent="."]
+visible = false
 position = Vector2(-5.7149353, 7.6183567)
 scale = Vector2(0.18574882, 0.24968486)
 sprite_frames = SubResource("SpriteFrames_acmdk")
-animation = &"AtaqueAxeIzq"
+animation = &"AxelWalkinFrontIzq"
 autoplay = "AxelIdleFrDer"
-frame_progress = 0.5137461
 metadata/_edit_group_ = true
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-visible = false
 position = Vector2(-21.708796, 8.701454)
 scale = Vector2(-1.372868, 0.9906442)
 shape = SubResource("CapsuleShape2D_m8rjq")
@@ -950,7 +945,7 @@ metadata/_edit_group_ = true
 position = Vector2(-42.760334, 16.360634)
 scale = Vector2(0.12967502, 0.15939382)
 sprite_frames = SubResource("SpriteFrames_acmdk")
-animation = &"AxelWalkinFrontIzq"
+animation = &"AtaqueAxeIzq"
 autoplay = "AxelIdleFrDer"
 metadata/_edit_group_ = true
 
@@ -960,7 +955,6 @@ scale = Vector2(1.9932108, 0.5825263)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
-visible = false
 shape = SubResource("CapsuleShape2D_m8rjq")
 
 [node name="AttackCooldownTimer" type="Timer" parent="."]
@@ -972,22 +966,25 @@ position = Vector2(-5.7149353, 7.6183567)
 rotation = 0.008740753
 scale = Vector2(0.55, 0.55)
 sprite_frames = SubResource("SpriteFrames_acmdk")
-animation = &"AtaqueAxeDer"
+animation = &"AxelWalkinFrontDer"
 autoplay = "hacha"
 offset = Vector2(-8.662811, -53.667313)
 metadata/_edit_group_ = true
 
 [node name="AxeHitbox" type="Area2D" parent="Axe"]
+visible = false
 position = Vector2(-3433.323, 579.7481)
 scale = Vector2(1.0056263, 0.9891769)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Axe/AxeHitbox"]
+visible = false
 position = Vector2(3512.3857, -836.23)
 scale = Vector2(1.015499, 2.1213129)
 shape = SubResource("RectangleShape2D_m8rjq")
 
 [node name="AxePivot" type="Marker2D" parent="Axe"]
+visible = false
 position = Vector2(-252.19858, 163.98624)
 rotation = -0.008078339
 scale = Vector2(6.6075177, 6.106821)
@@ -995,8 +992,8 @@ skew = -0.0013791323
 
 [node name="hose" type="Sprite2D" parent="."]
 z_index = 1
-position = Vector2(92.55942, -67.46257)
-scale = Vector2(0.12778527, 0.06167657)
+position = Vector2(-99.68149, 5.6826625)
+scale = Vector2(0.09963813, 0.06309953)
 texture = ExtResource("30_q6kox")
 offset = Vector2(1.6220856, 8.688446)
 
@@ -1010,14 +1007,10 @@ shape = SubResource("RectangleShape2D_yy08j")
 [node name="HoseRaycast" type="RayCast2D" parent="hose"]
 
 [node name="HosePivot" type="Marker2D" parent="hose"]
-position = Vector2(-903.2387, 1658.5005)
-scale = Vector2(9.394479, 18.565634)
 
 [node name="WaterJetSprite" type="AnimatedSprite2D" parent="."]
 z_index = 2
 position = Vector2(130, 30)
 rotation = 1.9562457
 sprite_frames = SubResource("SpriteFrames_3aix0")
-animation = &"agua_inf"
-frame = 3
-frame_progress = 0.08953253
+animation = &"agua_end"

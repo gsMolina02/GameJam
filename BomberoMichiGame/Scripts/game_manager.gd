@@ -6,6 +6,9 @@ var agua_jugador: float = 100.0
 var puerta_origen: String = ""  # Nombre de la puerta por la que entramos
 var offset_spawn: Vector2 = Vector2(50, 0)
 
+# Gatos rescatados
+var gatos_rescatados: Array[String] = []
+
 func _ready():
 	print("✅ GameManager inicializado")
 
@@ -74,4 +77,27 @@ func reset_estado() -> void:
 	vida_jugador = 3
 	agua_jugador = 100.0
 	puerta_origen = ""
+	gatos_rescatados.clear()
 	print("🔄 Estado del jugador reiniciado")
+
+# ============================================
+# GESTIÓN DE GATOS RESCATADOS
+# ============================================
+
+func fue_gato_rescatado(nombre_gato: String) -> bool:
+	"""Verifica si un gato específico fue rescatado"""
+	return gatos_rescatados.has(nombre_gato)
+
+func rescatar_gato(nombre_gato: String) -> void:
+	"""Marca un gato como rescatado"""
+	if not gatos_rescatados.has(nombre_gato):
+		gatos_rescatados.append(nombre_gato)
+		print("✅ Gato rescatado:", nombre_gato)
+		print("   Gatos totales rescatados:", gatos_rescatados.size())
+	else:
+		print("ℹ️ El gato", nombre_gato, "ya fue rescatado")
+
+# Alias para compatibilidad con scripts existentes
+func marcar_gato_rescatado(nombre_gato: String) -> void:
+	"""Alias de rescatar_gato para compatibilidad"""
+	rescatar_gato(nombre_gato)
