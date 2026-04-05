@@ -185,6 +185,10 @@
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_fkfoe"]
 polygon = PackedVector2Array(-36.98996, 126.989296, 25.93155, 79.01125, -49.952652, 78.9835)
 
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_m8rjq"]
+radius = 15.209938
+height = 68.04974
+
 [sub_resource type="SpriteFrames" id="SpriteFrames_acmdk"]
 animations = [{
 "frames": [{
@@ -771,10 +775,6 @@ animations = [{
 "speed": 20.0
 }]
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_m8rjq"]
-radius = 15.209938
-height = 68.04974
-
 [sub_resource type="SpriteFrames" id="SpriteFrames_8x6mv"]
 animations = [{
 "frames": [{
@@ -890,7 +890,7 @@ animations = [{
 }]
 
 [node name="personajePrincipal" type="CharacterBody2D" groups=["player_main"]]
-position = Vector2(762.00006, 363.00003)
+position = Vector2(755.00006, 365.00003)
 rotation = -0.00036524187
 scale = Vector2(0.8753578, 0.9185894)
 script = ExtResource("1_yy08j")
@@ -902,21 +902,19 @@ visible = false
 scale = Vector2(1.0000001, 1.0000001)
 occluder = SubResource("OccluderPolygon2D_fkfoe")
 
-[node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
-position = Vector2(-5.7149353, 7.6183567)
-scale = Vector2(0.18574882, 0.24968486)
-sprite_frames = SubResource("SpriteFrames_acmdk")
-animation = &"AtaqueAxeDer"
-autoplay = "AxelIdleFrDer"
-frame = 1
-frame_progress = 0.46073297
-metadata/_edit_group_ = true
-
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 visible = false
 position = Vector2(-21.708796, 8.701454)
 scale = Vector2(-1.372868, 0.9906442)
 shape = SubResource("CapsuleShape2D_m8rjq")
+metadata/_edit_group_ = true
+
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(-42.760334, 16.360634)
+scale = Vector2(0.12967502, 0.15939382)
+sprite_frames = SubResource("SpriteFrames_acmdk")
+animation = &"AxelWalkinFrontIzq"
+autoplay = "AxelIdleFrDer"
 metadata/_edit_group_ = true
 
 [node name="Hitbox" type="Area2D" parent="."]
