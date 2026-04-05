@@ -37,7 +37,7 @@ var last_mouse_button_time: float = 0.0
 @export var aim_smoothing_speed: float = 24.0  # Mas responsivo para seguir mejor el mouse
 
 # Propiedades del oxígeno (sistema de barra de vida mejorado)
-@export var oxygen_loss_rate = 1.0  # Pérdida de oxígeno por segundo en condiciones normales
+@export var oxygen_loss_rate = 0.5  # Pérdida de oxígeno por segundo en condiciones normales
 @export var oxygen_recovery_rate = 5.0  # Recuperación de oxígeno por segundo sin enemigos/fuego
 @export var oxygen_attack_damage = 10.0  # Pérdida de oxígeno por golpe
 @export var oxygen_tankpickup = 25.0  # Cantidad de oxígeno que recupera un tanque
@@ -957,6 +957,15 @@ func die() -> void:
 	# Aquí podrías reproducir animación/sonido de muerte
 	print("💀 El Bombero ha muerto. Juego pausado.")
 
+func perder_oxigeno(cantidad: float) -> void:
+	"""Pierde oxígeno sin disparar animación de daño - solo reduce vida"""
+	if not vivo:
+		return
+	
+	vida_actual = max(0.0, vida_actual - cantidad)
+	emit_signal("vida_actualizada", vida_actual)
+	print("💨 Oxígeno: ", vida_actual)
+
 # ============================================
 # SISTEMA DE ATAQUE CON HACHA
 # ============================================
@@ -1245,9 +1254,9 @@ func _update_oxygen_system(delta):
 		# Resetear contador si hay oxígeno
 		oxygen_zero_timer = 0.0
 	
-	# Si hay enemigos o fuego: consumir oxígeno (-1 por segundo)
+	# Si hay enemigos o fuego: consumir oxígeno (-0.5 por segundo) SIN animación de daño
 	if has_enemies_or_fire:
-		recibir_dano(oxygen_loss_rate * delta)
+		perder_oxigeno(oxygen_loss_rate * delta)
 	else:
 		# Sin enemigos/fuego: recuperar oxígeno (+5 por segundo)
 		if vida_actual < vida_maxima:
