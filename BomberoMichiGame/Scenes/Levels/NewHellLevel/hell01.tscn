@@ -26356,7 +26356,7 @@ scale = Vector2(2, 2)
 [node name="personajePrincipal" parent="TileMapLayers" instance=ExtResource("3_0tq2c")]
 z_index = 20
 position = Vector2(421.00003, 12)
-scale = Vector2(0.33384195, 0.33332595)
+scale = Vector2(0.45917594, 0.32168895)
 
 [node name="Camera2D" type="Camera2D" parent="TileMapLayers/personajePrincipal"]
 position = Vector2(-18.066597, -133.29529)
