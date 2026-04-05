@@ -310,6 +310,17 @@ func _find_player() -> Node2D:
 
 	return null
 
+func _ready() -> void:
+	if "nodos_destruidos" in GameManager and str(get_path()) in GameManager.nodos_destruidos:
+		queue_free()
+		return
+
+	# Asegurar que los nodos existan
+	if anim_player == null:
+		push_error("HellHound: no se encontró AnimatedSprite2D!")
+	if wait_timer == null:
+		push_error("HellHound: no se encontró el Timer de espera!")
+
 func _sync_detection_shape() -> void:
 	var shape_node := detection_area.get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if shape_node == null:
@@ -551,6 +562,12 @@ func _get_current_attack_cooldown() -> float:
 
 func apply_water(amount: float) -> void:
 	take_damage(amount, &"agua")
+
+func _die_sequence_finished() -> void:
+	if is_inside_tree():
+		if "nodos_destruidos" in GameManager:
+			GameManager.registrar_nodo_destruido(str(get_path()))
+		queue_free()
 
 func die() -> void:
 	if _is_dead:

@@ -18,8 +18,8 @@ func update_texts() -> void:
 		if botonera.has_node("botonNo"):  botonera.get_node("botonNo").text  = _t("death.no")
 
 func _ready() -> void:
-
-
+	hide()  # Ocultarse a sí mismo por defecto — el GameManager lo muestra al morir
+	process_mode = Node.PROCESS_MODE_ALWAYS  # Siempre procesar inputs durante la pausa
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	add_to_group("localizable")
 	_hide_pause_menu()
@@ -30,10 +30,11 @@ func _ready() -> void:
 		$GameOver/PanelContainer/MarginContainer/VBoxContainer/botonera/botonNo
 	]
 
-	# Las señales ya están conectadas en el archivo .tscn, no es necesario conectarlas aquí
-
-	# Dar foco al primer botón
-	_update_button_focus()
+	# Solo dar focus a botones si este DeathMenu es visible (el activo, no la copia oculta)
+	# IMPORTANTE: si se llama grab_focus() en un Control oculto, el botón captura
+	# el ESC del teclado a través del sistema GUI y bloquea el menú de pausa
+	if is_visible_in_tree():
+		_update_button_focus()
 
 # Ocultar el menú de pausa si existe
 func _hide_pause_menu() -> void:
@@ -47,8 +48,11 @@ func _hide_pause_menu() -> void:
 
 # Manejar input para navegación con teclado - usar _unhandled_input para mayor prioridad
 func _unhandled_input(event: InputEvent) -> void:
-	# NO procesar input si el menú no es visible o no está en el árbol
-	if not visible or not is_inside_tree():
+	# NO procesar input si el menú no es visible en el árbol o no está en el árbol.
+	# IMPORTANTE: usar is_visible_in_tree() en vez de 'visible', porque 'visible'
+	# solo chequea la propiedad propia del nodo — si el PADRE está oculto,
+	# 'visible' puede ser true aunque el nodo no se vea, y bloquearía inputs.
+	if not is_visible_in_tree() or not is_inside_tree():
 		return
 
 	# Verificar que el viewport existe antes de usarlo
@@ -85,6 +89,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 # Actualizar el foco visual del botón
 func _update_button_focus() -> void:
+	# Solo dar focus si este nodo es visible en el árbol — un Control oculto
+	# con focus puede capturar ESC a través del sistema GUI y bloquear la pausa
+	if not is_visible_in_tree():
+		return
 	for i in range(buttons.size()):
 		if i == selected_button:
 			buttons[i].grab_focus()

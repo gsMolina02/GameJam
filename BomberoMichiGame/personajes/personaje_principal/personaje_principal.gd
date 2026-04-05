@@ -243,6 +243,50 @@ func _ready():
 	_setup_fire_sound_system()
 	_setup_axe_sound_system()
 	_setup_dash_sound_system()
+	
+	# Garantizar que el menú de pausa exista en este nivel
+	# (si el nivel no lo tiene en su .tscn, se crea dinámicamente)
+	_ensure_pause_menu()
+	
+	# Restaurar posición si hay una guardada válida
+	if "posicion_guardada" in GameManager and GameManager.posicion_guardada != Vector2.INF:
+		global_position = GameManager.posicion_guardada
+		print("📍 Jugador restaurado en guardado:", global_position)
+		GameManager.posicion_guardada = Vector2.INF  # Limpiar
+	elif "posicionar_jugador_en_puerta" in GameManager:
+		GameManager.posicionar_jugador_en_puerta(self, get_tree().current_scene)
+
+func _ensure_pause_menu() -> void:
+	"""Crea el menú de pausa dinámicamente si el nivel no lo tiene.
+	Como el jugador está en todos los niveles, esto garantiza que ESC
+	siempre funcione sin necesidad de editar cada escena."""
+	# Esperar un frame para que los nodos del nivel estén listos
+	await get_tree().process_frame
+	
+	# Si ya hay un PuseMenu en el árbol (instanciado en el .tscn del nivel), no hacer nada
+	if get_tree().get_nodes_in_group("pause_menu_ui").size() > 0:
+		print("✅ Menú de pausa encontrado en la escena")
+		return
+	
+	# No existe → crear el MenusLayer con PuseMenu y DeathMenu dinámicamente
+	var canvas := CanvasLayer.new()
+	canvas.name = "MenusLayer"
+	canvas.process_mode = Node.PROCESS_MODE_ALWAYS
+	canvas.layer = 30
+	canvas.visible = false
+	get_tree().current_scene.add_child(canvas)
+	
+	var pause_scene := preload("res://Interfaces/puse_menu.tscn")
+	var pause_menu := pause_scene.instantiate()
+	pause_menu.name = "PuseMenu"
+	canvas.add_child(pause_menu)
+	
+	var death_scene := preload("res://Scenes/UI/deathEscene.tscn")
+	var death_menu := death_scene.instantiate()
+	death_menu.name = "DeathMenu"
+	canvas.add_child(death_menu)
+	
+	print("✅ Menú de pausa creado dinámicamente para '", get_tree().current_scene.name, "'")
 
 func _ensure_weapon_pivots() -> void:
 	"""Crea pivotes si faltan y reubica las armas para rotarlas de forma estable."""
@@ -425,6 +469,11 @@ func _setup_hose_system():
 			water_jet_sprite.rotation = 0.0
 
 func _physics_process(delta):
+	# No procesar física durante la pausa. El jugador tiene process_mode=ALWAYS 
+	# porque necesita recibir input para el menú de pausa, pero NO debe mover 
+	# ni animar el personaje mientras el juego está pausado.
+	if get_tree().paused:
+		return
 	# Si el personaje está muerto, no procesar nada
 	if not vivo:
 		return
@@ -488,7 +537,16 @@ func _unhandled_input(event):
 		return
 
 	# Detectar ESC para pausar el juego
-	if event.is_action_pressed("ui_cancel"):
+	# Usamos detección directa por keycode como método robusto,
+	# sin depender únicamente del mapeo de ui_cancel en el proyecto.
+	var is_esc_key: bool = (event is InputEventKey
+		and (event as InputEventKey).pressed
+		and not (event as InputEventKey).echo
+		and ((event as InputEventKey).physical_keycode == KEY_ESCAPE
+			or (event as InputEventKey).keycode == KEY_ESCAPE))
+	var is_ui_cancel: bool = (InputMap.has_action("ui_cancel") and event.is_action_pressed("ui_cancel"))
+	if is_esc_key or is_ui_cancel:
+		print("🔵 ESC detectado! is_esc_key=", is_esc_key, " is_ui_cancel=", is_ui_cancel)
 		_toggle_pause_menu()
 		get_viewport().set_input_as_handled()
 		return
@@ -522,36 +580,54 @@ func _configure_mouse_combat_bindings():
 
 func _toggle_pause_menu():
 	"""Activa/desactiva el menú de pausa"""
-	# Buscar el MenusLayer
-	var menus_layer = get_tree().root.find_child("MenusLayer", true, false)
-	if not menus_layer:
-		print("⚠️ MenusLayer no encontrado")
+	# Buscar el PuseMenu por grupo (más robusto que buscar por nombre del nodo padre)
+	var pause_menus = get_tree().get_nodes_in_group("pause_menu_ui")
+	var pause_menu: Node = null
+	
+	# Si hay varios (level1 tiene dos instancias), preferir el que esté en un nodo llamado MenusLayer
+	for pm in pause_menus:
+		if pm.get_parent() and pm.get_parent().name == "MenusLayer":
+			pause_menu = pm
+			break
+	# Fallback: usar el primero que se encuentre
+	if not pause_menu and pause_menus.size() > 0:
+		pause_menu = pause_menus[0]
+	
+	if not pause_menu:
+		push_warning("⚠️ PuseMenu no encontrado en ningún nivel (falta instanciarlo en la escena)")
 		return
-
-	# Buscar los menús
-	var pause_menu = menus_layer.get_node_or_null("PuseMenu")
-	var death_menu = menus_layer.get_node_or_null("DeathMenu")
-
+	
+	# Obtener el DeathMenu del mismo padre para no pausar durante el game over
+	var menu_container = pause_menu.get_parent()
+	var death_menu = menu_container.get_node_or_null("DeathMenu") if menu_container else null
+	if not death_menu:
+		death_menu = get_tree().root.find_child("DeathMenu", true, false)
+	
 	# No permitir pausar si hay pantalla de muerte activa
 	if death_menu and death_menu.visible:
 		return
-
+	
 	# Alternar pausa
 	var is_paused = not get_tree().paused
 	get_tree().paused = is_paused
-
-	# Mostrar/ocultar menús
-	menus_layer.visible = is_paused
-	if pause_menu:
-		pause_menu.visible = is_paused
+	
+	# Mostrar/ocultar el contenedor (CanvasLayer / MenusLayer)
+	if menu_container:
+		menu_container.visible = is_paused
+	
+	# Mostrar/ocultar el menú
+	pause_menu.visible = is_paused
+	
+	# Ocultar el DeathMenu por si acaso
 	if death_menu:
 		death_menu.visible = false
-
+	
 	# Mostrar/ocultar cursor
 	if is_paused:
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	else:
 		Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+
 
 func _handle_input():
 	# Si el personaje está muerto, no procesar input
