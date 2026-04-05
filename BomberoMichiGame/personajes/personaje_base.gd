@@ -45,6 +45,9 @@ var can_dash: bool = true
 var dash_direction: Vector2 = Vector2.ZERO
 var dash_timer: float = 0.0
 
+# Estado de ataque especial (usado por personaje_principal.gd)
+var is_performing_special_attack: bool = false
+
 # Referencias para animación (from main)
 var last_direction = Vector2.ZERO
 var animated_sprite: AnimatedSprite2D = null
@@ -128,7 +131,13 @@ func mover_personaje(delta):
 		print_debug("  is_on_ceiling():", is_on_ceiling())
 
 	# Actualizar animaciones basadas en el input (from main)
-	_update_animation(input_vector)
+	# NO actualizar si está en ataque especial (solo para personaje principal)
+	var should_update_animation = true
+	if is_in_group("player_main") and is_performing_special_attack:
+		should_update_animation = false
+	
+	if should_update_animation:
+		_update_animation(input_vector)
 
 	# Mantener en viewport si se quiere
 	keep_in_viewport()

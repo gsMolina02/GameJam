@@ -1,4 +1,4 @@
-[gd_scene load_steps=201 format=3 uid="uid://bfra7nxi2wetn"]
+[gd_scene load_steps=207 format=3 uid="uid://bfra7nxi2wetn"]
 
 [ext_resource type="Script" uid="uid://c13ihlyh4xher" path="res://personajes/personaje_principal/personaje_principal.gd" id="1_yy08j"]
 [ext_resource type="Texture2D" uid="uid://dapbj8px55ekc" path="res://Assets/AxelEstatico/Derech/final-0001.png" id="2_532fo"]
@@ -17,14 +17,22 @@
 [ext_resource type="Texture2D" uid="uid://cip5yqhrck7w" path="res://Assets/AxelEstatico/Derech/final-0007.png" id="8_iw3f8"]
 [ext_resource type="Texture2D" uid="uid://docx831rp647u" path="res://Assets/AxelBombero/GOLPE/Der/Golpe_9_der.png" id="9_clufn"]
 [ext_resource type="Texture2D" uid="uid://b1fsxflq6c083" path="res://Assets/AxelEstatico/Derech/final-0008.png" id="9_y2n2v"]
+[ext_resource type="Texture2D" uid="uid://cxhgqqrof8fkv" path="res://Assets/AxelBombero/GOLPE/Izq/Golpe_1_izq.png" id="10_am54b"]
 [ext_resource type="Texture2D" uid="uid://dinyg5rkuli1c" path="res://Assets/AxelEstatico/Derech/final-0009.png" id="10_tlnc8"]
 [ext_resource type="Texture2D" uid="uid://c6k0aw7sbuk5u" path="res://Assets/AxelEstatico/Derech/final-0010.png" id="11_5wexc"]
+[ext_resource type="Texture2D" uid="uid://cvlk1lbk6gx45" path="res://Assets/AxelBombero/GOLPE/Izq/Golpe_2_izq.png" id="11_clufn"]
+[ext_resource type="Texture2D" uid="uid://i2mf4pif5jlk" path="res://Assets/AxelBombero/GOLPE/Izq/Golpe_3_izq.png" id="12_3v7jm"]
 [ext_resource type="Texture2D" uid="uid://c75bpvpmvkumv" path="res://Assets/AxelEstatico/Derech/final-0011.png" id="12_4yt2b"]
+[ext_resource type="Texture2D" uid="uid://wkn2kueinl51" path="res://Assets/AxelBombero/GOLPE/Izq/Golpe_4_izq.png" id="13_2ts6c"]
 [ext_resource type="Texture2D" uid="uid://dkc42a8330ijv" path="res://Assets/AxelEstatico/Derech/final-0012.png" id="13_wm1ir"]
+[ext_resource type="Texture2D" uid="uid://bcfmcv5yoxdvp" path="res://Assets/AxelBombero/GOLPE/Izq/Golpe_5_izq.png" id="14_03dik"]
 [ext_resource type="Texture2D" uid="uid://b2kp8ph5yx8b7" path="res://Assets/AxelEstatico/Derech/final-0013.png" id="14_ig0vk"]
+[ext_resource type="Texture2D" uid="uid://dvay6ht2dn3pa" path="res://Assets/AxelBombero/GOLPE/Izq/Golpe_6_izq.png" id="15_at142"]
 [ext_resource type="Texture2D" uid="uid://cjrr6rohua2me" path="res://Assets/AxelEstatico/Derech/final-0014.png" id="15_pucm4"]
 [ext_resource type="Texture2D" uid="uid://c32nnp2bclysx" path="res://Assets/AxelEstatico/Derech/final-0015.png" id="16_01uhd"]
+[ext_resource type="Texture2D" uid="uid://buagvaj3cr5ct" path="res://Assets/AxelBombero/GOLPE/Izq/Golpe_7_izq.png" id="16_61i35"]
 [ext_resource type="Texture2D" uid="uid://0ei377343kma" path="res://Assets/AxelEstatico/Derech/final-0016.png" id="17_ic3wb"]
+[ext_resource type="Texture2D" uid="uid://tqg32co5ja10" path="res://Assets/AxelBombero/GOLPE/Izq/Golpe_8_izq.png" id="17_owsqk"]
 [ext_resource type="Texture2D" uid="uid://i5n2ee1wy3hq" path="res://Assets/AxelEstatico/Derech/final-0017.png" id="18_kmsi5"]
 [ext_resource type="Texture2D" uid="uid://evhbutvca1bc" path="res://Assets/AxelEstatico/Derech/final-0018.png" id="19_7mhae"]
 [ext_resource type="Texture2D" uid="uid://jkgt6yjttvq2" path="res://Assets/AxelEstatico/Derech/final-0019.png" id="20_gbxay"]
@@ -179,7 +187,6 @@
 [ext_resource type="Texture2D" uid="uid://bqcfsbrsfjrvo" path="res://Assets/AxelBombero/Ciclo de caminado_frente/Izq/final-0017.png" id="136_oc8b1"]
 [ext_resource type="Texture2D" uid="uid://d3rjuniudl37t" path="res://Assets/AxelBombero/Ciclo de caminado_frente/Izq/final-0018.png" id="137_sc7yw"]
 [ext_resource type="Texture2D" uid="uid://b6eleyjvnaf0d" path="res://Assets/Water_Blast/Water Blast - End.png" id="180_h4jm7"]
-[ext_resource type="Texture2D" uid="uid://c4afqjv6hujj" path="res://Assets/Hacha y bola de fuego/Hacha_der.png" id="181_3v7jm"]
 [ext_resource type="Texture2D" uid="uid://c2kxrui6xve06" path="res://Assets/Water_Blast/Water Blast - Startup and Infinite.png" id="181_jooco"]
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_fkfoe"]
@@ -218,6 +225,35 @@ animations = [{
 }],
 "loop": true,
 "name": &"AtaqueAxeDer",
+"speed": 11.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("10_am54b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_clufn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_3v7jm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_2ts6c")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_03dik")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_at142")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_61i35")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_owsqk")
+}],
+"loop": true,
+"name": &"AtaqueAxeIzq",
 "speed": 11.0
 }, {
 "frames": [{
@@ -775,16 +811,9 @@ animations = [{
 "speed": 20.0
 }]
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_8x6mv"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("181_3v7jm")
-}],
-"loop": true,
-"name": &"hacha",
-"speed": 5.0
-}]
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_m8rjq"]
+radius = 15.209938
+height = 68.04974
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_m8rjq"]
 size = Vector2(103.796875, 157.71915)
@@ -902,6 +931,14 @@ visible = false
 scale = Vector2(1.0000001, 1.0000001)
 occluder = SubResource("OccluderPolygon2D_fkfoe")
 
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(-5.7149353, 7.6183567)
+scale = Vector2(0.18574882, 0.24968486)
+sprite_frames = SubResource("SpriteFrames_acmdk")
+animation = &"AtaqueAxeIzq"
+autoplay = "AxelIdleFrDer"
+frame_progress = 0.5137461
+metadata/_edit_group_ = true
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 visible = false
 position = Vector2(-21.708796, 8.701454)
@@ -931,13 +968,12 @@ shape = SubResource("CapsuleShape2D_m8rjq")
 [node name="Axe" type="AnimatedSprite2D" parent="."]
 visible = false
 z_index = 1
-position = Vector2(18.978315, -19.9935)
+position = Vector2(-5.7149353, 7.6183567)
 rotation = 0.008740753
-scale = Vector2(0.16766052, 0.17428002)
-sprite_frames = SubResource("SpriteFrames_8x6mv")
-animation = &"hacha"
+scale = Vector2(0.55, 0.55)
+sprite_frames = SubResource("SpriteFrames_acmdk")
+animation = &"AtaqueAxeDer"
 autoplay = "hacha"
-frame_progress = 0.79205817
 offset = Vector2(-8.662811, -53.667313)
 metadata/_edit_group_ = true
 
