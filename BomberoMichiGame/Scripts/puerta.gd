@@ -81,6 +81,10 @@ func cambiar_escena(jugador: Node2D) -> void:
 	GameManager.puerta_origen = nombre_puerta_destino
 	GameManager.offset_spawn = offset_spawn
 	
+	# Auto-guardado: guardar la partida con el nivel destino
+	SaveManager.save_game(escena_destino, jugador)
+	print("💾 Auto-guardado al entrar a:", escena_destino)
+	
 	# Cambiar escena
 	get_tree().call_deferred("change_scene_to_file", escena_destino)
 
