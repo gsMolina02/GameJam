@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=4 uid="uid://g74ygkuwnekm"]
+[gd_scene load_steps=39 format=4 uid="uid://g74ygkuwnekm"]
 
 [ext_resource type="Texture2D" uid="uid://birsve8umya61" path="res://Tiles/Tileset_sofocado_prueba_2.png" id="1_4vgts"]
 [ext_resource type="Texture2D" uid="uid://ccsfqd8vtf8u3" path="res://Tiles/Cursed/Water_coasts.png" id="1_b0w53"]
@@ -8,12 +8,15 @@
 [ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="3_relcs"]
 [ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="4_hkfbn"]
 [ext_resource type="Texture2D" uid="uid://cx12snmt56k6k" path="res://Tiles/TX Tileset Stone Ground.png" id="5_3venu"]
-[ext_resource type="Texture2D" uid="uid://d1s7h4k714m32" path="res://Tiles/TX Tileset Wall.png" id="5_pli8b"]
+[ext_resource type="Texture2D" uid="uid://cvqfnxhb148rx" path="res://Tiles/TX Tileset Wall.png" id="5_pli8b"]
 [ext_resource type="Texture2D" uid="uid://bp2a6564lk1si" path="res://Tiles/TX Props with Shadow.png" id="7_4vgts"]
 [ext_resource type="Texture2D" uid="uid://d1r4einr4u0bt" path="res://Tiles/Objetos_Escenario/Objetos_7.png" id="7_relcs"]
 [ext_resource type="Texture2D" uid="uid://bwslc3q1muk82" path="res://Tiles/TX Struct.png" id="8_iyvsa"]
 [ext_resource type="PackedScene" uid="uid://ctqyigfjk6fuk" path="res://personajes/HellHound/hellhound.tscn" id="11_3venu"]
 [ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="11_relcs"]
+[ext_resource type="PackedScene" uid="uid://bh08j56ukxtp" path="res://Hub/hub.tscn" id="15_yxvj5"]
+[ext_resource type="PackedScene" uid="uid://b4cinnlduff6a" path="res://Scenes/Entities/gato_gris.tscn" id="16_4w1jx"]
+[ext_resource type="Script" uid="uid://bmi6b0xff8sy" path="res://Scripts/room_manager.gd" id="17_2q5sd"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_5w2ly"]
 texture = ExtResource("2_0tq2c")
@@ -28180,5 +28183,14 @@ tile_map_data = PackedByteArray("AAAXAAsAAQAMAA4AAAAXAAwAAQAMAA8AAAAYAAsAAQANAA4
 tile_set = SubResource("TileSet_lbsia")
 
 [node name="HUD" parent="." instance=ExtResource("4_hkfbn")]
-scale = Vector2(0.5, 0.5)
-transform = Transform2D(0.5, 0, 0, 0.5, 0, 0)
+
+[node name="Hub" parent="." instance=ExtResource("15_yxvj5")]
+
+[node name="GatoGris" parent="." instance=ExtResource("16_4w1jx")]
+position = Vector2(-56.999996, -43.000004)
+scale = Vector2(1.55, 1.55)
+teletransportar_al_terminar = true
+escena_destino = "uid://bq0xsjb3mbjwk"
+
+[node name="RoomManager" type="Node" parent="."]
+script = ExtResource("17_2q5sd")

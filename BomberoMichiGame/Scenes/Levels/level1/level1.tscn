@@ -121,6 +121,7 @@ position = Vector2(422.5, 872)
 shape = SubResource("RectangleShape2D_a4g0f")
 
 [node name="MundoGrisLayer" type="CanvasLayer" parent="."]
+visible = false
 script = ExtResource("14_suv00")
 oxygen_threshold_start = 40.0
 sfx_volume_db = 10.0

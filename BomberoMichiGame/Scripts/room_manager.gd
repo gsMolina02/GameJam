@@ -61,10 +61,9 @@ func contar_enemigos() -> int:
 	var count = 0
 	count += get_tree().get_nodes_in_group("minion").size()
 	count += get_tree().get_nodes_in_group("boss").size()
+	# --- NUEVO: Contar a los Hellhounds ---
+	count += get_tree().get_nodes_in_group("hellhound").size()
 	return count
-
-func contar_fuegos() -> int:
-	return get_tree().get_nodes_in_group("fuego").size()
 
 func conectar_enemigos() -> void:
 	# Conectar todos los minions
@@ -78,6 +77,15 @@ func conectar_enemigos() -> void:
 	for boss in bosses:
 		if boss.has_signal("tree_exiting"):
 			boss.tree_exiting.connect(_on_enemigo_eliminado.bind(boss))
+			
+	# --- NUEVO: Conectar todos los Hellhounds ---
+	var hellhounds = get_tree().get_nodes_in_group("hellhound")
+	for hound in hellhounds:
+		if hound.has_signal("tree_exiting"):
+			hound.tree_exiting.connect(_on_enemigo_eliminado.bind(hound))
+
+func contar_fuegos() -> int:
+	return get_tree().get_nodes_in_group("fuego").size()
 
 func conectar_fuegos() -> void:
 	var fuegos = get_tree().get_nodes_in_group("fuego")

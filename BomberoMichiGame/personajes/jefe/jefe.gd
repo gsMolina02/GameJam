@@ -416,12 +416,13 @@ func _flash_damage() -> void:
 
 func die() -> void:
 	"""Muerte del jefe"""
-		print("💀 ¡¡¡ JEFE DEL CASINO DERROTADO !!!")
-		print("🎊 Victoria alcanzada después de una batalla épica")
-		print("¡Jefe derrotado!")
-		
-		if "nodos_destruidos" in GameManager:
-			GameManager.registrar_nodo_destruido(str(get_path()))
+	print("💀 ¡¡¡ JEFE DEL CASINO DERROTADO !!!")
+	print("🎊 Victoria alcanzada después de una batalla épica")
+	print("¡Jefe derrotado!")
+
+	if "nodos_destruidos" in GameManager:
+		GameManager.registrar_nodo_destruido(str(get_path()))
+
 		
 
 
