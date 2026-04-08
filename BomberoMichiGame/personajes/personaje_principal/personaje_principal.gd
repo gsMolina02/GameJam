@@ -115,9 +115,10 @@ var fire_sound_player: AudioStreamPlayer
 
 # Marcador calculado para la punta de la manguera
 @onready var axe_hitbox = get_node_or_null("Axe/AxeHitbox")
-@onready var axe_sprite = get_node_or_null("Axe")
+@onready var axe_sprite = get_node_or_null("Axe")  # Node2D contenedor
+@onready var axe_sprite_animated = get_node_or_null("Axe/AxeSprite")  # AnimatedSprite2D dentro
 @onready var hose_sprite = get_node_or_null("hose")
-@onready var axe_pivot = get_node_or_null("AxePivot")
+@onready var axe_pivot = get_node_or_null("Axe/AxePivot")
 @onready var hose_pivot = get_node_or_null("HosePivot")
 @onready var attack_cooldown_timer = get_node_or_null("AttackCooldownTimer")
 @onready var animation_player = get_node_or_null("AnimationPlayer")  # Para animaciones
@@ -563,14 +564,18 @@ func _toggle_pause_menu():
 func _handle_input():
 	# Si el personaje está muerto, no procesar input
 	if not vivo:
+		print("🎮 _handle_input() - personaje muerto")
 		return
 	
-	# No procesar inputs si está en ataque especial
-	if is_performing_special_attack:
-		return
+	print("🎮 _handle_input() ejecutado - arma: %s (valor: %d, AXE=%d)" % [
+		"HACHA" if current_weapon == Weapon.AXE else "MANGUERA",
+		current_weapon,
+		Weapon.AXE
+	])
 	
 	# Intercambiar arma con Q
 	if Input.is_action_just_pressed("ui_focus_next"):
+		print("🎮 Q presionado - cambiando arma")
 		switch_weapon()
 	
 	# Sistema de manguera (botón mantenido) - solo si está equipada
@@ -602,8 +607,16 @@ func _handle_input():
 	
 	# Sistema de ataque con hacha - solo si está equipada
 	if current_weapon == Weapon.AXE:
+		print("🎮 Estamos en modo HACHA")
 		if Input.is_action_just_pressed("attack"):
-			attack()  # El ataque ahora funciona como parry automático
+			print("⚔️ INPUT ATTACK DETECTADO")
+			attack()
+		else:
+			if Input.is_action_pressed("attack"):
+				print("⚔️ 'attack' presionado pero NO es just_pressed")
+	else:
+		if Input.is_action_just_pressed("attack"):
+			print("⚔️ Attack presionado pero estamos en MANGUERA, NO en hacha")
 
 	# Dash: usar la acción 'dash' (tecla Shift) exclusivamente
 	var dash_pressed := false
@@ -667,32 +680,20 @@ func _update_weapon_orientation(delta: float):
 
 func _orient_axe(direction: Vector2, angle: float):
 	"""Orienta el hacha según la dirección del mouse con volteo visual"""
-	var base_offset = 50.0  # Distancia desde el centro del personaje
+	# EL HACHA NUNCA GIRA - SOLO FLIPEA IZQUIERDA/DERECHA
+	if current_weapon != Weapon.AXE:
+		return  # Si no estamos en modo hacha, no hacer nada
 	
-	# Calcular posición del hacha alrededor del personaje
-	var axe_position = axe_pivot_base_position + direction * base_offset + Vector2(0, 10.0) + axe_pivot_extra_offset
-
+	# Flipear izquierda/derecha según dirección del MOUSE
+	var facing_right: bool = direction.x >= 0.0
+	axe_sprite.scale.x = abs(axe_base_scale.x) * (1.0 if facing_right else -1.0)
+	axe_sprite.scale.y = abs(axe_base_scale.y)
+	
+	# CONGELAR TODAS LAS ROTACIONES - El hacha NUNCA gira
+	axe_sprite.rotation = 0.0
 	if axe_pivot:
-		axe_pivot.position = axe_position
-	
-	# Voltear el hacha por lado, pero corrigiendo el offset angular
-	# para que la punta siempre apunte al objetivo.
-	var facing_right := direction.x > 0.0
-	axe_sprite.scale.x = abs(axe_base_scale.x)
-	axe_sprite.scale.y = abs(axe_base_scale.y) * (1.0 if facing_right else -1.0)
-	
-	# El offset cambia según el espejo para mantener la punta alineada.
-	var angle_offset := PI / 2 if facing_right else -PI / 2
-	if axe_pivot:
-		axe_pivot.rotation = angle + angle_offset
-		axe_sprite.rotation = 0.0
-	else:
-		axe_sprite.rotation = angle + angle_offset
-	
-	# Mantener arma siempre delante del personaje para evitar cambios molestos de profundidad.
-	if axe_pivot:
-		axe_pivot.z_index = 0
-		axe_pivot.show_behind_parent = false
+		axe_pivot.rotation = 0.0
+		axe_pivot.scale = Vector2(1, 1)
 	else:
 		axe_sprite.z_index = 0
 		axe_sprite.show_behind_parent = false
@@ -745,10 +746,14 @@ func _orient_hose(direction: Vector2, angle: float):
 # ============================================
 
 func switch_weapon():
-	"""Cambio de armas deshabilitado - solo manguera disponible"""
-	# El jugador siempre usa la manguera
-	# El ataque V es un ataque especial de la manguera
-	print("⚠️ Cambio de arma deshabilitado - Solo manguera disponible")
+	"""Cambio de armas entre hacha y manguera"""
+	if current_weapon == Weapon.AXE:
+		current_weapon = Weapon.HOSE
+	else:
+		current_weapon = Weapon.AXE
+
+	# Actualizar visuales de las armas
+	_update_weapon_visuals()
 	
 	# Emitir señal
 	emit_signal("weapon_switched", current_weapon)
@@ -759,13 +764,15 @@ func _update_weapon_visuals():
 	var is_hose_equipped = (current_weapon == Weapon.HOSE)
 	
 	if axe_sprite:
-		axe_sprite.visible = is_axe_equipped
+		axe_sprite.visible = false  # El hacha NUNCA se ve en pantalla
 	if hose_sprite:
 		hose_sprite.visible = is_hose_equipped
 	if water_particles:
 		water_particles.visible = is_hose_equipped
 		if not is_hose_equipped:
 			water_particles.emitting = false
+	if water_jet_sprite:
+		water_jet_sprite.visible = is_hose_equipped
 
 # ============================================
 # SISTEMA DE MANGUERA
@@ -956,7 +963,9 @@ func die() -> void:
 # SISTEMA DE ATAQUE CON HACHA
 # ============================================
 func attack():
+	print("⚔️ ATTACK LLAMADO")
 	if can_attack and current_axe_state == AxeState.IDLE:
+		print("⚔️ Condiciones OK - iniciando ataque")
 		# Reproducir sonido de ataque de hacha secuencial (hachaataque1, hacha_ataque2)
 		_play_axe_attack_sound()
 		
@@ -974,11 +983,11 @@ func attack():
 			
 			axe_sprite.visible = true
 			# Aplicar flip si el personaje apunta hacia la izquierda
-			axe_sprite.flip_h = last_direction.x < 0
+			if axe_sprite_animated:
+				axe_sprite_animated.flip_h = last_direction.x < 0
 			
-			if axe_sprite.sprite_frames and axe_sprite.sprite_frames.has_animation("AtaqueAxeDer"):
-				axe_sprite.play("AtaqueAxeDer")
-				print("✓ Animación AtaqueAxeDer iniciada")
+			if axe_sprite_animated and axe_sprite_animated.sprite_frames and axe_sprite_animated.sprite_frames.has_animation("AtaqueAxeDer"):
+				axe_sprite_animated.play("AtaqueAxeDer")
 			else:
 				_animate_axe_swing()
 		elif animation_player and animation_player.has_animation("axe_attack"):
@@ -998,8 +1007,9 @@ func attack():
 		# Ocultar el sprite del ataque y restaurar el personaje principal
 		if axe_sprite:
 			axe_sprite.visible = false
-			axe_sprite.flip_h = false  # Resetear flip
-			axe_sprite.stop()
+			if axe_sprite_animated:
+				axe_sprite_animated.flip_h = false  # Resetear flip
+				axe_sprite_animated.stop()
 			
 			# Restaurar el sprite principal del personaje
 			if character_sprite:
@@ -1110,31 +1120,34 @@ func _perform_hose_special_attack():
 	is_performing_special_attack = false
 
 func _perform_axe_attack():
-	if not axe_hitbox:
-		return
+	print("🔪 Atacando con hacha - last_direction: %s" % last_direction)
 	
-	# Obtener todos los cuerpos en el área de ataque
-	# Si el Area2D está con monitoring desactivado, activarlo temporalmente para poder leer overlaps
-	var was_monitoring = true
-	if not axe_hitbox.monitoring:
-		was_monitoring = false
-		axe_hitbox.monitoring = true
-		# Esperar un frame de física para que el motor actualice las colisiones
-		await get_tree().process_frame
-
-	var overlapping_bodies = axe_hitbox.get_overlapping_bodies()
-	var overlapping_areas = axe_hitbox.get_overlapping_areas()
-
-	# Restaurar el estado de monitoring si estaba desactivado
-	if not was_monitoring:
-		axe_hitbox.monitoring = false
+	# Buscar todos los CharacterBody2D en el área cercana usando raycasting
+	var space_state = get_world_2d().direct_space_state
+	var query = PhysicsShapeQueryParameters2D.new()
 	
-	for body in overlapping_bodies:
-		_process_attack_target(body)
+	# Usar un círculo de detección
+	var circle = CircleShape2D.new()
+	circle.radius = 80  # Radio de detección
+	var attack_direction = Vector2(80 * (1 if last_direction.x >= 0 else -1), 0)
+	query.shape = circle
+	query.transform = global_transform.translated(attack_direction)
+	query.collision_mask = 2  # Capa 2 donde están los enemigos
 	
-	for area in overlapping_areas:
-		if area.get_parent():
-			_process_attack_target(area.get_parent())
+	var results = space_state.intersect_shape(query)
+	print("🔪 Detectados: %d enemigos" % results.size())
+	
+	for result in results:
+		var collider = result.collider
+		print("🔪 -> %s" % collider.name)
+		if collider != self and not collider.is_in_group("player"):
+			if collider.has_method("take_damage"):
+				var safe_axe_damage = axe_damage if axe_damage != null else 5
+				print("🔪 ¡DAÑO! %s recibe %f" % [collider.name, safe_axe_damage])
+				if collider.is_in_group("hellhound"):
+					collider.take_damage(safe_axe_damage, &"hacha")
+				else:
+					collider.take_damage(safe_axe_damage)
 
 func _process_attack_target(target):
 	# Si el hit llegó a un Area2D/child, intentar subir al dueño real del daño.
