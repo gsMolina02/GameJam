@@ -2,6 +2,7 @@ extends "res://personajes/personaje_base.gd"
 
 # Si este minion es de fuego, instancia una luz de plantilla para crear brillo y flicker
 @export var is_fire_minion: bool = false
+@export var damage_al_jugador: float = 15.0 # Cámbialo al daño que quieras que haga
 var fire_light_scene = preload("res://Scenes/VisualEffects/fire_light.tscn")
 
 var direccion := Vector2.ZERO
@@ -20,6 +21,7 @@ var anim_player: AnimatedSprite2D = null
 var max_health: float = 10.0  # Vida máxima del minion (ajustado para 1 segundo con water_pressure = 10)
 var health: float = 10.0
 var is_being_extinguished: bool = false
+
 
 # Helper: búsqueda segura del player por grupo o por nombres comunes
 func _find_node_by_name(root: Node, target_name: String) -> Node:
@@ -315,23 +317,21 @@ func die() -> void:
 	# Efectos de muerte, sonidos, etc., pueden agregarse aquí
 	queue_free()
 
-
 func _on_hit_area_body_entered(body: Node) -> void:
-	"""Cuando el minion colisiona con algo (CharacterBody2D)"""
-	# Si colisiona con el jugador, causar daño
-	if body.is_in_group("player_main"):
-		# Ya no necesitamos llamar a take_damage aquí
-		# El sistema de grupos se encargará cuando el Hitbox del jugador
-		# detecte el HitArea del minion (que está en grupo "ataque_minion")
-		print_debug("Minion HitArea detected player body contact")
-		# Opcional: el minion puede morir al tocar al jugador
+	"""Cuando el minion colisiona directamente con el cuerpo del jugador"""
+	if body.is_in_group("player_main") or body.is_in_group("player"):
+		print("🔥 Minion tocó al jugador: Aplicando daño directo.")
+		if body.has_method("take_damage"):
+			body.take_damage(damage_al_jugador)
+		# Descomenta la línea de abajo si quieres que el minion muera al tocar al jugador (estilo Kamikaze)
 		# die()
 
 func _on_hit_area_area_entered(area: Node) -> void:
-	"""Cuando el HitArea del minion detecta un Area2D (como el Hitbox del jugador)"""
-	# El daño se maneja automáticamente por el sistema de grupos
-	# cuando el Hitbox del jugador detecta esta área que está en "ataque_minion"
-	if area.get_parent() and area.get_parent().is_in_group("player_main"):
-		print_debug("Minion HitArea entered player Hitbox - damage will be handled by player's system")
-		# Opcional: el minion puede morir después de atacar
+	"""Cuando el HitArea del minion detecta el Hitbox (Area2D) del jugador"""
+	var parent = area.get_parent()
+	if parent and (parent.is_in_group("player_main") or parent.is_in_group("player")):
+		print("🔥 HitArea del Minion tocó el Hitbox del jugador: Aplicando daño.")
+		if parent.has_method("take_damage"):
+			parent.take_damage(damage_al_jugador)
+		# Descomenta la línea de abajo si quieres que el minion muera al tocar al jugador
 		# die()
