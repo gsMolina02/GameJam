@@ -3,11 +3,21 @@ extends Node
 # Estado del jugador entre escenas
 var vida_jugador: int = 3
 var agua_jugador: float = 100.0
+var vida_maxima_jugador: float = 100.0  # Para restaurar poderes del gato
+var hose_drain_rate_jugador: float = 4.0  # Para restaurar poder de manguera
 var puerta_origen: String = ""  # Nombre de la puerta por la que entramos
 var offset_spawn: Vector2 = Vector2(50, 0)
 
 # Gatos rescatados
 var gatos_rescatados: Array[String] = []
+
+# ─── Estado del mundo guardado ───
+var nodos_destruidos: Array = []
+var posicion_guardada: Vector2 = Vector2.INF
+
+func registrar_nodo_destruido(nodo_path: String) -> void:
+	if not nodo_path in nodos_destruidos:
+		nodos_destruidos.append(nodo_path)
 
 func _ready():
 	print("✅ GameManager inicializado")
@@ -23,15 +33,29 @@ func guardar_estado_jugador(jugador: Node) -> void:
 		vida_jugador = jugador.get_vida_actual()
 		print("  Vida guardada:", vida_jugador)
 	
+	# Guardar vida máxima (puede haber aumentado por los gatos)
+	if "vida_maxima" in jugador:
+		vida_maxima_jugador = jugador.vida_maxima
+		print("  Vida máxima guardada:", vida_maxima_jugador)
+	
 	# Guardar agua
 	if "hose_charge" in jugador:
 		agua_jugador = jugador.hose_charge
 		print("  Agua guardada:", agua_jugador, "%")
+	
+	# Guardar drain rate (puede haber mejorado por el gato)
+	if "hose_drain_rate" in jugador:
+		hose_drain_rate_jugador = jugador.hose_drain_rate
+		print("  Hose drain rate guardado:", hose_drain_rate_jugador)
 
 func restaurar_estado_jugador(jugador: Node) -> void:
 	print("📥 Restaurando estado del jugador...")
-	print("  Vida a restaurar:", vida_jugador)
+	print("  Vida a restaurar:", vida_jugador, "/ máx:", vida_maxima_jugador)
 	print("  Agua a restaurar:", agua_jugador, "%")
+	
+	# Restaurar vida máxima primero (para que la vida actual no la supere)
+	if "vida_maxima" in jugador:
+		jugador.vida_maxima = vida_maxima_jugador
 	
 	# Restaurar vida
 	if "vida_actual" in jugador:
@@ -39,6 +63,10 @@ func restaurar_estado_jugador(jugador: Node) -> void:
 		# Emitir señal para que el HUD se actualice
 		if jugador.has_signal("vida_actualizada"):
 			jugador.emit_signal("vida_actualizada", vida_jugador)
+	
+	# Restaurar hose drain rate (poder del gato)
+	if "hose_drain_rate" in jugador:
+		jugador.hose_drain_rate = hose_drain_rate_jugador
 	
 	# Restaurar agua
 	if "hose_charge" in jugador:
@@ -76,9 +104,13 @@ func reset_estado() -> void:
 	"""Reinicia el estado del jugador (útil para game over o nuevo juego)"""
 	vida_jugador = 3
 	agua_jugador = 100.0
+	vida_maxima_jugador = 100.0
+	hose_drain_rate_jugador = 4.0
 	puerta_origen = ""
 	gatos_rescatados.clear()
-	print("🔄 Estado del jugador reiniciado")
+	nodos_destruidos.clear()
+	posicion_guardada = Vector2.INF
+	print("🔄 Estado del jugador y mundo reiniciado")
 
 # ============================================
 # GESTIÓN DE GATOS RESCATADOS
