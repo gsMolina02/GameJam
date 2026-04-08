@@ -954,26 +954,29 @@ shape = SubResource("CapsuleShape2D_m8rjq")
 
 [node name="AttackCooldownTimer" type="Timer" parent="."]
 
-[node name="Axe" type="AnimatedSprite2D" parent="."]
+[node name="Axe" type="Node2D" parent="."]
 visible = false
 z_index = 1
 position = Vector2(-5.7149353, 7.6183567)
 rotation = 0.008740753
 scale = Vector2(0.55, 0.55)
+metadata/_edit_group_ = true
+
+[node name="AxeSprite" type="AnimatedSprite2D" parent="Axe"]
 sprite_frames = SubResource("SpriteFrames_acmdk")
 animation = &"AtaqueAxeDer"
 autoplay = "hacha"
 offset = Vector2(-8.662811, -53.667313)
-metadata/_edit_group_ = true
 
 [node name="AxeHitbox" type="Area2D" parent="Axe"]
-position = Vector2(-3433.323, 579.7481)
-scale = Vector2(1.0056263, 0.9891769)
+position = Vector2(0, 0)
+scale = Vector2(1, 1)
+collision_layer = 0
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Axe/AxeHitbox"]
-position = Vector2(3512.3857, -836.23)
-scale = Vector2(1.015499, 2.1213129)
+position = Vector2(0, 0)
+scale = Vector2(1.5, 1.5)
 shape = SubResource("RectangleShape2D_m8rjq")
 
 [node name="AxePivot" type="Marker2D" parent="Axe"]
