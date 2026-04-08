@@ -1,8 +1,8 @@
-[gd_scene load_steps=40 format=4 uid="uid://bq0xsjb3mbjwk"]
+[gd_scene load_steps=44 format=4 uid="uid://bq0xsjb3mbjwk"]
 
 [ext_resource type="Texture2D" uid="uid://birsve8umya61" path="res://Tiles/Tileset_sofocado_prueba_2.png" id="1_iu1tt"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="1_l8nt6"]
-[ext_resource type="Texture2D" uid="uid://d1s7h4k714m32" path="res://Tiles/TX Tileset Wall.png" id="2_7dnm7"]
+[ext_resource type="Texture2D" uid="uid://cvqfnxhb148rx" path="res://Tiles/TX Tileset Wall.png" id="2_7dnm7"]
 [ext_resource type="Script" uid="uid://cimupq7td4btn" path="res://Scenes/Levels/NewHellLevel/dynamic_cam.gd" id="2_t3fq1"]
 [ext_resource type="Texture2D" uid="uid://bf18xdbc4oliy" path="res://Tiles/Objetos_Escenario/Objetos_29.png" id="3_glg3w"]
 [ext_resource type="Texture2D" uid="uid://c2d7yx7l7kya2" path="res://Tiles/Objetos_Escenario/Objetos_25.png" id="4_ewkug"]
@@ -10,6 +10,10 @@
 [ext_resource type="Texture2D" uid="uid://chon4djtyv5yg" path="res://Tiles/Objetos_Escenario/Objetos_9.png" id="5_vl3wf"]
 [ext_resource type="PackedScene" uid="uid://e2osxgcrxydp" path="res://personajes/mascota/mascota.tscn" id="9_3twwd"]
 [ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="9_swo1y"]
+[ext_resource type="PackedScene" uid="uid://bh08j56ukxtp" path="res://Hub/hub.tscn" id="11_kcdyc"]
+[ext_resource type="Script" uid="uid://bmi6b0xff8sy" path="res://Scripts/room_manager.gd" id="12_2o5ek"]
+[ext_resource type="PackedScene" uid="uid://djbbvmt4xxank" path="res://Scenes/Entities/gato_naranjoso.tscn" id="13_mpgaw"]
+[ext_resource type="PackedScene" uid="uid://ctqyigfjk6fuk" path="res://personajes/HellHound/hellhound.tscn" id="14_mpgaw"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_3jfai"]
 texture = ExtResource("1_iu1tt")
@@ -12534,3 +12538,19 @@ script = ExtResource("2_t3fq1")
 
 [node name="HUD" parent="." instance=ExtResource("9_swo1y")]
 layer = 20
+
+[node name="Hub" parent="." instance=ExtResource("11_kcdyc")]
+
+[node name="RoomManager" type="Node" parent="."]
+script = ExtResource("12_2o5ek")
+
+[node name="Hellhound" parent="." instance=ExtResource("14_mpgaw")]
+z_index = 20
+position = Vector2(561.5, 346.5)
+scale = Vector2(0.76934415, 0.7653947)
+
+[node name="GatoNaranjoso" parent="." instance=ExtResource("13_mpgaw")]
+position = Vector2(723, 636)
+scale = Vector2(1.725, 1.725)
+teletransportar_al_terminar = true
+escena_destino = "uid://ttgqfm2bcx3u"

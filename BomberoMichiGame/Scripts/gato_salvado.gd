@@ -12,6 +12,11 @@ func _t(key: String) -> String:
 @export var portrait_texture: Texture2D = null   # Foto del gato para la caja de diálogo
 @export var tipo_poder: String = "resistencia_pulmonar"  # "resistencia_pulmonar" | "capacidad_manguera"
 
+# --- Configuración del Teletransporte ---
+@export_category("Teletransporte")
+@export var teletransportar_al_terminar: bool = false
+@export_file("*.tscn") var escena_destino: String = ""
+
 # Referencias
 var dialogo_activo: bool = false
 var jugador_cerca: bool = false
@@ -230,20 +235,20 @@ func _limpiar_dialogos_anteriores() -> void:
 func _cerrar_dialogo(canvas_layer: CanvasLayer) -> void:
 	print("✅ Diálogo del gato cerrado")
 	
-	# Eliminar el CanvasLayer completo (que contiene la UI)
 	if canvas_layer and is_instance_valid(canvas_layer):
 		canvas_layer.queue_free()
 	
 	dialogo_ui = null
 	dialogo_activo = false
-	
-	# El juego nunca se pausó, así que no hay que despausarlo
-	
 	emit_signal("dialogo_terminado")
 	
-	# Si el jugador sigue cerca, mostrar label de nuevo
-	if jugador_cerca and label_interactuar:
-		label_interactuar.visible = true
+	# --- TELETRANSPORTE CONDICIONAL ---
+	# Solo teletransportamos si el gato ya entregó el regalo (o sea, ya lo rescataste)
+	if teletransportar_al_terminar and escena_destino != "" and regalo_entregado:
+		print("🚀 Rescate completo. Viajando a: ", escena_destino)
+		get_tree().change_scene_to_file(escena_destino)
+	else:
+		print("😺 Diálogo inicial terminado. El gato se queda esperando el rescate.")
 
 func cambiar_mensaje(nuevo_mensaje: String) -> void:
 	"""Permite cambiar el mensaje del gato"""
@@ -410,6 +415,7 @@ func _mostrar_dialogo_rescate() -> void:
 	get_tree().root.add_child(canvas_layer)
 
 	# Entregar poder inmediatamente al interactuar
+	# Entregar poder inmediatamente al interactuar
 	_entregar_regalo()
 
 	var timer = get_tree().create_timer(5.0)
@@ -418,7 +424,9 @@ func _mostrar_dialogo_rescate() -> void:
 			_cerrar_dialogo(canvas_layer)
 		var clave_mensaje = "cat.gift_message_" + tipo_poder
 		_mostrar_notificacion_pantalla(_t(clave_mensaje))
+		
 	)
+
 
 func _entregar_regalo() -> void:
 	"""Aplica el poder del gato al jugador según tipo_poder, oculta la flecha"""
@@ -445,15 +453,20 @@ func _entregar_regalo() -> void:
 				player.mejorar_manguera()
 				print("💧 Manguera mejorada")
 
+
+
 func _mostrar_notificacion_pantalla(texto: String) -> void:
 	"""Notificación flotante dorada centrada en pantalla con el mensaje del poder recibido"""
+	if not is_inside_tree() or get_viewport() == null:
+		return
+		
 	var vp = get_viewport().get_visible_rect().size
 	var pw := 460.0
 
 	var cl = CanvasLayer.new()
 	cl.layer = 110
 	cl.process_mode = Node.PROCESS_MODE_ALWAYS
-
+	
 	# Raíz: Control que ocupa toda la pantalla
 	var root_ctrl = Control.new()
 	root_ctrl.set_anchors_preset(Control.PRESET_FULL_RECT)

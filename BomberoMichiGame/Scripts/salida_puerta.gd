@@ -10,7 +10,7 @@ extends Area2D
 
 # Parámetros para cambio de escena
 @export var nombre_gato_requerido: String = "Osiris"  # Nombre del gato que debe ser rescatado
-@export var escena_destino: String = "res://Scenes/Levels/LevelCasino/CasinoBoss.tscn"  # Escena siguiente
+@export var escena_destino: String = "res://Scenes/Levels/NewHellLevel/hell01.tscn"  # Escena siguiente
 @export var offset_spawn: Vector2 = Vector2(50, 0)  # Distancia desde la puerta al aparecer
 
 var color_rect: ColorRect = null

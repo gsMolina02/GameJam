@@ -2,7 +2,7 @@ extends "res://personajes/personaje_base.gd"
 
 # Si este minion es de fuego, instancia una luz de plantilla para crear brillo y flicker
 @export var is_fire_minion: bool = false
-@export var damage_al_jugador: float = 15.0 # Cámbialo al daño que quieras que haga
+@export var damage_al_jugador: float = 5.0 # Cámbialo al daño que quieras que haga
 var fire_light_scene = preload("res://Scenes/VisualEffects/fire_light.tscn")
 
 var direccion := Vector2.ZERO
@@ -18,8 +18,8 @@ var can_shoot = true
 var fireball_scene = preload("res://personajes/minions/fireball_visual.tscn")
 
 var anim_player: AnimatedSprite2D = null
-var max_health: float = 10.0  # Vida máxima del minion (ajustado para 1 segundo con water_pressure = 10)
-var health: float = 10.0
+var max_health: float = 1.0  # Vida máxima del minion (ajustado para 1 segundo con water_pressure = 10)
+var health: float = 1.0
 var is_being_extinguished: bool = false
 
 
