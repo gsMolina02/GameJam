@@ -12,7 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://bkxihhd4v43qm" path="res://Interfaces/puse_menu.tscn" id="7_pause"]
 [ext_resource type="PackedScene" uid="uid://oysdlu64rb7d" path="res://Scenes/Entities/puerta.tscn" id="11_p5njm"]
 [ext_resource type="Script" uid="uid://bmi6b0xff8sy" path="res://Scripts/room_manager.gd" id="12_p5njm"]
-[ext_resource type="PackedScene" uid="uid://bh08j56ukxtp" path="res://Resources/fonts/hub.tscn" id="13_u1sv6"]
+[ext_resource type="PackedScene" uid="uid://bh08j56ukxtp" path="res://Hub/hub.tscn" id="13_u1sv6"]
 
 [node name="escenaPrueba" type="Node2D"]
 position = Vector2(428, 355)

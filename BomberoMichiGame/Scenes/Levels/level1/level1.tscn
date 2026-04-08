@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_5rljr"]
 [ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/fuego.tscn" id="3_xfvig"]
 [ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="4_fdvuu"]
-[ext_resource type="PackedScene" uid="uid://bh08j56ukxtp" path="res://Resources/fonts/hub.tscn" id="5_a4g0f"]
+[ext_resource type="PackedScene" uid="uid://bh08j56ukxtp" path="res://Hub/hub.tscn" id="5_a4g0f"]
 [ext_resource type="Script" uid="uid://bmi6b0xff8sy" path="res://Scripts/room_manager.gd" id="6_nrrqw"]
 [ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="6_w2im6"]
 [ext_resource type="PackedScene" uid="uid://bmhb6a78qs4n" path="res://Objects/Boxes/box.tscn" id="7_4aogg"]
