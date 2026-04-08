@@ -66,23 +66,6 @@ var _last_attack_type: String = "general"  # "general" o "jump"
 var _attack_state: String = "idle"  # idle | windup | executing | recovery
 var _health_bar_timer: float = 0.0
 
-func _ready() -> void:
-	add_to_group("enemy")
-	add_to_group("hellhound")
-	_current_health = max_health
-	_sprite_base_position = sprite.position if sprite else Vector2.ZERO
-	_configure_detection_area()
-
-	if detection_area.body_entered.is_connected(_on_detection_body_entered) == false:
-		detection_area.body_entered.connect(_on_detection_body_entered)
-	if detection_area.body_exited.is_connected(_on_detection_body_exited) == false:
-		detection_area.body_exited.connect(_on_detection_body_exited)
-
-	_sync_detection_shape()
-	_configure_health_bar()
-	_play_animation_if_exists(idle_animation, run_animation)
-	target = _find_player()
-	_update_facing_direction()
 
 func _physics_process(delta: float) -> void:
 	if _is_dead:
@@ -309,7 +292,35 @@ func _find_player() -> Node2D:
 					return n as Node2D
 
 	return null
+	
+func _ready() -> void:
+	# --- NUEVO: Control de destrucción de GameManager ---
+	if "nodos_destruidos" in GameManager and str(get_path()) in GameManager.nodos_destruidos:
+		queue_free()
+		return
 
+	add_to_group("enemy")
+	add_to_group("hellhound")
+	_current_health = max_health
+	_sprite_base_position = sprite.position if sprite else Vector2.ZERO
+
+	# --- NUEVO: Verificación de nodos ---
+	if sprite == null: # Cambié anim_player a sprite, que es la variable real en tu script
+		push_error("HellHound: no se encontró AnimatedSprite2D!")
+	# Nota: Eliminé la verificación de wait_timer porque esa variable NO EXISTE en este script
+
+	_configure_detection_area()
+
+	if detection_area.body_entered.is_connected(_on_detection_body_entered) == false:
+		detection_area.body_entered.connect(_on_detection_body_entered)
+	if detection_area.body_exited.is_connected(_on_detection_body_exited) == false:
+		detection_area.body_exited.connect(_on_detection_body_exited)
+
+	_sync_detection_shape()
+	_configure_health_bar()
+	_play_animation_if_exists(idle_animation, run_animation)
+	target = _find_player()
+	_update_facing_direction()
 func _sync_detection_shape() -> void:
 	var shape_node := detection_area.get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if shape_node == null:
@@ -552,6 +563,12 @@ func _get_current_attack_cooldown() -> float:
 
 func apply_water(amount: float) -> void:
 	take_damage(amount, &"agua")
+
+func _die_sequence_finished() -> void:
+	if is_inside_tree():
+		if "nodos_destruidos" in GameManager:
+			GameManager.registrar_nodo_destruido(str(get_path()))
+		queue_free()
 
 func die() -> void:
 	if _is_dead:

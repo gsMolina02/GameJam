@@ -1,7 +1,7 @@
 [gd_scene load_steps=30 format=3 uid="uid://dgooxxoch0lkq"]
 
-[ext_resource type="Texture2D" uid="uid://c0py88gnwk54y" path="res://Scenes/Levels/level1/unnamed.jpg" id="1_5rljr"]
-[ext_resource type="PackedScene" path="res://Scenes/Entities/gato_gris.tscn" id="2_2yhdf"]
+[ext_resource type="Texture2D" uid="uid://dlw1sx2lnemu1" path="res://Scenes/Levels/level1/unnamed.jpg" id="1_5rljr"]
+[ext_resource type="PackedScene" uid="uid://b4cinnlduff6a" path="res://Scenes/Entities/gato_gris.tscn" id="2_2yhdf"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="2_5rljr"]
 [ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/fuego.tscn" id="3_xfvig"]
 [ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="4_fdvuu"]
@@ -18,7 +18,7 @@
 [ext_resource type="Script" uid="uid://cq4wy7y3crqm" path="res://Scripts/music_loop_controller.gd" id="14_music_loop"]
 [ext_resource type="Script" uid="uid://ccb0dahl5xbx6" path="res://Scripts/asphyxia_effect.gd" id="14_suv00"]
 [ext_resource type="Shader" uid="uid://d4lrn2uw3kjb7" path="res://Assets/fondos/level1.gdshader" id="16_ty6f8"]
-[ext_resource type="Texture2D" uid="uid://blpotfx727o5c" path="res://Assets/fondos/nubes sofocado.png" id="17_6le7m"]
+[ext_resource type="Texture2D" uid="uid://bpkgmrclxrar6" path="res://Assets/fondos/nubes sofocado.png" id="17_6le7m"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7103a"]
 size = Vector2(650, 183)
@@ -121,6 +121,7 @@ position = Vector2(422.5, 872)
 shape = SubResource("RectangleShape2D_a4g0f")
 
 [node name="MundoGrisLayer" type="CanvasLayer" parent="."]
+visible = false
 script = ExtResource("14_suv00")
 oxygen_threshold_start = 40.0
 sfx_volume_db = 10.0
@@ -185,6 +186,16 @@ nombre_puerta_destino = "Puerta nivel 2"
 [node name="HUD" parent="PersonajesYFuegoLayer" instance=ExtResource("6_w2im6")]
 layer = 20
 
+[node name="mascota" parent="PersonajesYFuegoLayer" instance=ExtResource("13_70f7q")]
+position = Vector2(777, 231)
+objetivo = NodePath("../personajePrincipal")
+vida_maxima = 100.0
+
+[node name="Calaca" type="Sprite2D" parent="PersonajesYFuegoLayer"]
+position = Vector2(1301, 812)
+scale = Vector2(0.07314821, 0.058333375)
+texture = ExtResource("14_3cji1")
+
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 visible = false
 
@@ -197,16 +208,6 @@ position = Vector2(7, 0)
 stream = ExtResource("14_2f65u")
 volume_db = -17.301
 script = ExtResource("14_music_loop")
-
-[node name="mascota" parent="PersonajesYFuegoLayer" instance=ExtResource("13_70f7q")]
-position = Vector2(777, 231)
-objetivo = NodePath("../personajePrincipal")
-vida_maxima = 100.0
-
-[node name="Calaca" type="Sprite2D" parent="PersonajesYFuegoLayer"]
-position = Vector2(1301, 812)
-scale = Vector2(0.07314821, 0.058333375)
-texture = ExtResource("14_3cji1")
 
 [node name="EfectoPantallaLayer" type="CanvasLayer" parent="."]
 layer = 20

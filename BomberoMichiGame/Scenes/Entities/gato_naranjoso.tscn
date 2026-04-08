@@ -57,11 +57,10 @@ position = Vector2(-394, -197)
 script = ExtResource("1_geexe")
 nombre_gato = "Pelusa"
 mensaje_agradecimiento = "¡Purr... creí que no lo lograría! Las llamas me tenían acorralada... ¡eres increíble, bombero! Nunca olvidaré esto."
-mostrar_dialogo_automatico = true
 tipo_poder = "capacidad_manguera"
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(554, 356.00003)
+position = Vector2(426, 209.00002)
 scale = Vector2(0.05, 0.05)
 sprite_frames = SubResource("SpriteFrames_rqsat")
 animation = &"idle"
@@ -69,13 +68,13 @@ autoplay = "idle"
 frame_progress = 0.7869946
 
 [node name="InteractionArea" type="Area2D" parent="."]
-position = Vector2(554, 356)
+position = Vector2(426, 208.99997)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea"]
 shape = SubResource("RectangleShape2D_bpr4t")
 
 [node name="Area2D" type="Area2D" parent="."]
-position = Vector2(558, 361)
+position = Vector2(425, 211.00005)
 scale = Vector2(10, 10)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
