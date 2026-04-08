@@ -8,6 +8,9 @@ var hose_drain_rate_jugador: float = 4.0  # Para restaurar poder de manguera
 var puerta_origen: String = ""  # Nombre de la puerta por la que entramos
 var offset_spawn: Vector2 = Vector2(50, 0)
 
+# Gatos rescatados
+var gatos_rescatados: Array[String] = []
+
 # ─── Estado del mundo guardado ───
 var nodos_destruidos: Array = []
 var posicion_guardada: Vector2 = Vector2.INF
@@ -104,6 +107,29 @@ func reset_estado() -> void:
 	vida_maxima_jugador = 100.0
 	hose_drain_rate_jugador = 4.0
 	puerta_origen = ""
+	gatos_rescatados.clear()
 	nodos_destruidos.clear()
 	posicion_guardada = Vector2.INF
 	print("🔄 Estado del jugador y mundo reiniciado")
+
+# ============================================
+# GESTIÓN DE GATOS RESCATADOS
+# ============================================
+
+func fue_gato_rescatado(nombre_gato: String) -> bool:
+	"""Verifica si un gato específico fue rescatado"""
+	return gatos_rescatados.has(nombre_gato)
+
+func rescatar_gato(nombre_gato: String) -> void:
+	"""Marca un gato como rescatado"""
+	if not gatos_rescatados.has(nombre_gato):
+		gatos_rescatados.append(nombre_gato)
+		print("✅ Gato rescatado:", nombre_gato)
+		print("   Gatos totales rescatados:", gatos_rescatados.size())
+	else:
+		print("ℹ️ El gato", nombre_gato, "ya fue rescatado")
+
+# Alias para compatibilidad con scripts existentes
+func marcar_gato_rescatado(nombre_gato: String) -> void:
+	"""Alias de rescatar_gato para compatibilidad"""
+	rescatar_gato(nombre_gato)
