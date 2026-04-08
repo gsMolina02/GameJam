@@ -43,6 +43,9 @@ var translations = {
 		# NPCs
 		"npc.talk": "[F] Hablar",
 		"npc.thanks": "¡Gracias por salvarme!",
+		"cat.rescue_message": "¡Miauu! ¡Lo lograste! Apagaste el fuego y derrotaste a todos los enemigos... ¡gracias a ti estoy a salvo, héroe!",
+			"cat.gift_message_resistencia_pulmonar": "¡Gracias a ti pude respirar de nuevo, héroe! Como muestra de gratitud, ¡te transfiero parte de mi fuerza! Tu resistencia pulmonar aumentó un 5%.",
+		"cat.gift_message_capacidad_manguera": "¡Purr... toma mi energía, bombero! La presión de tu manguera mejoró: ahora consumirá un 10% menos de agua.",
 		
 		# HUD
 		"hud.life": "Vida",
@@ -104,6 +107,9 @@ var translations = {
 		# NPCs
 		"npc.talk": "[F] Talk",
 		"npc.thanks": "Thanks for saving me!",
+		"cat.rescue_message": "Meow! You did it! You put out the fire and defeated all the enemies... thanks to you I'm safe, hero!",
+			"cat.gift_message_resistencia_pulmonar": "Thanks to you I could breathe again, hero! As a token of gratitude, I transfer part of my strength to you! Your lung resistance increased by 5%.",
+			"cat.gift_message_capacidad_manguera": "Purr... take my energy, firefighter! Your hose pressure improved: it will now consume 10% less water.",
 		
 		# HUD
 		"hud.life": "Life",
@@ -165,6 +171,9 @@ var translations = {
 		# NPCs
 		"npc.talk": "[F] Falar",
 		"npc.thanks": "Obrigado por me salvar!",
+		"cat.rescue_message": "Miau! Você conseguiu! Apagou o fogo e derrotou todos os inimigos... graças a você estou a salvo, herói!",
+			"cat.gift_message_resistencia_pulmonar": "Graças a você pude respirar de novo, herói! Como prova de gratidão, transfiro parte da minha força para você! Sua resistência pulmonar aumentou 5%.",
+			"cat.gift_message_capacidad_manguera": "Purr... pegue minha energia, bombeiro! A pressão da sua mangueira melhorou: consumirá 10% menos de água.",
 		
 		# HUD
 		"hud.life": "Vida",
