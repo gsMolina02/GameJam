@@ -6,6 +6,11 @@ var tiempo_actual := 0.0
 var tiempo_desde_disparo := 0.0
 var FireballScene: PackedScene = null
 
+# Variables de vida del jefe
+@export var vida_maxima_jefe: float = 500.0
+var vida_actual_jefe: float = 500.0
+var hud_boss = null  # Referencia al HUD del jefe
+
 # Parámetros de las bolas de fuego orbitales
 @export var orbit_count := 5  # Cantidad de bolas en órbita
 @export var orbit_radius := 160.0
@@ -22,7 +27,7 @@ var orbit_angles := []
 
 # Minion spawning
 @export var minion_scene: PackedScene = null
-@export var minion_spawn_interval := 5.0  # Spawn minion cada 5 segundos
+@export var minion_spawn_interval := 180.0  # Spawn minion cada 3 minutos (180 segundos) SOLO si no hay minions
 @export var min_spawn_distance := 150.0  # Distancia mínima del bombero para spawn
 var minion_spawn_timer := 0.0
 
@@ -53,11 +58,16 @@ func _physics_process(delta):
 		else:
 			_lanzar_orbita()
 	
-	# Spawn minions periódicamente
+	# Spawn minions periódicamente - SOLO si no hay minions activos
 	minion_spawn_timer += delta
-	if minion_spawn_timer >= minion_spawn_interval:
+	var minions_activos = _count_active_minions()
+	if minion_spawn_timer >= minion_spawn_interval and minions_activos == 0:
 		minion_spawn_timer = 0.0
+		print("⚠️ 3 minutos pasaron sin minions. Spawneando nuevo minion...")
 		_spawn_minion()
+	elif minions_activos > 0 and minion_spawn_timer > 0.1:  # Resetear timer si hay minions
+		print("👹 Aún hay ", minions_activos, " minions en el mapa. Esperando...")
+		minion_spawn_timer = 0.0
 
 
 func _ready():
@@ -68,6 +78,36 @@ func _ready():
 
 	FireballScene = load("res://personajes/minions/fireball_visual.tscn")
 	minion_scene = load("res://personajes/minions/minions.tscn")
+	
+	# ============ INICIALIZAR VIDA DEL JEFE ============
+	vida_actual_jefe = vida_maxima_jefe
+	print("✓ Jefe iniciado con vida: ", vida_actual_jefe, "/", vida_maxima_jefe)
+	
+	# ============ BUSCAR Y CONECTAR HUD ============
+	# Buscar el HUD en la escena
+	var scene = get_tree().current_scene
+	if scene:
+		# Intentar diferentes rutas
+		hud_boss = scene.get_node_or_null("CanvasLayer2/HudBoss")  # Ruta correcta en CasinoBoss
+		if not hud_boss:
+			hud_boss = scene.get_node_or_null("CanvasLayer/HudBoss")  # Si está bajo CanvasLayer
+		if not hud_boss:
+			hud_boss = scene.get_node_or_null("HudBoss")  # O directamente en la raíz
+		if not hud_boss:
+			hud_boss = scene.get_node_or_null("../HudBoss")  # O un nivel arriba
+		if not hud_boss:
+			# Búsqueda más amplia
+			hud_boss = scene.find_child("HudBoss", true, false)
+	
+	if hud_boss and hud_boss.has_method("actualizar_interfaz"):
+		hud_boss.actualizar_interfaz(vida_actual_jefe, vida_maxima_jefe)
+		print("✓ HUD del jefe conectado en: ", hud_boss.get_path())
+	else:
+		print("⚠️ HUD del jefe no encontrado. Buscando en escena...")
+		print("   Escena actual: ", scene.name if scene else "Ninguna")
+		if scene:
+			for child in scene.get_children():
+				print("   - Nodo: ", child.name)
 	
 	# Agregar el jefe al grupo "enemy" y "boss"
 	add_to_group("enemy")
@@ -249,6 +289,29 @@ func _lanzar_orbita():
 	_spawn_orbit_fireballs()
 
 
+func _count_active_minions() -> int:
+	"""Cuenta cuántos minions hay activos en la escena"""
+	var scene = get_tree().current_scene
+	if not scene:
+		return 0
+	
+	var minions = 0
+	# Buscar todos los nodos que sean minions
+	for child in scene.find_children("*", "CharacterBody2D", true, false):
+		if child.is_in_group("minion") or child.name.contains("Minion") or child.name.contains("minion"):
+			if child.is_inside_tree():
+				minions += 1
+	
+	# Método alternativo: buscar por script
+	for child in scene.get_children():
+		if child.script and child.script.resource_path.contains("minion"):
+			if child.is_inside_tree():
+				minions += 1
+	
+	print("📊 Minions activos en escena: ", minions)
+	return minions
+
+
 func _spawn_minion():
 	"""Spawns a minion away from the firefighter"""
 	if minion_scene == null:
@@ -296,42 +359,70 @@ func _spawn_minion():
 	m = minion_scene.instantiate()
 	m.global_position = spawn_pos
 	scene.call_deferred("add_child", m)
-	print_debug("Jefe spawned minion at:", spawn_pos, "distance from bombero:", spawn_pos.distance_to(bombero.global_position))
+	print("👹 Minion spawneado después de 3 minutos en: ", spawn_pos)
 
 
 func take_damage(amount: float) -> void:
-	"""Recibe daño y verifica si muere. Usa el sistema de vida heredado (recibir_dano)."""
-	# Utilizar el sistema de vida del padre (personaje_base) para mantener consistencia
-	if has_method("recibir_dano"):
-		print("Jefe: recibiendo daño ->", amount)
-		recibir_dano(amount)
-		print("Jefe: vida restante ->", vida_actual, "/", vida_maxima)
+	"""Recibe daño y verifica si muere. Usa el sistema de vida propia del jefe."""
+	vida_actual_jefe -= amount
+	vida_actual_jefe = clamp(vida_actual_jefe, 0, vida_maxima_jefe)
+	
+	print("🔴 Jefe recibió daño: ", amount, " (Vida: ", vida_actual_jefe, "/", vida_maxima_jefe, ")")
+	
+	# Actualizar HUD
+	if hud_boss and hud_boss.has_method("actualizar_interfaz"):
+		hud_boss.actualizar_interfaz(vida_actual_jefe, vida_maxima_jefe)
+		print("✓ HUD actualizado: ", vida_actual_jefe, "/", vida_maxima_jefe)
 	else:
-		# Fallback: si por alguna razón no existe recibir_dano, almacenar en vida_actual directamente
-		vida_actual = (vida_actual if typeof(vida_actual) != TYPE_NIL else 0) - amount
-		print("Jefe (fallback) tomó daño:", amount, "vida restante:", vida_actual)
-		if vida_actual <= 0:
-			die()
+		print("⚠️ HUD no disponible para actualizar")
+	
+	# Efecto visual: cambiar color a rojo por un momento (ejecutar sin esperar)
+	_flash_damage()
+	
+	if vida_actual_jefe <= 0:
+		die()
 
 
 func apply_water(amount: float) -> void:
-	"""Recibe daño por agua de la manguera (delegar a recibir_dano para consistencia)."""
-	if has_method("recibir_dano"):
-		recibir_dano(amount)
-		print("Jefe: recibió agua ->", amount, "vida restante:", vida_actual)
-	else:
-		take_damage(amount)
+	"""Recibe daño por agua de la manguera."""
+	take_damage(amount)
+	print("💧 Jefe recibió agua: ", amount)
+
+
+func _flash_damage() -> void:
+	"""Efecto visual de daño: flash rojo"""
+	var animated_sprite = get_node_or_null("bossAnimated")
+	
+	if not animated_sprite:
+		# Si no hay sprite con ese nombre, buscar el primer AnimatedSprite2D
+		for child in get_children():
+			if child is AnimatedSprite2D:
+				animated_sprite = child
+				break
+	
+	if animated_sprite:
+		# Guardar color original
+		var original_color = Color.WHITE
+		# Flash rojo
+		animated_sprite.modulate = Color.RED
+		print("🔴 Flash de daño activado")
+		
+		# Esperar y restaurar usando un timer
+		await get_tree().create_timer(0.2).timeout
+		if is_inside_tree():  # Verificar que el nodo aún existe
+			animated_sprite.modulate = original_color
+			print("✓ Color restaurado")
 
 
 func die() -> void:
 	"""Muerte del jefe"""
-	print("¡Jefe derrotado!")
-	
-	if "nodos_destruidos" in GameManager:
-		GameManager.registrar_nodo_destruido(str(get_path()))
+		print("💀 ¡¡¡ JEFE DEL CASINO DERROTADO !!!")
+		print("🎊 Victoria alcanzada después de una batalla épica")
+		print("¡Jefe derrotado!")
 		
-	# Aquí puedes agregar efectos de muerte, sonidos, etc.
-	queue_free()
+		if "nodos_destruidos" in GameManager:
+			GameManager.registrar_nodo_destruido(str(get_path()))
+		
 
 
 func _on_hit_area_area_entered(area: Node) -> void:

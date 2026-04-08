@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://bh08j56ukxtp"]
+
+[ext_resource type="Script" uid="uid://dwci2hamwcyo8" path="res://Hub/hub.gd" id="1_lcg3h"]
+[ext_resource type="Texture2D" uid="uid://dq51ep7yij4pt" path="res://Hub/marcoHUD-Photoroom.png" id="2_qjn6s"]
+
+[node name="Hub" type="CanvasLayer"]
+script = ExtResource("1_lcg3h")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="marco" type="TextureRect" parent="Control"]
+layout_mode = 0
+offset_right = 1497.0
+offset_bottom = 901.0
+texture = ExtResource("2_qjn6s")
