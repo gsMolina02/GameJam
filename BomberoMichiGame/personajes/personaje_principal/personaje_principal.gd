@@ -1345,9 +1345,9 @@ func _update_oxygen_system(delta):
 		oxygen_zero_timer -= delta
 		
 		# Si se acaba el tiempo sin oxígeno, morir
-		if oxygen_zero_timer <= 0.0 and not is_dead:
-			is_dead = true
+		if oxygen_zero_timer <= 0.0:
 			print("💀 ¡TIEMPO AGOTADO! Game Over sin oxígeno")
+			_vencer()
 		return
 	else:
 		# Resetear contador si hay oxígeno
