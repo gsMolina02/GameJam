@@ -915,7 +915,7 @@ animations = [{
 }]
 
 [node name="personajePrincipal" type="CharacterBody2D" groups=["player_main"]]
-position = Vector2(762.00006, 363.00003)
+position = Vector2(375.00003, 238.00003)
 rotation = -0.00036524187
 scale = Vector2(0.8753578, 0.9185894)
 script = ExtResource("1_yy08j")

@@ -309,7 +309,7 @@ animations = [{
 }]
 
 [node name="mascota" type="CharacterBody2D"]
-position = Vector2(633, 272)
+position = Vector2(504.99994, 232.99997)
 rotation = -0.00036524187
 collision_layer = 2
 script = ExtResource("1_frh65")

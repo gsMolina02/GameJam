@@ -533,13 +533,11 @@ func _physics_process(delta):
 	# keep_in_viewport()
 
 func _unhandled_input(event):
-	# Si el jugador está muerto, no procesar ningún input (el menú de muerte maneja todo)
+	# Si el jugador está muerto, no procesar ningún input
 	if not vivo:
 		return
 
 	# Detectar ESC para pausar el juego
-	# Usamos detección directa por keycode como método robusto,
-	# sin depender únicamente del mapeo de ui_cancel en el proyecto.
 	var is_esc_key: bool = (event is InputEventKey
 		and (event as InputEventKey).pressed
 		and not (event as InputEventKey).echo
@@ -552,14 +550,7 @@ func _unhandled_input(event):
 		get_viewport().set_input_as_handled()
 		return
 
-	# Detectar tecla V para ataque especial de la manguera (sin cambiar de arma)
-	if event is InputEventKey and event.pressed and not event.is_echo():
-		if event.keycode == KEY_V:
-			_perform_hose_special_attack()
-			get_viewport().set_input_as_handled()
-			return
-
-	# Detectar cambio de arma por mouse - click derecho
+	# Detectar cambio de arma por mouse - click derecho o rueda
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			last_mouse_button_time = Time.get_ticks_msec()
@@ -569,6 +560,8 @@ func _unhandled_input(event):
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP or event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			if event.pressed:
 				switch_weapon()
+				get_viewport().set_input_as_handled()
+				return
 
 func _configure_mouse_combat_bindings():
 	"""Asegurar que click derecho esté asignado a switch_weapon."""
@@ -742,37 +735,23 @@ func _update_weapon_orientation(delta: float):
 	if hose_sprite:
 		_orient_hose(direction, angle)
 
-func _orient_axe(direction: Vector2, angle: float):
-	"""Orienta el hacha según la dirección del mouse con volteo visual"""
-	var base_offset = 50.0  # Distancia desde el centro del personaje
-	
-	# Calcular posición del hacha alrededor del personaje
-	var axe_position = axe_pivot_base_position + direction * base_offset + Vector2(0, 10.0) + axe_pivot_extra_offset
-
+func _orient_axe(direction: Vector2, _angle: float):
+	"""Orienta el sprite del ataque sin rotar ni orbitar todo el personaje"""
+	# Mantenemos el pivote quieto en el centro
 	if axe_pivot:
-		axe_pivot.position = axe_position
-	
-	# Voltear el hacha por lado, pero corrigiendo el offset angular
-	# para que la punta siempre apunte al objetivo.
-	var facing_right := direction.x > 0.0
-	axe_sprite.scale.x = abs(axe_base_scale.x)
-	axe_sprite.scale.y = abs(axe_base_scale.y) * (1.0 if facing_right else -1.0)
-	
-	# El offset cambia según el espejo para mantener la punta alineada.
-	var angle_offset := PI / 2 if facing_right else -PI / 2
-	if axe_pivot:
-		axe_pivot.rotation = angle + angle_offset
-		axe_sprite.rotation = 0.0
-	else:
-		axe_sprite.rotation = angle + angle_offset
-	
-	# Mantener arma siempre delante del personaje para evitar cambios molestos de profundidad.
-	if axe_pivot:
-		axe_pivot.z_index = 0
-		axe_pivot.show_behind_parent = false
-	else:
-		axe_sprite.z_index = 0
-		axe_sprite.show_behind_parent = false
+		axe_pivot.position = axe_pivot_base_position
+		axe_pivot.rotation = 0
+		
+	if axe_sprite:
+		axe_sprite.rotation = 0
+		# Aseguramos que la escala sea siempre positiva (por si se invirtió en el editor)
+		axe_sprite.scale = Vector2(abs(axe_base_scale.x), abs(axe_base_scale.y))
+		
+		# Si apuntas a la derecha, flip es falso. Si apuntas a la izquierda, flip es verdadero.
+		if direction.x > 0:
+			axe_sprite.flip_h = false
+		else:
+			axe_sprite.flip_h = true
 
 func _orient_hose(direction: Vector2, angle: float):
 	"""Orienta la manguera según la dirección del mouse con volteo visual"""
@@ -834,28 +813,33 @@ func mejorar_manguera() -> void:
 	print("💨 Resistencia pulmonar aumentada! Nueva vida máxima: ", vida_maxima)
 
 func switch_weapon():
-	"""Cambio de armas deshabilitado - solo manguera disponible"""
-	# El jugador siempre usa la manguera
-	# El ataque V es un ataque especial de la manguera
-	print("⚠️ Cambio de arma deshabilitado - Solo manguera disponible")
+	"""Alterna entre la Manguera y el Hacha"""
+	if current_weapon == Weapon.HOSE:
+		current_weapon = Weapon.AXE
+		# Si estaba disparando agua, la apagamos al guardar la manguera
+		if is_using_hose:
+			_deactivate_hose()
+		print("🪓 Arma cambiada a: HACHA")
+	else:
+		current_weapon = Weapon.HOSE
+		print("💧 Arma cambiada a: MANGUERA")
 	
-	# Emitir señal
+	_update_weapon_visuals()
 	emit_signal("weapon_switched", current_weapon)
 
 func _update_weapon_visuals():
-	"""Actualiza los visuales según el arma equipada"""
-	var is_axe_equipped = (current_weapon == Weapon.AXE)
 	var is_hose_equipped = (current_weapon == Weapon.HOSE)
 	
+	# El sprite del ataque con hacha debe estar oculto por defecto
 	if axe_sprite:
-		axe_sprite.visible = is_axe_equipped
+		axe_sprite.visible = false
+		
 	if hose_sprite:
 		hose_sprite.visible = is_hose_equipped
 	if water_particles:
 		water_particles.visible = is_hose_equipped
 		if not is_hose_equipped:
 			water_particles.emitting = false
-
 # ============================================
 # SISTEMA DE MANGUERA
 # ============================================
@@ -1022,24 +1006,6 @@ func _try_extinguish_fire(target, water_amount: float):
 			target.extinguish()
 			emit_signal("fire_extinguished", target)
 
-# ============================================
-# SISTEMA DE MUERTE DEL JUGADOR
-# ============================================
-func take_damage(amount: float) -> void:
-	"""Recibe daño de enemigos - usa el sistema de vida heredado"""
-	# Usar el sistema de vida del padre (personaje_base) - ahora acepta float
-	recibir_dano(amount)
-
-func die() -> void:
-	# Detener el juego cuando la vida llega a 0
-	if is_dead:
-		return
-	is_dead = true
-	# Asegurar que este nodo siga recibiendo input durante la pausa (Godot 4)
-	process_mode = Node.PROCESS_MODE_WHEN_PAUSED
-	get_tree().paused = true
-	# Aquí podrías reproducir animación/sonido de muerte
-	print("💀 El Bombero ha muerto. Juego pausado.")
 
 # ============================================
 # SISTEMA DE ATAQUE CON HACHA
@@ -1119,84 +1085,6 @@ func _reset_axe_position():
 	if axe_sprite:
 		axe_sprite.rotation_degrees = 0
 
-func _perform_hose_special_attack():
-	"""Ataque especial de la manguera - solo animación sin cambiar de arma"""
-	# Evitar ejecutar si ya está en ataque especial
-	if is_performing_special_attack:
-		return
-	
-	# Solo funciona si está usando la manguera
-	if current_weapon != Weapon.HOSE:
-		return
-	
-	# Activar flag de ataque especial para evitar rotación
-	is_performing_special_attack = true
-	
-	# Guardar escala original del sprite PRIMERO, antes de hacer cualquier cambio
-	if not character_sprite:
-		is_performing_special_attack = false
-		return
-	
-	var original_scale = character_sprite.scale
-	
-	# Ocultar la manguera durante el ataque
-	if hose_sprite:
-		hose_sprite.visible = false
-	if hose_pivot:
-		hose_pivot.visible = false
-	
-	# Aumentar escala una sola vez para compensar diferencia de tamaño de imágenes del ataque
-	character_sprite.scale = original_scale * 2.5
-	
-	if character_sprite.sprite_frames:
-		# Determinar la animación correcta según la dirección
-		var attack_animation = "AtaqueAxeDer"
-		if last_direction.x < 0:
-			# Mirando a la izquierda - intentar usar AtaqueAxeIzq
-			if character_sprite.sprite_frames.has_animation("AtaqueAxeIzq"):
-				attack_animation = "AtaqueAxeIzq"
-			else:
-				# Si no existe, usar la derecha con flip
-				character_sprite.flip_h = true
-		else:
-			# Mirando a la derecha - asegurar flip desactivado
-			character_sprite.flip_h = false
-		
-		if character_sprite.sprite_frames.has_animation(attack_animation):
-			# Detener primero cualquier animación anterior
-			character_sprite.stop()
-			# Ahora reproducir la nueva
-			character_sprite.play(attack_animation)
-	
-	# NO consumir agua - ataque gratuito
-	
-	# Esperar a que termine la animación (más tiempo para verla completa)
-	await get_tree().create_timer(0.7).timeout
-	
-	# Hacer daño a enemigos en el área
-	if axe_hitbox:
-		axe_hitbox.monitoring = true
-		var overlapping_bodies = axe_hitbox.get_overlapping_bodies()
-		for body in overlapping_bodies:
-			if body != self and not body.is_in_group("player"):
-				if body.has_method("take_damage"):
-					body.take_damage(axe_damage if axe_damage != null else 5)
-		axe_hitbox.monitoring = false
-	
-	# Restaurar sprite del personaje a idle
-	if character_sprite:
-		character_sprite.scale = original_scale  # Restaurar escala original
-		character_sprite.flip_h = false  # Restaurar orientación normal
-		character_sprite.play("AxelIdleFrDer")
-	
-	# Mostrar la manguera de nuevo
-	if hose_sprite:
-		hose_sprite.visible = true
-	if hose_pivot:
-		hose_pivot.visible = true
-	
-	# Desactivar flag de ataque especial
-	is_performing_special_attack = false
 
 func _perform_axe_attack():
 	if not axe_hitbox:

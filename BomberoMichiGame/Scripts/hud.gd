@@ -17,7 +17,7 @@ const RECONNECT_CHECK_INTERVAL: float = 0.5
 
 func _ready():
 	# Buscar el efecto de asfixia de forma genérica
-	asphyxia_effect = get_tree().root.find_child("MundoGrisLayer", true, false)
+	asphyxia_effect = get_tree().root.find_child("AsphyxiaLayer", true, false) # O el nombre que tenga tu nodo
 	if asphyxia_effect:
 		print("HUD: MundoGrisLayer encontrado ✅")
 
@@ -118,9 +118,15 @@ func _on_player_vida_actualizada(nueva_vida: float) -> void:
 			color_o2 = Color.RED.lerp(Color.YELLOW, nueva_vida / 50.0)
 		oxigeno_bar.tint_progress = color_o2
 
-	# Llamamos al efecto usando 'call' para que no falle si el script no cargó
-	if is_instance_valid(asphyxia_effect):
-		asphyxia_effect.call("update_oxygen", nueva_vida)
+	# --- NUEVA BÚSQUEDA INDESTRUCTIBLE ---
+	# Buscamos al nodo que tenga el grupo, sin importar su nombre o dónde esté
+	var pantalla_tos = get_tree().get_first_node_in_group("efecto_asfixia")
+	if pantalla_tos:
+		pantalla_tos.update_oxygen(nueva_vida)
+	else:
+		# Si ves esto en la consola, significa que olvidaste poner la escena 
+		# de asfixia en el nivel que estás jugando.
+		print("❌ HUD: No encontré la pantalla de asfixia en este nivel.")
 
 # 5. ACTUALIZAR BARRA DE AGUA (CELESTE)
 func _on_player_hose_recharged(nuevo_porcentaje: float) -> void:
