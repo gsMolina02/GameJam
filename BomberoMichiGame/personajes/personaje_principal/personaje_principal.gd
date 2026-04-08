@@ -65,6 +65,7 @@ var can_attack = true
 var hose_charge = 100.0
 var is_using_hose = false
 var current_weapon = Weapon.HOSE  # Iniciar con MANGUERA equipada
+var hacha_desbloqueada: bool = true  # Siempre disponible desde el inicio
 var apuntador = null
 var apuntador_offset = Vector2(130, 30)
 var current_aim_direction: Vector2 = Vector2.RIGHT
@@ -577,7 +578,7 @@ func _handle_input():
 	if Input.is_action_just_pressed("ui_focus_next"):
 		print("🎮 Q presionado - cambiando arma")
 		switch_weapon()
-	
+
 	# Sistema de manguera (botón mantenido) - solo si está equipada
 	if current_weapon == Weapon.HOSE:
 		if Input.is_action_pressed("use_hose"):
@@ -744,6 +745,18 @@ func _orient_hose(direction: Vector2, angle: float):
 # ============================================
 # SISTEMA DE INTERCAMBIO DE ARMAS
 # ============================================
+
+func aumentar_resistencia_pulmonar() -> void:
+	"""Gato nivel 1: +5% de vida_maxima (más resistencia al humo)"""
+	vida_maxima = vida_maxima * 1.05
+	vida_actual = min(vida_actual, vida_maxima)
+	emit_signal("vida_cambiada", vida_actual, vida_maxima)
+
+func mejorar_manguera() -> void:
+	"""Gato nivel 2: la manguera consume un 10% menos de agua por segundo"""
+	hose_drain_rate = hose_drain_rate * 0.90
+	print("💧 hose_drain_rate reducido a: ", hose_drain_rate)
+	print("💨 Resistencia pulmonar aumentada! Nueva vida máxima: ", vida_maxima)
 
 func switch_weapon():
 	"""Cambio de armas entre hacha y manguera"""
