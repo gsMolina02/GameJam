@@ -2,14 +2,14 @@
 
 [ext_resource type="Script" uid="uid://bj3y1j5ow43wf" path="res://Scripts/hud.gd" id="1_sprlj"]
 [ext_resource type="Texture2D" uid="uid://ce62jxl3bprag" path="res://Assets/fondos/HUD_vida_vacio.png" id="2_ny26j"]
-[ext_resource type="Texture2D" uid="uid://c8v3j2gn3r5m" path="res://Assets/fondos/HUD_vida_personaje.png" id="3_vidap"]
-[ext_resource type="Texture2D" uid="uid://d3hjnr27xlhy" path="res://Assets/fondos/HUD_vida_personaje_hacha.png" id="4_vidah"]
+[ext_resource type="Texture2D" uid="uid://bssjas625yujb" path="res://Assets/fondos/HUD_vida_personaje.png" id="3_vidap"]
+[ext_resource type="Texture2D" uid="uid://cbi5cc4ejpvbi" path="res://Assets/fondos/HUD_vida_personaje_hacha.png" id="4_vidah"]
 
-[sub_resource type="Gradient" id="Gradient_sprlj"]
+[sub_resource type="Gradient" id="Gradient_8glcj"]
 offsets = PackedFloat32Array(0, 0.010869565)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_ny26j"]
-gradient = SubResource("Gradient_sprlj")
+gradient = SubResource("Gradient_8glcj")
 width = 250
 height = 20
 
@@ -77,10 +77,9 @@ texture = ExtResource("2_ny26j")
 position = Vector2(223.00002, 154)
 scale = Vector2(0.33, 0.33)
 texture = ExtResource("3_vidap")
-visible = true
 
 [node name="HudVidaPersonajeHacha" type="Sprite2D" parent="RootControl"]
+visible = false
 position = Vector2(223.00002, 154)
 scale = Vector2(0.33, 0.33)
 texture = ExtResource("4_vidah")
-visible = false

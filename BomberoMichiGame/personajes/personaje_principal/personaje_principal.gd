@@ -37,7 +37,7 @@ var last_mouse_button_time: float = 0.0
 @export var aim_smoothing_speed: float = 24.0  # Mas responsivo para seguir mejor el mouse
 
 # Propiedades del oxígeno (sistema de barra de vida mejorado)
-@export var oxygen_loss_rate = 1.0  # Pérdida de oxígeno por segundo en condiciones normales
+@export var oxygen_loss_rate = 0.5  # Pérdida de oxígeno por segundo en condiciones normales
 @export var oxygen_recovery_rate = 5.0  # Recuperación de oxígeno por segundo sin enemigos/fuego
 @export var oxygen_attack_damage = 10.0  # Pérdida de oxígeno por golpe
 @export var oxygen_tankpickup = 25.0  # Cantidad de oxígeno que recupera un tanque
@@ -69,6 +69,7 @@ var hacha_desbloqueada: bool = true  # Siempre disponible desde el inicio
 var apuntador = null
 var apuntador_offset = Vector2(130, 30)
 var current_aim_direction: Vector2 = Vector2.RIGHT
+var last_movement_direction: Vector2 = Vector2.RIGHT  # Dirección del último movimiento para rotar armas dinámicamente
 var is_dead: bool = false
 var manguera_bloqueada: bool = false  # Bloquea la manguera cuando llega a 0
 # is_performing_special_attack está heredado de personaje_base.gd
@@ -479,6 +480,11 @@ func _physics_process(delta):
 	if not vivo:
 		return
 	
+	# Capturar dirección del movimiento actual para rotar armas dinámicamente
+	var input_vector = Input.get_vector("left", "right", "up", "down")
+	if input_vector != Vector2.ZERO:
+		last_movement_direction = input_vector.normalized()
+	
 	# Movimiento estándar (mover_personaje en la base maneja dash internamente)
 	mover_personaje(delta)
 
@@ -708,8 +714,12 @@ func _update_weapon_orientation(delta: float):
 	var target_direction = current_aim_direction
 	
 	# En zona cercana mantenemos la ultima direccion para evitar "temblores".
+	# Si está dentro del deadzone Y hay movimiento, usar la dirección del movimiento  
 	if to_mouse.length() >= aim_deadzone_px:
 		target_direction = to_mouse.normalized()
+	elif last_movement_direction != Vector2.ZERO:
+		# Si el mouse está quieto pero hay movimiento, girar hacia la dirección del movimiento
+		target_direction = last_movement_direction
 
 	# Suavizado exponencial estable por frame rate.
 	var blend = 1.0 - exp(-aim_smoothing_speed * delta)
@@ -972,40 +982,69 @@ func _update_hose_direction():
 
 func _detect_and_extinguish_fire(water_amount: float):
 	"""Detecta y apaga el fuego en el área de la manguera"""
-	if not hose_area:
-		return
-	
 	# Obtener todas las áreas que están siendo alcanzadas por el agua
-	var overlapping_areas = hose_area.get_overlapping_areas()
-	var overlapping_bodies = hose_area.get_overlapping_bodies()
+	if hose_area:
+		var overlapping_areas = hose_area.get_overlapping_areas()
+		var overlapping_bodies = hose_area.get_overlapping_bodies()
+		
+		# Procesar áreas (fuego como Area2D)
+		for area in overlapping_areas:
+			_try_extinguish_fire(area, water_amount)
+		
+		# Procesar cuerpos (fuego como cuerpo físico)
+		for body in overlapping_bodies:
+			_try_extinguish_fire(body, water_amount)
 	
-	# Procesar áreas (fuego como Area2D)
-	for area in overlapping_areas:
-		_try_extinguish_fire(area, water_amount)
-	
-	# Procesar cuerpos (fuego como cuerpo físico)
-	for body in overlapping_bodies:
-		_try_extinguish_fire(body, water_amount)
+	# MÉTODO ADICIONAL: Búsqueda por distancia para el jefe
+	# Esto asegura que el agua detecte al jefe incluso si las colisiones no funcionan
+	var jefe = get_tree().current_scene.find_child("jefe", true, false)
+	if jefe and jefe != self:
+		var distancia = global_position.distance_to(jefe.global_position)
+		var rango_seguro = hose_range * tile_size if hose_range and tile_size else 300
+		
+		if distancia <= rango_seguro:
+			# Verificar que está en la dirección del apunte
+			var dir_al_jefe = (jefe.global_position - global_position).normalized()
+			var productos_punto = dir_al_jefe.dot(current_aim_direction.normalized())
+			
+			if productos_punto > 0.3:  # Dentro de ~70 grados del apunte
+				_try_extinguish_fire(jefe, water_amount)
 
 func _try_extinguish_fire(target, water_amount: float):
 	"""Intenta apagar un fuego"""
+	if not target:
+		return
+	
 	# IMPORTANTE: No atacar al propio jugador
 	if target == self or target.is_in_group("player") or target.is_in_group("player_main"):
 		return
 	
 	# Aplicar agua o daño a cualquier objetivo compatible (fuego, enemigos, etc.)
-	if target.has_method("apply_water") or target.has_method("take_damage") or target.is_in_group("Fire") or target.has_method("extinguish"):
-		# Si el objetivo acepta agua, pásale la cantidad de agua usada literalmente
-		if target.has_method("apply_water"):
-			target.apply_water(water_amount)
-		# Si recibe daño, usa el agua como daño directo: 1 agua = 1 daño
-		elif target.has_method("take_damage"):
-			target.take_damage(water_amount)
-		elif target.has_method("extinguish"):
-			target.extinguish()
-			target.extinguish()
-			emit_signal("fire_extinguished", target)
+	if target.has_method("apply_water"):
+		target.apply_water(water_amount)
+		print("💧 Agua aplicada a ", target.name, ": ", water_amount)
+	elif target.has_method("take_damage"):
+		target.take_damage(water_amount)
+		print("💧 Daño por agua a ", target.name, ": ", water_amount)
+	elif target.has_method("extinguish"):
+		target.extinguish()
+		print("🔥 Fuego extinguido: ", target.name)
+	elif target.is_in_group("Fire"):
+		if target.has_method("queue_free"):
+			target.queue_free()
+			print("🔥 Proyectil de fuego destruido")
+		else:
+			print("⚠️ Objetivo en grupo Fire pero sin métodos: ", target.name)
 
+
+func perder_oxigeno(cantidad: float) -> void:
+	"""Pierde oxígeno sin disparar animación de daño - solo reduce vida"""
+	if not vivo:
+		return
+	
+	vida_actual = max(0.0, vida_actual - cantidad)
+	emit_signal("vida_actualizada", vida_actual)
+	print("💨 Oxígeno: ", vida_actual)
 
 # ============================================
 # SISTEMA DE ATAQUE CON HACHA
@@ -1314,9 +1353,9 @@ func _update_oxygen_system(delta):
 		# Resetear contador si hay oxígeno
 		oxygen_zero_timer = 0.0
 	
-	# Si hay enemigos o fuego: consumir oxígeno (-1 por segundo)
+	# Si hay enemigos o fuego: consumir oxígeno (-0.5 por segundo) SIN animación de daño
 	if has_enemies_or_fire:
-		recibir_dano(oxygen_loss_rate * delta)
+		perder_oxigeno(oxygen_loss_rate * delta)
 	else:
 		# Sin enemigos/fuego: recuperar oxígeno (+5 por segundo)
 		if vida_actual < vida_maxima:
