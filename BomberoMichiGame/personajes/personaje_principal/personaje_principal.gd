@@ -37,7 +37,7 @@ var last_mouse_button_time: float = 0.0
 @export var aim_smoothing_speed: float = 24.0  # Mas responsivo para seguir mejor el mouse
 
 # Propiedades del oxígeno (sistema de barra de vida mejorado)
-@export var oxygen_loss_rate = 1.0  # Pérdida de oxígeno por segundo en condiciones normales
+@export var oxygen_loss_rate = 0.5  # Pérdida de oxígeno por segundo en condiciones normales
 @export var oxygen_recovery_rate = 5.0  # Recuperación de oxígeno por segundo sin enemigos/fuego
 @export var oxygen_attack_damage = 10.0  # Pérdida de oxígeno por golpe
 @export var oxygen_tankpickup = 25.0  # Cantidad de oxígeno que recupera un tanque
@@ -69,6 +69,7 @@ var hacha_desbloqueada: bool = true  # Siempre disponible desde el inicio
 var apuntador = null
 var apuntador_offset = Vector2(130, 30)
 var current_aim_direction: Vector2 = Vector2.RIGHT
+var last_movement_direction: Vector2 = Vector2.RIGHT  # Dirección del último movimiento para rotar armas dinámicamente
 var is_dead: bool = false
 var manguera_bloqueada: bool = false  # Bloquea la manguera cuando llega a 0
 # is_performing_special_attack está heredado de personaje_base.gd
@@ -245,6 +246,50 @@ func _ready():
 	_setup_fire_sound_system()
 	_setup_axe_sound_system()
 	_setup_dash_sound_system()
+	
+	# Garantizar que el menú de pausa exista en este nivel
+	# (si el nivel no lo tiene en su .tscn, se crea dinámicamente)
+	_ensure_pause_menu()
+	
+	# Restaurar posición si hay una guardada válida
+	if "posicion_guardada" in GameManager and GameManager.posicion_guardada != Vector2.INF:
+		global_position = GameManager.posicion_guardada
+		print("📍 Jugador restaurado en guardado:", global_position)
+		GameManager.posicion_guardada = Vector2.INF  # Limpiar
+	elif "posicionar_jugador_en_puerta" in GameManager:
+		GameManager.posicionar_jugador_en_puerta(self, get_tree().current_scene)
+
+func _ensure_pause_menu() -> void:
+	"""Crea el menú de pausa dinámicamente si el nivel no lo tiene.
+	Como el jugador está en todos los niveles, esto garantiza que ESC
+	siempre funcione sin necesidad de editar cada escena."""
+	# Esperar un frame para que los nodos del nivel estén listos
+	await get_tree().process_frame
+	
+	# Si ya hay un PuseMenu en el árbol (instanciado en el .tscn del nivel), no hacer nada
+	if get_tree().get_nodes_in_group("pause_menu_ui").size() > 0:
+		print("✅ Menú de pausa encontrado en la escena")
+		return
+	
+	# No existe → crear el MenusLayer con PuseMenu y DeathMenu dinámicamente
+	var canvas := CanvasLayer.new()
+	canvas.name = "MenusLayer"
+	canvas.process_mode = Node.PROCESS_MODE_ALWAYS
+	canvas.layer = 30
+	canvas.visible = false
+	get_tree().current_scene.add_child(canvas)
+	
+	var pause_scene := preload("res://Interfaces/puse_menu.tscn")
+	var pause_menu := pause_scene.instantiate()
+	pause_menu.name = "PuseMenu"
+	canvas.add_child(pause_menu)
+	
+	var death_scene := preload("res://Scenes/UI/deathEscene.tscn")
+	var death_menu := death_scene.instantiate()
+	death_menu.name = "DeathMenu"
+	canvas.add_child(death_menu)
+	
+	print("✅ Menú de pausa creado dinámicamente para '", get_tree().current_scene.name, "'")
 
 func _ensure_weapon_pivots() -> void:
 	"""Crea pivotes si faltan y reubica las armas para rotarlas de forma estable."""
@@ -427,9 +472,19 @@ func _setup_hose_system():
 			water_jet_sprite.rotation = 0.0
 
 func _physics_process(delta):
+	# No procesar física durante la pausa. El jugador tiene process_mode=ALWAYS 
+	# porque necesita recibir input para el menú de pausa, pero NO debe mover 
+	# ni animar el personaje mientras el juego está pausado.
+	if get_tree().paused:
+		return
 	# Si el personaje está muerto, no procesar nada
 	if not vivo:
 		return
+	
+	# Capturar dirección del movimiento actual para rotar armas dinámicamente
+	var input_vector = Input.get_vector("left", "right", "up", "down")
+	if input_vector != Vector2.ZERO:
+		last_movement_direction = input_vector.normalized()
 	
 	# Movimiento estándar (mover_personaje en la base maneja dash internamente)
 	mover_personaje(delta)
@@ -485,24 +540,24 @@ func _physics_process(delta):
 	# keep_in_viewport()
 
 func _unhandled_input(event):
-	# Si el jugador está muerto, no procesar ningún input (el menú de muerte maneja todo)
+	# Si el jugador está muerto, no procesar ningún input
 	if not vivo:
 		return
 
 	# Detectar ESC para pausar el juego
-	if event.is_action_pressed("ui_cancel"):
+	var is_esc_key: bool = (event is InputEventKey
+		and (event as InputEventKey).pressed
+		and not (event as InputEventKey).echo
+		and ((event as InputEventKey).physical_keycode == KEY_ESCAPE
+			or (event as InputEventKey).keycode == KEY_ESCAPE))
+	var is_ui_cancel: bool = (InputMap.has_action("ui_cancel") and event.is_action_pressed("ui_cancel"))
+	if is_esc_key or is_ui_cancel:
+		print("🔵 ESC detectado! is_esc_key=", is_esc_key, " is_ui_cancel=", is_ui_cancel)
 		_toggle_pause_menu()
 		get_viewport().set_input_as_handled()
 		return
 
-	# Detectar tecla V para ataque especial de la manguera (sin cambiar de arma)
-	if event is InputEventKey and event.pressed and not event.is_echo():
-		if event.keycode == KEY_V:
-			_perform_hose_special_attack()
-			get_viewport().set_input_as_handled()
-			return
-
-	# Detectar cambio de arma por mouse - click derecho
+	# Detectar cambio de arma por mouse - click derecho o rueda
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			last_mouse_button_time = Time.get_ticks_msec()
@@ -512,6 +567,8 @@ func _unhandled_input(event):
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP or event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			if event.pressed:
 				switch_weapon()
+				get_viewport().set_input_as_handled()
+				return
 
 func _configure_mouse_combat_bindings():
 	"""Asegurar que click derecho esté asignado a switch_weapon."""
@@ -531,36 +588,54 @@ func _configure_mouse_combat_bindings():
 
 func _toggle_pause_menu():
 	"""Activa/desactiva el menú de pausa"""
-	# Buscar el MenusLayer
-	var menus_layer = get_tree().root.find_child("MenusLayer", true, false)
-	if not menus_layer:
-		print("⚠️ MenusLayer no encontrado")
+	# Buscar el PuseMenu por grupo (más robusto que buscar por nombre del nodo padre)
+	var pause_menus = get_tree().get_nodes_in_group("pause_menu_ui")
+	var pause_menu: Node = null
+	
+	# Si hay varios (level1 tiene dos instancias), preferir el que esté en un nodo llamado MenusLayer
+	for pm in pause_menus:
+		if pm.get_parent() and pm.get_parent().name == "MenusLayer":
+			pause_menu = pm
+			break
+	# Fallback: usar el primero que se encuentre
+	if not pause_menu and pause_menus.size() > 0:
+		pause_menu = pause_menus[0]
+	
+	if not pause_menu:
+		push_warning("⚠️ PuseMenu no encontrado en ningún nivel (falta instanciarlo en la escena)")
 		return
-
-	# Buscar los menús
-	var pause_menu = menus_layer.get_node_or_null("PuseMenu")
-	var death_menu = menus_layer.get_node_or_null("DeathMenu")
-
+	
+	# Obtener el DeathMenu del mismo padre para no pausar durante el game over
+	var menu_container = pause_menu.get_parent()
+	var death_menu = menu_container.get_node_or_null("DeathMenu") if menu_container else null
+	if not death_menu:
+		death_menu = get_tree().root.find_child("DeathMenu", true, false)
+	
 	# No permitir pausar si hay pantalla de muerte activa
 	if death_menu and death_menu.visible:
 		return
-
+	
 	# Alternar pausa
 	var is_paused = not get_tree().paused
 	get_tree().paused = is_paused
-
-	# Mostrar/ocultar menús
-	menus_layer.visible = is_paused
-	if pause_menu:
-		pause_menu.visible = is_paused
+	
+	# Mostrar/ocultar el contenedor (CanvasLayer / MenusLayer)
+	if menu_container:
+		menu_container.visible = is_paused
+	
+	# Mostrar/ocultar el menú
+	pause_menu.visible = is_paused
+	
+	# Ocultar el DeathMenu por si acaso
 	if death_menu:
 		death_menu.visible = false
-
+	
 	# Mostrar/ocultar cursor
 	if is_paused:
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	else:
 		Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+
 
 func _handle_input():
 	# Si el personaje está muerto, no procesar input
@@ -652,8 +727,12 @@ func _update_weapon_orientation(delta: float):
 	var target_direction = current_aim_direction
 	
 	# En zona cercana mantenemos la ultima direccion para evitar "temblores".
+	# Si está dentro del deadzone Y hay movimiento, usar la dirección del movimiento  
 	if to_mouse.length() >= aim_deadzone_px:
 		target_direction = to_mouse.normalized()
+	elif last_movement_direction != Vector2.ZERO:
+		# Si el mouse está quieto pero hay movimiento, girar hacia la dirección del movimiento
+		target_direction = last_movement_direction
 
 	# Suavizado exponencial estable por frame rate.
 	var blend = 1.0 - exp(-aim_smoothing_speed * delta)
@@ -679,25 +758,23 @@ func _update_weapon_orientation(delta: float):
 	if hose_sprite:
 		_orient_hose(direction, angle)
 
-func _orient_axe(direction: Vector2, angle: float):
-	"""Orienta el hacha según la dirección del mouse con volteo visual"""
-	# EL HACHA NUNCA GIRA - SOLO FLIPEA IZQUIERDA/DERECHA
-	if current_weapon != Weapon.AXE:
-		return  # Si no estamos en modo hacha, no hacer nada
-	
-	# Flipear izquierda/derecha según dirección del MOUSE
-	var facing_right: bool = direction.x >= 0.0
-	axe_sprite.scale.x = abs(axe_base_scale.x) * (1.0 if facing_right else -1.0)
-	axe_sprite.scale.y = abs(axe_base_scale.y)
-	
-	# CONGELAR TODAS LAS ROTACIONES - El hacha NUNCA gira
-	axe_sprite.rotation = 0.0
+func _orient_axe(direction: Vector2, _angle: float):
+	"""Orienta el sprite del ataque sin rotar ni orbitar todo el personaje"""
+	# Mantenemos el pivote quieto en el centro
 	if axe_pivot:
-		axe_pivot.rotation = 0.0
-		axe_pivot.scale = Vector2(1, 1)
-	else:
-		axe_sprite.z_index = 0
-		axe_sprite.show_behind_parent = false
+		axe_pivot.position = axe_pivot_base_position
+		axe_pivot.rotation = 0
+		
+	if axe_sprite:
+		axe_sprite.rotation = 0
+		# Aseguramos que la escala sea siempre positiva (por si se invirtió en el editor)
+		axe_sprite.scale = Vector2(abs(axe_base_scale.x), abs(axe_base_scale.y))
+		
+		# Si apuntas a la derecha, flip es falso. Si apuntas a la izquierda, flip es verdadero.
+		if direction.x > 0:
+			axe_sprite.flip_h = false
+		else:
+			axe_sprite.flip_h = true
 
 func _orient_hose(direction: Vector2, angle: float):
 	"""Orienta la manguera según la dirección del mouse con volteo visual"""
@@ -759,34 +836,33 @@ func mejorar_manguera() -> void:
 	print("💨 Resistencia pulmonar aumentada! Nueva vida máxima: ", vida_maxima)
 
 func switch_weapon():
-	"""Cambio de armas entre hacha y manguera"""
-	if current_weapon == Weapon.AXE:
-		current_weapon = Weapon.HOSE
-	else:
+	"""Alterna entre la Manguera y el Hacha"""
+	if current_weapon == Weapon.HOSE:
 		current_weapon = Weapon.AXE
-
-	# Actualizar visuales de las armas
-	_update_weapon_visuals()
+		# Si estaba disparando agua, la apagamos al guardar la manguera
+		if is_using_hose:
+			_deactivate_hose()
+		print("🪓 Arma cambiada a: HACHA")
+	else:
+		current_weapon = Weapon.HOSE
+		print("💧 Arma cambiada a: MANGUERA")
 	
-	# Emitir señal
+	_update_weapon_visuals()
 	emit_signal("weapon_switched", current_weapon)
 
 func _update_weapon_visuals():
-	"""Actualiza los visuales según el arma equipada"""
-	var is_axe_equipped = (current_weapon == Weapon.AXE)
 	var is_hose_equipped = (current_weapon == Weapon.HOSE)
 	
+	# El sprite del ataque con hacha debe estar oculto por defecto
 	if axe_sprite:
-		axe_sprite.visible = false  # El hacha NUNCA se ve en pantalla
+		axe_sprite.visible = false
+		
 	if hose_sprite:
 		hose_sprite.visible = is_hose_equipped
 	if water_particles:
 		water_particles.visible = is_hose_equipped
 		if not is_hose_equipped:
 			water_particles.emitting = false
-	if water_jet_sprite:
-		water_jet_sprite.visible = is_hose_equipped
-
 # ============================================
 # SISTEMA DE MANGUERA
 # ============================================
@@ -919,58 +995,69 @@ func _update_hose_direction():
 
 func _detect_and_extinguish_fire(water_amount: float):
 	"""Detecta y apaga el fuego en el área de la manguera"""
-	if not hose_area:
-		return
-	
 	# Obtener todas las áreas que están siendo alcanzadas por el agua
-	var overlapping_areas = hose_area.get_overlapping_areas()
-	var overlapping_bodies = hose_area.get_overlapping_bodies()
+	if hose_area:
+		var overlapping_areas = hose_area.get_overlapping_areas()
+		var overlapping_bodies = hose_area.get_overlapping_bodies()
+		
+		# Procesar áreas (fuego como Area2D)
+		for area in overlapping_areas:
+			_try_extinguish_fire(area, water_amount)
+		
+		# Procesar cuerpos (fuego como cuerpo físico)
+		for body in overlapping_bodies:
+			_try_extinguish_fire(body, water_amount)
 	
-	# Procesar áreas (fuego como Area2D)
-	for area in overlapping_areas:
-		_try_extinguish_fire(area, water_amount)
-	
-	# Procesar cuerpos (fuego como cuerpo físico)
-	for body in overlapping_bodies:
-		_try_extinguish_fire(body, water_amount)
+	# MÉTODO ADICIONAL: Búsqueda por distancia para el jefe
+	# Esto asegura que el agua detecte al jefe incluso si las colisiones no funcionan
+	var jefe = get_tree().current_scene.find_child("jefe", true, false)
+	if jefe and jefe != self:
+		var distancia = global_position.distance_to(jefe.global_position)
+		var rango_seguro = hose_range * tile_size if hose_range and tile_size else 300
+		
+		if distancia <= rango_seguro:
+			# Verificar que está en la dirección del apunte
+			var dir_al_jefe = (jefe.global_position - global_position).normalized()
+			var productos_punto = dir_al_jefe.dot(current_aim_direction.normalized())
+			
+			if productos_punto > 0.3:  # Dentro de ~70 grados del apunte
+				_try_extinguish_fire(jefe, water_amount)
 
 func _try_extinguish_fire(target, water_amount: float):
 	"""Intenta apagar un fuego"""
+	if not target:
+		return
+	
 	# IMPORTANTE: No atacar al propio jugador
 	if target == self or target.is_in_group("player") or target.is_in_group("player_main"):
 		return
 	
 	# Aplicar agua o daño a cualquier objetivo compatible (fuego, enemigos, etc.)
-	if target.has_method("apply_water") or target.has_method("take_damage") or target.is_in_group("Fire") or target.has_method("extinguish"):
-		# Si el objetivo acepta agua, pásale la cantidad de agua usada literalmente
-		if target.has_method("apply_water"):
-			target.apply_water(water_amount)
-		# Si recibe daño, usa el agua como daño directo: 1 agua = 1 daño
-		elif target.has_method("take_damage"):
-			target.take_damage(water_amount)
-		elif target.has_method("extinguish"):
-			target.extinguish()
-			target.extinguish()
-			emit_signal("fire_extinguished", target)
+	if target.has_method("apply_water"):
+		target.apply_water(water_amount)
+		print("💧 Agua aplicada a ", target.name, ": ", water_amount)
+	elif target.has_method("take_damage"):
+		target.take_damage(water_amount)
+		print("💧 Daño por agua a ", target.name, ": ", water_amount)
+	elif target.has_method("extinguish"):
+		target.extinguish()
+		print("🔥 Fuego extinguido: ", target.name)
+	elif target.is_in_group("Fire"):
+		if target.has_method("queue_free"):
+			target.queue_free()
+			print("🔥 Proyectil de fuego destruido")
+		else:
+			print("⚠️ Objetivo en grupo Fire pero sin métodos: ", target.name)
 
-# ============================================
-# SISTEMA DE MUERTE DEL JUGADOR
-# ============================================
-func take_damage(amount: float) -> void:
-	"""Recibe daño de enemigos - usa el sistema de vida heredado"""
-	# Usar el sistema de vida del padre (personaje_base) - ahora acepta float
-	recibir_dano(amount)
 
-func die() -> void:
-	# Detener el juego cuando la vida llega a 0
-	if is_dead:
+func perder_oxigeno(cantidad: float) -> void:
+	"""Pierde oxígeno sin disparar animación de daño - solo reduce vida"""
+	if not vivo:
 		return
-	is_dead = true
-	# Asegurar que este nodo siga recibiendo input durante la pausa (Godot 4)
-	process_mode = Node.PROCESS_MODE_WHEN_PAUSED
-	get_tree().paused = true
-	# Aquí podrías reproducir animación/sonido de muerte
-	print("💀 El Bombero ha muerto. Juego pausado.")
+	
+	vida_actual = max(0.0, vida_actual - cantidad)
+	emit_signal("vida_actualizada", vida_actual)
+	print("💨 Oxígeno: ", vida_actual)
 
 # ============================================
 # SISTEMA DE ATAQUE CON HACHA
@@ -1053,84 +1140,6 @@ func _reset_axe_position():
 	if axe_sprite:
 		axe_sprite.rotation_degrees = 0
 
-func _perform_hose_special_attack():
-	"""Ataque especial de la manguera - solo animación sin cambiar de arma"""
-	# Evitar ejecutar si ya está en ataque especial
-	if is_performing_special_attack:
-		return
-	
-	# Solo funciona si está usando la manguera
-	if current_weapon != Weapon.HOSE:
-		return
-	
-	# Activar flag de ataque especial para evitar rotación
-	is_performing_special_attack = true
-	
-	# Guardar escala original del sprite PRIMERO, antes de hacer cualquier cambio
-	if not character_sprite:
-		is_performing_special_attack = false
-		return
-	
-	var original_scale = character_sprite.scale
-	
-	# Ocultar la manguera durante el ataque
-	if hose_sprite:
-		hose_sprite.visible = false
-	if hose_pivot:
-		hose_pivot.visible = false
-	
-	# Aumentar escala una sola vez para compensar diferencia de tamaño de imágenes del ataque
-	character_sprite.scale = original_scale * 2.5
-	
-	if character_sprite.sprite_frames:
-		# Determinar la animación correcta según la dirección
-		var attack_animation = "AtaqueAxeDer"
-		if last_direction.x < 0:
-			# Mirando a la izquierda - intentar usar AtaqueAxeIzq
-			if character_sprite.sprite_frames.has_animation("AtaqueAxeIzq"):
-				attack_animation = "AtaqueAxeIzq"
-			else:
-				# Si no existe, usar la derecha con flip
-				character_sprite.flip_h = true
-		else:
-			# Mirando a la derecha - asegurar flip desactivado
-			character_sprite.flip_h = false
-		
-		if character_sprite.sprite_frames.has_animation(attack_animation):
-			# Detener primero cualquier animación anterior
-			character_sprite.stop()
-			# Ahora reproducir la nueva
-			character_sprite.play(attack_animation)
-	
-	# NO consumir agua - ataque gratuito
-	
-	# Esperar a que termine la animación (más tiempo para verla completa)
-	await get_tree().create_timer(0.7).timeout
-	
-	# Hacer daño a enemigos en el área
-	if axe_hitbox:
-		axe_hitbox.monitoring = true
-		var overlapping_bodies = axe_hitbox.get_overlapping_bodies()
-		for body in overlapping_bodies:
-			if body != self and not body.is_in_group("player"):
-				if body.has_method("take_damage"):
-					body.take_damage(axe_damage if axe_damage != null else 5)
-		axe_hitbox.monitoring = false
-	
-	# Restaurar sprite del personaje a idle
-	if character_sprite:
-		character_sprite.scale = original_scale  # Restaurar escala original
-		character_sprite.flip_h = false  # Restaurar orientación normal
-		character_sprite.play("AxelIdleFrDer")
-	
-	# Mostrar la manguera de nuevo
-	if hose_sprite:
-		hose_sprite.visible = true
-	if hose_pivot:
-		hose_pivot.visible = true
-	
-	# Desactivar flag de ataque especial
-	is_performing_special_attack = false
 
 func _perform_axe_attack():
 	print("🔪 Atacando con hacha - last_direction: %s" % last_direction)
@@ -1363,9 +1372,9 @@ func _update_oxygen_system(delta):
 		# Resetear contador si hay oxígeno
 		oxygen_zero_timer = 0.0
 	
-	# Si hay enemigos o fuego: consumir oxígeno (-1 por segundo)
+	# Si hay enemigos o fuego: consumir oxígeno (-0.5 por segundo) SIN animación de daño
 	if has_enemies_or_fire:
-		recibir_dano(oxygen_loss_rate * delta)
+		perder_oxigeno(oxygen_loss_rate * delta)
 	else:
 		# Sin enemigos/fuego: recuperar oxígeno (+5 por segundo)
 		if vida_actual < vida_maxima:

@@ -16,6 +16,11 @@ var ambient_sound_player: AudioStreamPlayer
 @onready var animation_player = get_node_or_null("AnimationPlayer")
 
 func _ready() -> void:
+	# Si se cargó partida y este fuego ya estaba extinguido, destruir inmediatamente
+	if "nodos_destruidos" in GameManager and str(get_path()) in GameManager.nodos_destruidos:
+		queue_free()
+		return
+
 	# Añadir al grupo de fuego para ser detectado por la manguera
 	add_to_group("Fire")
 	add_to_group("fuego")
@@ -70,6 +75,9 @@ func take_damage(amount: float) -> void:
 func extinguish() -> void:
 	"""Apaga el fuego completamente"""
 	print("¡Fuego extinguido!")
+	
+	if "nodos_destruidos" in GameManager:
+		GameManager.registrar_nodo_destruido(str(get_path()))
 
 	# Detener sonido ambiente
 	_stop_ambient_fire_sound()

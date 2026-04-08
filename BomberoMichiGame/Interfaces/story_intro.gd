@@ -23,7 +23,7 @@ func _t(key: String) -> String:
 ]
 
 # Escena a la que ir después de la intro (tu nivel o escena de juego)
-@export var next_scene: String = "res://Scenes/Levels/level1/level1.tscn"
+@export var next_scene: String = "res://Scenes/Levels/levelOsiris/OsirisLevel.tscn"
 
 # Velocidad del efecto de escritura
 @export var typing_speed: float = 40.0
@@ -71,7 +71,7 @@ func show_page(page_index: int):
 	var page_data = story_pages[current_page]
 	var texture = load(page_data["image"])
 	if texture:
-		$HBoxContainer/StoryImage.texture = texture
+		$StoryImage.texture = texture
 	else:
 		push_warning("No se pudo cargar la imagen: " + page_data["image"])
 	
@@ -80,7 +80,7 @@ func show_page(page_index: int):
 	await $AnimationPlayer.animation_finished
 	
 	# Iniciar texto vacío
-	$HBoxContainer/LeftPanel/MarginContainer/VBoxContainer/StoryText.text = ""
+	$BottomPanel/MarginContainer/VBoxContainer/StoryText.text = ""
 	full_text = _t("story.page_" + str(page_index + 1))
 	
 	# Iniciar efecto de escritura
@@ -91,7 +91,7 @@ func start_typing():
 	current_char = 0
 	
 	while current_char < full_text.length() and is_typing:
-		$HBoxContainer/LeftPanel/MarginContainer/VBoxContainer/StoryText.text = full_text.substr(0, current_char + 1)
+		$BottomPanel/MarginContainer/VBoxContainer/StoryText.text = full_text.substr(0, current_char + 1)
 		current_char += 1
 		await get_tree().create_timer(1.0 / typing_speed).timeout
 	
@@ -120,7 +120,7 @@ func handle_input():
 	if is_typing:
 		# Si está escribiendo, mostrar todo el texto inmediatamente
 		is_typing = false
-		$HBoxContainer/LeftPanel/MarginContainer/VBoxContainer/StoryText.text = full_text
+		$BottomPanel/MarginContainer/VBoxContainer/StoryText.text = full_text
 		$Timer.wait_time = wait_after_text
 		$Timer.start()
 	elif can_advance:
@@ -137,19 +137,14 @@ func finish_story():
 	go_to_next_scene()
 
 func go_to_next_scene():
-	# Verificar que el SceneTree esté disponible
+	# Forzar siempre el cambio a OsirisLevel.tscn
 	var tree = get_tree()
 	if tree == null:
 		push_error("SceneTree is null! Cannot change scene.")
 		return
-	
-	# Verificar que next_scene no esté vacío
-	if next_scene.is_empty():
-		push_error("next_scene is empty! Cannot change scene.")
-		return
-	
-	# Cambiar la escena
-	var error = tree.change_scene_to_file(next_scene)
+
+	var osiris_scene_path = "res://Scenes/Levels/levelOsiris/OsirisLevel.tscn"
+	var error = tree.change_scene_to_file(osiris_scene_path)
 	if error != OK:
-		push_error("Failed to load scene: " + next_scene + " Error code: " + str(error))
+		push_error("Failed to load scene: " + osiris_scene_path + " Error code: " + str(error))
 	

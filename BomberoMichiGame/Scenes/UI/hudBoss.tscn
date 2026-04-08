@@ -1,0 +1,35 @@
+[gd_scene load_steps=4 format=3 uid="uid://cmornxc2dbb15"]
+
+[ext_resource type="Texture2D" uid="uid://bglp7uoeovw48" path="res://Assets/bosssHUD/HUD_Vida_Enemigo.png" id="1_on31w"]
+[ext_resource type="Script" path="res://Scenes/UI/hudBoss.gd" id="2_script"]
+
+[sub_resource type="Gradient" id="Gradient_hv8lq"]
+offsets = PackedFloat32Array(0, 0.010869565)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_suy6p"]
+gradient = SubResource("Gradient_hv8lq")
+width = 945
+height = 20
+
+[node name="HudBoss" type="Node2D"]
+script = ExtResource("2_script")
+
+[node name="vidaboss" type="TextureProgressBar" parent="."]
+anchors_preset = -1
+anchor_left = 0.047839135
+anchor_top = 0.009438398
+anchor_right = 0.08260411
+anchor_bottom = 0.01976914
+offset_left = 316.0
+offset_top = 829.0
+offset_right = 566.0
+offset_bottom = 849.0
+value = 100.0
+texture_progress = SubResource("GradientTexture2D_suy6p")
+tint_progress = Color(0.4407554, 0.1263861, 0.12770537, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="HudVidaEnemigo" type="Sprite2D" parent="."]
+position = Vector2(783, 847)
+scale = Vector2(0.6434146, 0.47676674)
+texture = ExtResource("1_on31w")

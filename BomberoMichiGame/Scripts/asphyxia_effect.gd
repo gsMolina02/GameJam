@@ -19,10 +19,11 @@ var recovery_timer: float = 0.0  # Timer para delay de recuperación
 var is_playing_recovery: bool = false  # Bandera para evitar solapamientos
 
 func _ready():
-	# Asegurarnos de que el efecto empiece en 0
+	# Le ponemos una etiqueta para que el HUD lo encuentre donde sea
+	add_to_group("efecto_asfixia") 
+	
 	_aplicar_visuales(0.0)
 	
-	# Crear AudioStreamPlayer para los efectos de sonido
 	audio_player = AudioStreamPlayer.new()
 	audio_player.bus = "Master"
 	audio_player.volume_db = sfx_volume_db
