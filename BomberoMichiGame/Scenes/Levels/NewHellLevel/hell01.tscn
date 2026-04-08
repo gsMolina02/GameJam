@@ -28133,7 +28133,7 @@ scale = Vector2(2, 2)
 [node name="personajePrincipal" parent="TileMapLayers" instance=ExtResource("3_0tq2c")]
 z_index = 20
 position = Vector2(421.00003, 12)
-scale = Vector2(0.45917594, 0.32168895)
+scale = Vector2(0.3, 0.21)
 
 [node name="Camera2D" type="Camera2D" parent="TileMapLayers/personajePrincipal"]
 position = Vector2(-18.066597, -133.29529)
@@ -28148,7 +28148,8 @@ script = ExtResource("2_5w2ly")
 [node name="mascota" parent="TileMapLayers/personajePrincipal" instance=ExtResource("3_relcs")]
 position = Vector2(125.77124, 100.54834)
 rotation = 0.0
-scale = Vector2(2.9954295, 3.0000665)
+scale = Vector2(2, 2.002)
+vida_maxima = 100.0
 
 [node name="Foreground" type="TileMapLayer" parent="TileMapLayers"]
 position = Vector2(-49.5, -31.5)
@@ -28159,7 +28160,7 @@ tile_set = SubResource("TileSet_sf437")
 position = Vector2(131.5, 586)
 
 [node name="minions2" parent="TileMapLayers" instance=ExtResource("11_relcs")]
-position = Vector2(909.5001, 175)
+position = Vector2(890, 198.5)
 rotation = -0.00073048373
 
 [node name="minions" parent="TileMapLayers" instance=ExtResource("11_relcs")]

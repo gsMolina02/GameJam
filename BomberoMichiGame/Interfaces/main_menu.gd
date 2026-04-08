@@ -5,8 +5,11 @@ extends Control
 @onready var btn_options  = $Panel/VBoxContainer/btnOptions
 @onready var btn_tutorial = $Panel/VBoxContainer/btnTutorial
 @onready var btn_exit     = $Panel/VBoxContainer/btnExit
+@onready var btn_credits  = $Panel/btnCredits
 
 var btn_continue: TextureButton = null  # Creado programáticamente
+var capa_creditos: CanvasLayer = null
+var reproductor_creditos: VideoStreamPlayer = null
 
 const LANGS = ["es", "en", "pt"]
 const LANG_TEXTURES_NORMAL = [
@@ -86,12 +89,13 @@ func _ready() -> void:
 	_setup_continue_button()
 	
 	update_texts()
+	btn_credits.pressed.connect(_on_btnCreditos_pressed)
 
 func _setup_continue_button() -> void:
 	"""Crea el botón Continuar solo si existe un archivo de guardado."""
 	if not SaveManager.has_save():
 		return
-	
+    
 	btn_continue = TextureButton.new()
 	btn_continue.name = "btnContinue"
 
@@ -162,3 +166,67 @@ func _on_btnExit_pressed() -> void:
 
 func _on_btnTutorial_pressed() -> void:
 	get_tree().change_scene_to_file("res://Interfaces/tutorial.tscn")
+
+func _on_btnCreditos_pressed() -> void:
+	if capa_creditos != null:
+		return
+    
+	print("Mostrando video de Créditos...")
+
+	# 1. Crear la capa y el fondo negro
+	capa_creditos = CanvasLayer.new()
+	capa_creditos.layer = 128
+	add_child(capa_creditos)
+
+	var bg = ColorRect.new()
+	bg.color = Color.BLACK
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	capa_creditos.add_child(bg)
+
+	# 2. Cargar el video
+	var video_stream = load("res://Assets/creditos/creditosFInal.ogv")
+	if video_stream == null:
+		print("❌ ERROR: No se encontró el video.")
+		_cerrar_creditos() # Cerramos todo para no quedar en pantalla negra
+		return
+
+	# 3. Configurar el reproductor
+	reproductor_creditos = VideoStreamPlayer.new()
+	reproductor_creditos.stream = video_stream
+	reproductor_creditos.expand = true
+	reproductor_creditos.set_anchors_preset(Control.PRESET_FULL_RECT)
+	reproductor_creditos.volume_db = 0.0 
+
+	capa_creditos.add_child(reproductor_creditos)
+	reproductor_creditos.play()
+	reproductor_creditos.finished.connect(_cerrar_creditos)
+
+	# --- AQUÍ PAUSAMOS TU MÚSICA ---
+	if has_node("AudioStreamPlayer2D"): 
+		$AudioStreamPlayer2D.stream_paused = true
+
+func _cerrar_creditos() -> void:
+	if capa_creditos:
+		capa_creditos.queue_free()
+		capa_creditos = null
+		reproductor_creditos = null
+        
+		# --- AQUÍ REANUDAMOS TU MÚSICA ---
+		if has_node("AudioStreamPlayer2D"):
+			$AudioStreamPlayer2D.stream_paused = false
+
+
+func _input(event: InputEvent) -> void:
+	# 1. Si la capa no existe (no hay video), no hacemos nada y salimos rápido
+	if capa_creditos == null:
+		return
+    
+	# 2. Comprobamos que sea una tecla, que se haya presionado (no soltado) 
+	# y que no sea un "echo" (mantenerla presionada)
+	if event is InputEventKey and event.pressed and not event.echo:
+		# 3. Detectamos la 'P' o la tecla 'Escape'
+		if event.keycode == KEY_P or event.keycode == KEY_ESCAPE:
+			# Consumimos el input para que el menú de atrás no lo reciba por error
+			get_viewport().set_input_as_handled() 
+			# Cerramos el video
+			_cerrar_creditos()
