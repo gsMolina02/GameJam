@@ -1,4 +1,4 @@
-[gd_scene load_steps=39 format=4 uid="uid://g74ygkuwnekm"]
+[gd_scene load_steps=41 format=4 uid="uid://g74ygkuwnekm"]
 
 [ext_resource type="Texture2D" uid="uid://birsve8umya61" path="res://Tiles/Tileset_sofocado_prueba_2.png" id="1_4vgts"]
 [ext_resource type="Texture2D" uid="uid://ccsfqd8vtf8u3" path="res://Tiles/Cursed/Water_coasts.png" id="1_b0w53"]
@@ -28115,6 +28115,17 @@ sources/0 = SubResource("TileSetAtlasSource_axjpq")
 sources/1 = SubResource("TileSetAtlasSource_lbsia")
 sources/2 = SubResource("TileSetAtlasSource_j3uan")
 
+[sub_resource type="Gradient" id="Gradient_suv00"]
+interpolation_color_space = 2
+offsets = PackedFloat32Array(0.023188407, 1)
+colors = PackedColorArray(0.3529412, 0.3529412, 0.3529412, 0.19215687, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_2q5sd"]
+gradient = SubResource("Gradient_suv00")
+use_hdr = true
+fill = 1
+fill_from = Vector2(0.491453, 0.42735043)
+
 [node name="levelNew" type="Node2D"]
 
 [node name="Background" type="TileMapLayer" parent="."]
@@ -28194,3 +28205,15 @@ escena_destino = "uid://bq0xsjb3mbjwk"
 
 [node name="RoomManager" type="Node" parent="."]
 script = ExtResource("17_2q5sd")
+
+[node name="LuzAmbienteCentro" type="PointLight2D" parent="."]
+position = Vector2(1402, 906)
+scale = Vector2(4.0333805, 2.4554453)
+color = Color(1, 0.88942164, 0.61782414, 1)
+energy = 19.95
+texture = SubResource("GradientTexture2D_2q5sd")
+texture_scale = 19.36
+height = 61.0
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.14901961, 0.14901961, 0.15294118, 1)
