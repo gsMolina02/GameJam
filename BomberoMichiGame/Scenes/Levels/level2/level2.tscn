@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://dv1va6yarysl" path="res://Scenes/asphyxia_layer.tscn" id="2_jslai"]
 [ext_resource type="PackedScene" uid="uid://ccbpd223shlq8" path="res://personajes/minions/minions.tscn" id="2_s43nd"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="3_gu04i"]
-[ext_resource type="PackedScene" path="res://Scenes/Entities/gato_naranjoso.tscn" id="3_tk4ob"]
+[ext_resource type="PackedScene" uid="uid://djbbvmt4xxank" path="res://Scenes/Entities/gato_naranjoso.tscn" id="3_tk4ob"]
 [ext_resource type="PackedScene" uid="uid://b2isyrlrybvoh" path="res://Scenes/fuego.tscn" id="4_02sxl"]
 [ext_resource type="PackedScene" uid="uid://bh08j56ukxtp" path="res://Hub/hub.tscn" id="5_gu04i"]
 [ext_resource type="PackedScene" uid="uid://dl17mnvx428mm" path="res://Scenes/UI/hud.tscn" id="6_02sxl"]
@@ -146,13 +146,14 @@ position = Vector2(592, 643)
 escena_destino = "uid://dcemlagk1usuv"
 nombre_puerta_destino = "Puerta nivel 3"
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-
-[node name="PuseMenu" parent="CanvasLayer" instance=ExtResource("12_tk4ob")]
+[node name="MenusLayer" type="CanvasLayer" parent="."]
+process_mode = 3
+layer = 30
 visible = false
 
-[node name="DeathMenu" parent="CanvasLayer" instance=ExtResource("13_jslai")]
-visible = false
+[node name="PuseMenu" parent="MenusLayer" instance=ExtResource("12_tk4ob")]
+
+[node name="DeathMenu" parent="MenusLayer" instance=ExtResource("13_jslai")]
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("14_s5ks2")

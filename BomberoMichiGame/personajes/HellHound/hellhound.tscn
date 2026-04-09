@@ -327,11 +327,13 @@ polygon = PackedVector2Array(35, -1, -28, 0, -36, 7, 3, 12, 46, 3)
 
 [node name="Hellhound" type="CharacterBody2D"]
 position = Vector2(-2, 2)
+collision_layer = 2
+collision_mask = 1
 script = ExtResource("1_vlklh")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(2.000001, -31.000004)
-scale = Vector2(0.0908904, 0.08559667)
+position = Vector2(10, -46)
+scale = Vector2(0.14081559, 0.1307613)
 sprite_frames = SubResource("SpriteFrames_mnpsv")
 animation = &"SabuesoAtackIdle"
 autoplay = "SabuesoIdle"
@@ -353,10 +355,10 @@ shape = SubResource("CircleShape2D_0gh2f")
 
 [node name="HealthBar" type="ProgressBar" parent="."]
 z_index = 20
-offset_left = -23.0
-offset_top = -44.0
-offset_right = 20.0
-offset_bottom = -40.0
+offset_left = -19.0
+offset_top = -65.0
+offset_right = 24.0
+offset_bottom = -61.0
 mouse_filter = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_health_bg")
 theme_override_styles/fill = SubResource("StyleBoxFlat_health_fill")

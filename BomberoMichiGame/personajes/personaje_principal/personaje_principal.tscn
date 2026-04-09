@@ -1,4 +1,4 @@
-[gd_scene load_steps=186 format=3 uid="uid://bfra7nxi2wetn"]
+[gd_scene load_steps=207 format=3 uid="uid://bfra7nxi2wetn"]
 
 [ext_resource type="Script" uid="uid://c13ihlyh4xher" path="res://personajes/personaje_principal/personaje_principal.gd" id="1_yy08j"]
 [ext_resource type="Texture2D" uid="uid://dapbj8px55ekc" path="res://Assets/AxelEstatico/Derech/final-0001.png" id="2_532fo"]
@@ -17,14 +17,22 @@
 [ext_resource type="Texture2D" uid="uid://cip5yqhrck7w" path="res://Assets/AxelEstatico/Derech/final-0007.png" id="8_iw3f8"]
 [ext_resource type="Texture2D" uid="uid://docx831rp647u" path="res://Assets/AxelBombero/GOLPE/Der/Golpe_9_der.png" id="9_clufn"]
 [ext_resource type="Texture2D" uid="uid://b1fsxflq6c083" path="res://Assets/AxelEstatico/Derech/final-0008.png" id="9_y2n2v"]
+[ext_resource type="Texture2D" uid="uid://cxhgqqrof8fkv" path="res://Assets/AxelBombero/GOLPE/Izq/Golpe_1_izq.png" id="10_am54b"]
 [ext_resource type="Texture2D" uid="uid://dinyg5rkuli1c" path="res://Assets/AxelEstatico/Derech/final-0009.png" id="10_tlnc8"]
 [ext_resource type="Texture2D" uid="uid://c6k0aw7sbuk5u" path="res://Assets/AxelEstatico/Derech/final-0010.png" id="11_5wexc"]
+[ext_resource type="Texture2D" uid="uid://cvlk1lbk6gx45" path="res://Assets/AxelBombero/GOLPE/Izq/Golpe_2_izq.png" id="11_clufn"]
+[ext_resource type="Texture2D" uid="uid://i2mf4pif5jlk" path="res://Assets/AxelBombero/GOLPE/Izq/Golpe_3_izq.png" id="12_3v7jm"]
 [ext_resource type="Texture2D" uid="uid://c75bpvpmvkumv" path="res://Assets/AxelEstatico/Derech/final-0011.png" id="12_4yt2b"]
+[ext_resource type="Texture2D" uid="uid://wkn2kueinl51" path="res://Assets/AxelBombero/GOLPE/Izq/Golpe_4_izq.png" id="13_2ts6c"]
 [ext_resource type="Texture2D" uid="uid://dkc42a8330ijv" path="res://Assets/AxelEstatico/Derech/final-0012.png" id="13_wm1ir"]
+[ext_resource type="Texture2D" uid="uid://bcfmcv5yoxdvp" path="res://Assets/AxelBombero/GOLPE/Izq/Golpe_5_izq.png" id="14_03dik"]
 [ext_resource type="Texture2D" uid="uid://b2kp8ph5yx8b7" path="res://Assets/AxelEstatico/Derech/final-0013.png" id="14_ig0vk"]
+[ext_resource type="Texture2D" uid="uid://dvay6ht2dn3pa" path="res://Assets/AxelBombero/GOLPE/Izq/Golpe_6_izq.png" id="15_at142"]
 [ext_resource type="Texture2D" uid="uid://cjrr6rohua2me" path="res://Assets/AxelEstatico/Derech/final-0014.png" id="15_pucm4"]
 [ext_resource type="Texture2D" uid="uid://c32nnp2bclysx" path="res://Assets/AxelEstatico/Derech/final-0015.png" id="16_01uhd"]
+[ext_resource type="Texture2D" uid="uid://buagvaj3cr5ct" path="res://Assets/AxelBombero/GOLPE/Izq/Golpe_7_izq.png" id="16_61i35"]
 [ext_resource type="Texture2D" uid="uid://0ei377343kma" path="res://Assets/AxelEstatico/Derech/final-0016.png" id="17_ic3wb"]
+[ext_resource type="Texture2D" uid="uid://tqg32co5ja10" path="res://Assets/AxelBombero/GOLPE/Izq/Golpe_8_izq.png" id="17_owsqk"]
 [ext_resource type="Texture2D" uid="uid://i5n2ee1wy3hq" path="res://Assets/AxelEstatico/Derech/final-0017.png" id="18_kmsi5"]
 [ext_resource type="Texture2D" uid="uid://evhbutvca1bc" path="res://Assets/AxelEstatico/Derech/final-0018.png" id="19_7mhae"]
 [ext_resource type="Texture2D" uid="uid://jkgt6yjttvq2" path="res://Assets/AxelEstatico/Derech/final-0019.png" id="20_gbxay"]
@@ -178,7 +186,8 @@
 [ext_resource type="Texture2D" uid="uid://o8lc8ewvmrs0" path="res://Assets/AxelBombero/Ciclo de caminado_frente/Izq/final-0016.png" id="135_7gs2n"]
 [ext_resource type="Texture2D" uid="uid://bqcfsbrsfjrvo" path="res://Assets/AxelBombero/Ciclo de caminado_frente/Izq/final-0017.png" id="136_oc8b1"]
 [ext_resource type="Texture2D" uid="uid://d3rjuniudl37t" path="res://Assets/AxelBombero/Ciclo de caminado_frente/Izq/final-0018.png" id="137_sc7yw"]
-[ext_resource type="Texture2D" uid="uid://c4afqjv6hujj" path="res://Assets/Hacha y bola de fuego/Hacha_der.png" id="181_3v7jm"]
+[ext_resource type="Texture2D" uid="uid://b6eleyjvnaf0d" path="res://Assets/Water_Blast/Water Blast - End.png" id="180_h4jm7"]
+[ext_resource type="Texture2D" uid="uid://c2kxrui6xve06" path="res://Assets/Water_Blast/Water Blast - Startup and Infinite.png" id="181_jooco"]
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_fkfoe"]
 polygon = PackedVector2Array(-36.98996, 126.989296, 25.93155, 79.01125, -49.952652, 78.9835)
@@ -212,6 +221,35 @@ animations = [{
 }],
 "loop": true,
 "name": &"AtaqueAxeDer",
+"speed": 11.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("10_am54b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_clufn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_3v7jm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_2ts6c")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_03dik")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_at142")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_61i35")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_owsqk")
+}],
+"loop": true,
+"name": &"AtaqueAxeIzq",
 "speed": 11.0
 }, {
 "frames": [{
@@ -773,39 +811,127 @@ animations = [{
 radius = 15.209938
 height = 68.04974
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_8x6mv"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("181_3v7jm")
-}],
-"loop": true,
-"name": &"hacha",
-"speed": 5.0
-}]
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_m8rjq"]
 size = Vector2(103.796875, 157.71915)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yy08j"]
 size = Vector2(64, 56)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_lw4rg"]
+atlas = ExtResource("180_h4jm7")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hewet"]
+atlas = ExtResource("180_h4jm7")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ujnfd"]
+atlas = ExtResource("180_h4jm7")
+region = Rect2(0, 128, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qckdv"]
+atlas = ExtResource("180_h4jm7")
+region = Rect2(0, 256, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xlfyh"]
+atlas = ExtResource("180_h4jm7")
+region = Rect2(128, 256, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_am54b"]
+atlas = ExtResource("180_h4jm7")
+region = Rect2(128, 128, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_clufn"]
+atlas = ExtResource("180_h4jm7")
+region = Rect2(256, 256, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3v7jm"]
+atlas = ExtResource("180_h4jm7")
+region = Rect2(256, 128, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2ts6c"]
+atlas = ExtResource("181_jooco")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_03dik"]
+atlas = ExtResource("181_jooco")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_at142"]
+atlas = ExtResource("181_jooco")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_61i35"]
+atlas = ExtResource("181_jooco")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_3aix0"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lw4rg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hewet")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ujnfd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qckdv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xlfyh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_am54b")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_clufn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3v7jm")
+}],
+"loop": true,
+"name": &"agua_end",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2ts6c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_03dik")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_at142")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_61i35")
+}],
+"loop": false,
+"name": &"agua_inf",
+"speed": 12.0
+}]
+
 [node name="personajePrincipal" type="CharacterBody2D" groups=["player_main"]]
-position = Vector2(300.00003, 118.99999)
+position = Vector2(375.00003, 238.00003)
 rotation = -0.00036524187
 scale = Vector2(0.8753578, 0.9185894)
 script = ExtResource("1_yy08j")
+hose_nozzle_offset = Vector2(130, 0)
 metadata/_edit_group_ = true
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="."]
 scale = Vector2(1.0000001, 1.0000001)
 occluder = SubResource("OccluderPolygon2D_fkfoe")
 
-[node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
-position = Vector2(-11.504619, 2.2913892)
-scale = Vector2(0.17986457, 0.16951919)
+[node name="AnimatedSprite_old" type="AnimatedSprite2D" parent="."]
+visible = false
+position = Vector2(-5.7149353, 7.6183567)
+scale = Vector2(0.18574882, 0.24968486)
 sprite_frames = SubResource("SpriteFrames_acmdk")
-animation = &"AtaqueAxeDer"
+animation = &"AxelWalkinFrontIzq"
 autoplay = "AxelIdleFrDer"
 metadata/_edit_group_ = true
 
@@ -813,6 +939,14 @@ metadata/_edit_group_ = true
 position = Vector2(-21.708796, 8.701454)
 scale = Vector2(-1.372868, 0.9906442)
 shape = SubResource("CapsuleShape2D_m8rjq")
+metadata/_edit_group_ = true
+
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(-42.760334, 16.360634)
+scale = Vector2(0.12967502, 0.15939382)
+sprite_frames = SubResource("SpriteFrames_acmdk")
+animation = &"AtaqueAxeIzq"
+autoplay = "AxelIdleFrDer"
 metadata/_edit_group_ = true
 
 [node name="Hitbox" type="Area2D" parent="."]
@@ -825,39 +959,43 @@ shape = SubResource("CapsuleShape2D_m8rjq")
 
 [node name="AttackCooldownTimer" type="Timer" parent="."]
 
-[node name="Axe" type="AnimatedSprite2D" parent="."]
+[node name="Axe" type="Node2D" parent="."]
+visible = false
 z_index = 1
-position = Vector2(18.978315, -19.9935)
+position = Vector2(-5.7149353, 7.6183567)
 rotation = 0.008740753
-scale = Vector2(0.16766052, 0.17428002)
-sprite_frames = SubResource("SpriteFrames_8x6mv")
-animation = &"hacha"
-autoplay = "hacha"
-frame_progress = 0.79205817
-offset = Vector2(-8.662811, -53.667313)
+scale = Vector2(0.55, 0.55)
 metadata/_edit_group_ = true
 
+[node name="AxeSprite" type="AnimatedSprite2D" parent="Axe"]
+sprite_frames = SubResource("SpriteFrames_acmdk")
+animation = &"AxelWalkinFrontDer"
+autoplay = "hacha"
+offset = Vector2(-8.662811, -53.667313)
+
 [node name="AxeHitbox" type="Area2D" parent="Axe"]
+visible = false
 position = Vector2(-3433.323, 579.7481)
 scale = Vector2(1.0056263, 0.9891769)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Axe/AxeHitbox"]
+visible = false
 position = Vector2(3512.3857, -836.23)
 scale = Vector2(1.015499, 2.1213129)
 shape = SubResource("RectangleShape2D_m8rjq")
 
 [node name="AxePivot" type="Marker2D" parent="Axe"]
+visible = false
 position = Vector2(-252.19858, 163.98624)
 rotation = -0.008078339
 scale = Vector2(6.6075177, 6.106821)
 skew = -0.0013791323
 
 [node name="hose" type="Sprite2D" parent="."]
-visible = false
 z_index = 1
-position = Vector2(92.55942, -67.46257)
-scale = Vector2(0.12778527, 0.06167657)
+position = Vector2(-99.68149, 5.6826625)
+scale = Vector2(0.09963813, 0.06309953)
 texture = ExtResource("30_q6kox")
 offset = Vector2(1.6220856, 8.688446)
 
@@ -871,5 +1009,10 @@ shape = SubResource("RectangleShape2D_yy08j")
 [node name="HoseRaycast" type="RayCast2D" parent="hose"]
 
 [node name="HosePivot" type="Marker2D" parent="hose"]
-position = Vector2(-885.2511, 1076.0457)
-scale = Vector2(9.394479, 18.565634)
+
+[node name="WaterJetSprite" type="AnimatedSprite2D" parent="."]
+z_index = 2
+position = Vector2(130, 30)
+rotation = 1.9562457
+sprite_frames = SubResource("SpriteFrames_3aix0")
+animation = &"agua_end"

@@ -15,6 +15,15 @@ var vida_actual: float = 0.0
 var vivo: bool = true
 var _last_health_percentage: int = 100  # Para rastrear cambios de porcentaje
 
+# i-frames y feedback de daño del jugador principal
+@export var player_iframe_duration: float = 0.45
+@export var player_hit_flash_time: float = 0.12
+@export var player_hit_shake_time: float = 0.10
+@export var player_hit_shake_strength: float = 4.0
+
+var _damage_invulnerable_until_ms: int = 0
+var _is_hit_feedback_playing: bool = false
+
 # Knockback settings: al tocar fuego empujar al personaje fuera y aplicar daño
 @export var knockback_duration: float = 0.12
 @export var knockback_strength: float = 700.0
@@ -35,6 +44,9 @@ var is_dashing: bool = false
 var can_dash: bool = true
 var dash_direction: Vector2 = Vector2.ZERO
 var dash_timer: float = 0.0
+
+# Estado de ataque especial (usado por personaje_principal.gd)
+var is_performing_special_attack: bool = false
 
 # Referencias para animación (from main)
 var last_direction = Vector2.ZERO
@@ -119,130 +131,176 @@ func mover_personaje(delta):
 		print_debug("  is_on_ceiling():", is_on_ceiling())
 
 	# Actualizar animaciones basadas en el input (from main)
-	_update_animation(input_vector)
+	# NO actualizar si está en ataque especial (solo para personaje principal)
+	var should_update_animation = true
+	if is_in_group("player_main") and is_performing_special_attack:
+		should_update_animation = false
+	
+	if should_update_animation:
+		_update_animation(input_vector)
 
 	# Mantener en viewport si se quiere
 	keep_in_viewport()
 
 # --- Vida ---
+func take_damage(cantidad: float) -> void:
+	"""Puente para que los minions y el jefe hagan daño directamente aquí"""
+	recibir_dano(cantidad)
+
 func recibir_dano(cantidad: float):
 	if not vivo:
 		return
-	vida_actual = max(0.0, vida_actual - cantidad)
-	emit_signal("vida_actualizada", vida_actual)
-	_check_health_percentage()
-	if vida_actual <= 0.0:
-		_vencer()
 
+	# EL SECRETO: Si el daño es menor a 1 (como el oxígeno que baja por delta),
+	# no activamos el escudo. Si es 1 o mayor, sí nos defendemos.
+	var es_golpe_real = cantidad >= 1.0
+
+	if es_golpe_real and _is_player_main() and _is_in_damage_iframes():
+		print("🛡️ Golpe ignorado por frames de invulnerabilidad.")
+		return
+
+	if es_golpe_real and _is_player_main():
+		_start_damage_iframes()
+		_play_player_hit_feedback()
+
+	vida_actual = max(0.0, vida_actual - cantidad)
+	
+	if "vida_jugador" in GameManager:
+		GameManager.vida_jugador = vida_actual
+		
+	emit_signal("vida_actualizada", vida_actual)
+	
+	# Solo imprimimos si fue un golpe real para que no se inunde la consola
+	if es_golpe_real:
+		print("🩸 ¡Ouch! Vida actual del Bombero: ", int(vida_actual), " / ", int(vida_maxima))
+	
+	if vida_actual <= 0.0:
+		_vencer()		
 func curar(cantidad: float):
-	# Permitir curar si estaba vivo; si quieres que un pickup reviva, elimina la comprobación
 	if not vivo:
-		# Si quieres permitir curar desde 0 para revivir, comenta la siguiente línea
 		return
 	vida_actual = min(vida_maxima, vida_actual + cantidad)
+	
+	if "vida_jugador" in GameManager:
+		GameManager.vida_jugador = vida_actual
+		
 	emit_signal("vida_actualizada", vida_actual)
 	_check_health_percentage()
 
 func _check_health_percentage() -> void:
-	"""Muestra el porcentaje de salud solo cuando cambia de rango (25%, 50%, 75%, 100%)"""
 	var health_percentage: int = int((vida_actual / vida_maxima) * 100)
-	
-	# Determinar rango
 	var current_range: int
-	if health_percentage <= 25:
-		current_range = 25
-	elif health_percentage <= 50:
-		current_range = 50
-	elif health_percentage <= 75:
-		current_range = 75
-	else:
-		current_range = 100
+	if health_percentage <= 25: current_range = 25
+	elif health_percentage <= 50: current_range = 50
+	elif health_percentage <= 75: current_range = 75
+	else: current_range = 100
 	
-	# Solo mostrar si cambió el rango
 	if current_range != _last_health_percentage:
 		_last_health_percentage = current_range
 		print("❤️  ", self.name, " - Salud: ", current_range, "%")
 
 func _vencer():
+	if not vivo:
+		return
+		
 	vivo = false
 	emit_signal("personaje_muerto")
 	print(self.name, " - Ha muerto. Movilidad desactivada.")
-	# Usar set_deferred para evitar modificar colisiones durante physics query
+	
 	if has_node("CollisionShape2D"):
 		$CollisionShape2D.set_deferred("disabled", true)
 	
-	# Si es el personaje principal, mostrar pantalla de Game Over
+	# Si es el jugador principal, disparamos tu función de video
 	if is_in_group("player_main"):
 		_show_death_screen()
 
+func _is_player_main() -> bool:
+	return is_in_group("player_main")
+
+func _is_in_damage_iframes() -> bool:
+	return Time.get_ticks_msec() < _damage_invulnerable_until_ms
+
+func _start_damage_iframes() -> void:
+	var safe_duration: float = max(player_iframe_duration, 0.0)
+	_damage_invulnerable_until_ms = Time.get_ticks_msec() + int(safe_duration * 1000.0)
+
+func _play_player_hit_feedback() -> void:
+	if _is_hit_feedback_playing:
+		return
+
+	_is_hit_feedback_playing = true
+
+	var hit_sprite: AnimatedSprite2D = animated_sprite
+	if hit_sprite == null:
+		hit_sprite = get_node_or_null("AnimatedSprite") as AnimatedSprite2D
+
+	if hit_sprite:
+		hit_sprite.modulate = Color(1.0, 0.45, 0.45, 1.0)
+		var flash_tween: Tween = create_tween()
+		flash_tween.tween_property(hit_sprite, "modulate", Color(1, 1, 1, 1), max(player_hit_flash_time, 0.03))
+
+	var cam: Camera2D = get_viewport().get_camera_2d()
+	if cam:
+		var original_offset: Vector2 = cam.offset
+		var shake_until: int = Time.get_ticks_msec() + int(max(player_hit_shake_time, 0.03) * 1000.0)
+		while Time.get_ticks_msec() < shake_until:
+			cam.offset = original_offset + Vector2(
+				randf_range(-player_hit_shake_strength, player_hit_shake_strength),
+				randf_range(-player_hit_shake_strength, player_hit_shake_strength)
+			)
+			await get_tree().process_frame
+		cam.offset = original_offset
+
+	_is_hit_feedback_playing = false
+
 # --- Detección por Hitbox ---
 func _on_Hitbox_area_entered(area):
-	# DEBUG: Imprimir TODAS las colisiones con el Hitbox
-	print("🎯 HITBOX COLLISION DETECTED:")
-	print("   - area:", area.name)
-	print("   - area parent:", area.get_parent().name if area.get_parent() else "null")
-	print("   - area groups:", area.get_groups())
-	print("   - is player_main?:", is_in_group("player_main"))
-	
-	# SOLO procesar fuego/pickups si este personaje es el personaje principal
 	if not is_in_group("player_main"):
-		print("   ❌ NO ES PLAYER_MAIN, ignorando colisión")
 		return
 
-	# Daño por fuego (grupo 'fuego')
 	if area.is_in_group("fuego"):
-		recibir_dano(1.0)
-		var dir = (global_position - area.global_position).normalized()
-		if dir == Vector2.ZERO:
-			dir = Vector2.UP
-		global_position += dir * penetration_push
-		knockback_velocity = dir * knockback_strength
-		knockback_remaining = knockback_duration
-		print(self.name, " - Knockback aplicado por fuego, dir:", dir, "vel:", knockback_velocity)
+		recibir_dano(5.0) # Subimos a 5 para que se note el fuego
+		_aplicar_knockback(area.global_position, knockback_strength)
 		return
 
-	# Daño por ataque de minion (grupo 'ataque_minion')
 	if area.is_in_group("ataque_minion"):
-		# Restar -10 de oxígeno (daño a la barra de vida que representa oxígeno)
 		var damage_amount = 10.0
-		print(self.name, " - 🔥 Golpeado por ataque de minion! Oxígeno perdido:", damage_amount)
+		
+		# Leemos el daño de la bola de fuego
+		if "damage" in area:
+			damage_amount = area.damage
+		elif area.has_method("get_damage"):
+			damage_amount = area.get_damage()
+			
+		# EL SEGURO: Si el daño de la bola es muy bajo (0.5), lo forzamos a 10
+		if damage_amount < 1.0:
+			damage_amount = 10.0
+			
+		print(self.name, " - 🔥 Bola de fuego te golpeó. Daño: ", damage_amount)
 		recibir_dano(damage_amount)
-		var dir = (global_position - area.global_position).normalized()
-		if dir == Vector2.ZERO:
-			dir = Vector2.UP
-		knockback_velocity = dir * knockback_strength
-		knockback_remaining = knockback_duration
+		_aplicar_knockback(area.global_position, knockback_strength)
 		return
 
-	# Daño por ataque de jefe (grupo 'ataque_jefe')
 	if area.is_in_group("ataque_jefe"):
-		# Restar -10 de oxígeno (daño a la barra de vida que representa oxígeno)
-		var damage_amount = 10.0
-		print(self.name, " - 💥 Golpeado por ataque de jefe! Oxígeno perdido:", damage_amount)
-		recibir_dano(damage_amount)
-		var dir = (global_position - area.global_position).normalized()
-		if dir == Vector2.ZERO:
-			dir = Vector2.UP
-		knockback_velocity = dir * knockback_strength * 1.5  # Jefe empuja más fuerte
-		knockback_remaining = knockback_duration
+		print(self.name, " - 💥 Golpeado por ataque de jefe!")
+		recibir_dano(20.0)
+		_aplicar_knockback(area.global_position, knockback_strength * 1.5)
 		return
 
-	# Si el area es 'ataque_enemigo' (genérico, si lo usáis)
-	if area.is_in_group("ataque_enemigo"):
-		recibir_dano(1.0)
-		return
-
-	# Pickup de vida (tanques de oxígeno)
 	if area.is_in_group("pickup_vida"):
-		# Solo recoger si la vida no está al máximo
 		if vida_actual < vida_maxima:
-			curar(25.0)  # Recupera +25% de oxígeno
+			curar(25.0)
 			area.queue_free()
-			print(self.name, " - Tanque de oxígeno recogido (+25). Oxígeno: ", vida_actual, "/", vida_maxima)
-		else:
-			print(self.name, " - Oxígeno al máximo, no se puede recoger el tanque")
 		return
 
+func _aplicar_knockback(origen_pos: Vector2, fuerza: float) -> void:
+	"""Calcula y aplica el empuje al recibir daño"""
+	var dir = (global_position - origen_pos).normalized()
+	if dir == Vector2.ZERO:
+		dir = Vector2.UP
+	global_position += dir * penetration_push
+	knockback_velocity = dir * fuerza
+	knockback_remaining = knockback_duration
 # --- Dash functions (from main) ---
 func _start_dash(direction: Vector2) -> void:
 	"""Inicia el dash en la dirección especificada (implementación base)."""

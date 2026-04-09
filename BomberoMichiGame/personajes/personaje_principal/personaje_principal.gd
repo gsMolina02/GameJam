@@ -24,20 +24,20 @@ var last_mouse_button_time: float = 0.0
 @export var parry_cooldown_time = 0.1
 
 # Propiedades de la manguera
-@export var hose_range = 50  # Alcance en cuadros (tiles) - AUMENTADO
+@export var hose_range = 15  # Alcance en cuadros (tiles) - Reducido para que coincida con alcance real de partículas (~300px)
 @export var tile_size = 20  # Tamaño de cada cuadro en píxeles
-@export var hose_width = 40  # Ancho del chorro de agua
+@export var hose_width = 30  # Ancho del chorro de agua - Reducido para mejor precisión
 @export var hose_drain_rate = 4.0  # Carga consumida por segundo (reducida para mayor duración)
 @export var water_pressure = 10.0  # Daño por segundo al fuego (ajustado para apagar en 0.5s)
 @export var hose_origin_offset = Vector2(50, 0)  # Punto de origen del agua
 @export var hose_nozzle_offset = Vector2(130, 30)  # Punta de la manguera (boquilla)
 @export var water_recharge_rate = 3.0  # Cantidad de agua que se recarga por segundo
 @export var water_recharge_on_box = 20.0  # Cantidad de agua al romper una caja
-@export var aim_deadzone_px: float = 22.0  # Evita cambios bruscos cuando el mouse esta sobre el jugador
-@export var aim_smoothing_speed: float = 18.0  # Sensacion tipo twin-stick: alto = mas responsivo
+@export var aim_deadzone_px: float = 8.0  # Deadzone menor para evitar sensacion pegajosa al apuntar
+@export var aim_smoothing_speed: float = 24.0  # Mas responsivo para seguir mejor el mouse
 
 # Propiedades del oxígeno (sistema de barra de vida mejorado)
-@export var oxygen_loss_rate = 1.0  # Pérdida de oxígeno por segundo en condiciones normales
+@export var oxygen_loss_rate = 0.5  # Pérdida de oxígeno por segundo en condiciones normales
 @export var oxygen_recovery_rate = 5.0  # Recuperación de oxígeno por segundo sin enemigos/fuego
 @export var oxygen_attack_damage = 10.0  # Pérdida de oxígeno por golpe
 @export var oxygen_tankpickup = 25.0  # Cantidad de oxígeno que recupera un tanque
@@ -69,8 +69,10 @@ var hacha_desbloqueada: bool = true  # Siempre disponible desde el inicio
 var apuntador = null
 var apuntador_offset = Vector2(130, 30)
 var current_aim_direction: Vector2 = Vector2.RIGHT
+var last_movement_direction: Vector2 = Vector2.RIGHT  # Dirección del último movimiento para rotar armas dinámicamente
 var is_dead: bool = false
 var manguera_bloqueada: bool = false  # Bloquea la manguera cuando llega a 0
+# is_performing_special_attack está heredado de personaje_base.gd
 
 # Variables de control de oxígeno
 var oxygen_zero_timer = 0.0  # Contador para los 5 segundos permitidos sin oxígeno
@@ -115,9 +117,10 @@ var fire_sound_player: AudioStreamPlayer
 
 # Marcador calculado para la punta de la manguera
 @onready var axe_hitbox = get_node_or_null("Axe/AxeHitbox")
-@onready var axe_sprite = get_node_or_null("Axe")
+@onready var axe_sprite = get_node_or_null("Axe")  # Node2D contenedor
+@onready var axe_sprite_animated = get_node_or_null("Axe/AxeSprite")  # AnimatedSprite2D dentro
 @onready var hose_sprite = get_node_or_null("hose")
-@onready var axe_pivot = get_node_or_null("AxePivot")
+@onready var axe_pivot = get_node_or_null("Axe/AxePivot")
 @onready var hose_pivot = get_node_or_null("HosePivot")
 @onready var attack_cooldown_timer = get_node_or_null("AttackCooldownTimer")
 @onready var animation_player = get_node_or_null("AnimationPlayer")  # Para animaciones
@@ -127,6 +130,7 @@ var fire_sound_player: AudioStreamPlayer
 @onready var hose_area = get_node_or_null("HoseArea")  # Area2D para detectar fuego
 @onready var hose_raycast = get_node_or_null("HoseRaycast")  # RayCast2D para dirección
 @onready var water_particles = get_node_or_null("WaterParticles")  # Partículas de agua (opcional)
+@onready var water_jet_sprite = get_node_or_null("WaterJetSprite")  # Sprite animado del chorro de agua
 var axe_base_scale: Vector2 = Vector2.ONE
 var hose_base_scale: Vector2 = Vector2.ONE
 var axe_pivot_base_position: Vector2 = Vector2.ZERO
@@ -242,9 +246,56 @@ func _ready():
 	_setup_fire_sound_system()
 	_setup_axe_sound_system()
 	_setup_dash_sound_system()
+	
+	# Garantizar que el menú de pausa exista en este nivel
+	# (si el nivel no lo tiene en su .tscn, se crea dinámicamente)
+	_ensure_pause_menu()
+	
+	# Restaurar posición si hay una guardada válida
+	if "posicion_guardada" in GameManager and GameManager.posicion_guardada != Vector2.INF:
+		global_position = GameManager.posicion_guardada
+		print("📍 Jugador restaurado en guardado:", global_position)
+		GameManager.posicion_guardada = Vector2.INF  # Limpiar
+	elif "posicionar_jugador_en_puerta" in GameManager:
+		GameManager.posicionar_jugador_en_puerta(self, get_tree().current_scene)
+
+func _ensure_pause_menu() -> void:
+	"""Crea el menú de pausa dinámicamente si el nivel no lo tiene.
+	Como el jugador está en todos los niveles, esto garantiza que ESC
+	siempre funcione sin necesidad de editar cada escena."""
+	# Esperar un frame para que los nodos del nivel estén listos
+	await get_tree().process_frame
+	
+	# Si ya hay un PuseMenu en el árbol (instanciado en el .tscn del nivel), no hacer nada
+	if get_tree().get_nodes_in_group("pause_menu_ui").size() > 0:
+		print("✅ Menú de pausa encontrado en la escena")
+		return
+	
+	# No existe → crear el MenusLayer con PuseMenu y DeathMenu dinámicamente
+	var canvas := CanvasLayer.new()
+	canvas.name = "MenusLayer"
+	canvas.process_mode = Node.PROCESS_MODE_ALWAYS
+	canvas.layer = 30
+	canvas.visible = false
+	get_tree().current_scene.add_child(canvas)
+	
+	var pause_scene := preload("res://Interfaces/puse_menu.tscn")
+	var pause_menu := pause_scene.instantiate()
+	pause_menu.name = "PuseMenu"
+	canvas.add_child(pause_menu)
+	
+	var death_scene := preload("res://Scenes/UI/deathEscene.tscn")
+	var death_menu := death_scene.instantiate()
+	death_menu.name = "DeathMenu"
+	canvas.add_child(death_menu)
+	
+	print("✅ Menú de pausa creado dinámicamente para '", get_tree().current_scene.name, "'")
 
 func _ensure_weapon_pivots() -> void:
 	"""Crea pivotes si faltan y reubica las armas para rotarlas de forma estable."""
+	var axe_pivot_was_nested := false
+	var hose_pivot_was_nested := false
+
 	# Buscar pivotes existentes en cualquier nivel (por si quedaron como hijos de Axe/hose).
 	if not axe_pivot:
 		axe_pivot = find_child("AxePivot", true, false) as Marker2D
@@ -263,9 +314,24 @@ func _ensure_weapon_pivots() -> void:
 
 	# Si el pivote está dentro del sprite (configuración invertida), sácalo al root.
 	if axe_sprite and axe_pivot and axe_sprite.is_ancestor_of(axe_pivot):
+		axe_pivot_was_nested = true
 		axe_pivot.reparent(self, true)
 	if hose_sprite and hose_pivot and hose_sprite.is_ancestor_of(hose_pivot):
+		hose_pivot_was_nested = true
 		hose_pivot.reparent(self, true)
+
+	if axe_pivot:
+		axe_pivot.scale = Vector2.ONE
+		axe_pivot.skew = 0.0
+	if hose_pivot:
+		hose_pivot.scale = Vector2.ONE
+		hose_pivot.skew = 0.0
+
+	# Si venian con transformaciones corruptas por estar anidados, normalizar posiciones base.
+	if axe_pivot and (axe_pivot_was_nested or axe_pivot.position.length() > 300.0):
+		axe_pivot.position = Vector2(20.0, -4.0)
+	if hose_pivot and (hose_pivot_was_nested or hose_pivot.position.length() > 300.0):
+		hose_pivot.position = Vector2(18.0, -2.0)
 
 	if axe_sprite and axe_sprite.get_parent() != axe_pivot:
 		axe_sprite.reparent(axe_pivot, true)
@@ -344,53 +410,81 @@ func _setup_hose_system():
 		
 		# Configurar propiedades de las partículas
 		water_particles.emitting = false
-		water_particles.amount = 80
-		water_particles.lifetime = 0.9
+		water_particles.amount = 120  # Más partículas para mejor densidad
+		water_particles.lifetime = 1.2  # Más tiempo de vida para mejor animación
 		water_particles.speed_scale = 1.0
 		
 		# Dirección y velocidad
 		water_particles.direction = Vector2(1, 0)
-		water_particles.spread = 10.0
-		water_particles.initial_velocity_min = 350.0
-		water_particles.initial_velocity_max = 600.0
+		water_particles.spread = 20.0  # Mayor dispersión para efecto más disperso
+		water_particles.initial_velocity_min = 300.0
+		water_particles.initial_velocity_max = 550.0
 		
-		# Gravedad
-		water_particles.gravity = Vector2(0, 60)
-		water_particles.damping_min = 6.0
-		water_particles.damping_max = 12.0
+		# Gravedad y física
+		water_particles.gravity = Vector2(0, 150)  # Mayor gravedad para caída más rápida
+		water_particles.damping_min = 8.0
+		water_particles.damping_max = 15.0
 		
-		# Apariencia
-		water_particles.scale_amount_min = 6.0
-		water_particles.scale_amount_max = 10.0
-		water_particles.color = Color(0.3, 0.7, 1.0, 0.8)  # Azul agua
+		# Apariencia - Color azul más saturado como el sprite
+		water_particles.scale_amount_min = 4.0
+		water_particles.scale_amount_max = 8.0
+		water_particles.color = Color(0.2, 0.6, 1.0, 0.9)  # Azul más saturado y brillante
+		
+		# Variación de color para más vitalidad
+		water_particles.color_initial_ramp = Gradient.new()
 		
 		# Emisión en rectángulo
 		water_particles.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
 		# Pequeño rectángulo en la boquilla
-		water_particles.emission_rect_extents = Vector2(2, 4)
+		water_particles.emission_rect_extents = Vector2(3, 6)
 		
 		# Posición inicial en la boquilla de la manguera
 		water_particles.position = safe_hose_nozzle_offset
 		water_particles.visible = true  # Visible al inicio (manguera equipada)
+		
+		# Sincronizar sprite del agua
+		if water_jet_sprite:
+			water_jet_sprite.position = safe_hose_nozzle_offset
+			water_jet_sprite.rotation = 0.0
 		
 		print("Partículas de agua creadas automáticamente")
 	else:
 		# Actualizar configuración para mayor alcance
 		water_particles.emitting = false
 		water_particles.visible = true  # Visible al inicio
-		water_particles.lifetime = 0.9
-		water_particles.initial_velocity_min = 350.0
-		water_particles.initial_velocity_max = 600.0
-		water_particles.gravity = Vector2(0, 60)
-		water_particles.damping_min = 6.0
-		water_particles.damping_max = 12.0
-		water_particles.emission_rect_extents = Vector2(2, 4)
+		water_particles.lifetime = 1.2
+		water_particles.initial_velocity_min = 300.0
+		water_particles.initial_velocity_max = 550.0
+		water_particles.gravity = Vector2(0, 150)
+		water_particles.damping_min = 8.0
+		water_particles.damping_max = 15.0
+		water_particles.spread = 20.0
+		water_particles.amount = 120
+		water_particles.scale_amount_min = 4.0
+		water_particles.scale_amount_max = 8.0
+		water_particles.color = Color(0.2, 0.6, 1.0, 0.9)
+		water_particles.emission_rect_extents = Vector2(3, 6)
 		water_particles.position = safe_hose_nozzle_offset
+		
+		# Sincronizar sprite del agua
+		if water_jet_sprite:
+			water_jet_sprite.position = safe_hose_nozzle_offset
+			water_jet_sprite.rotation = 0.0
 
 func _physics_process(delta):
+	# No procesar física durante la pausa. El jugador tiene process_mode=ALWAYS 
+	# porque necesita recibir input para el menú de pausa, pero NO debe mover 
+	# ni animar el personaje mientras el juego está pausado.
+	if get_tree().paused:
+		return
 	# Si el personaje está muerto, no procesar nada
 	if not vivo:
 		return
+	
+	# Capturar dirección del movimiento actual para rotar armas dinámicamente
+	var input_vector = Input.get_vector("left", "right", "up", "down")
+	if input_vector != Vector2.ZERO:
+		last_movement_direction = input_vector.normalized()
 	
 	# Movimiento estándar (mover_personaje en la base maneja dash internamente)
 	mover_personaje(delta)
@@ -446,17 +540,24 @@ func _physics_process(delta):
 	# keep_in_viewport()
 
 func _unhandled_input(event):
-	# Si el jugador está muerto, no procesar ningún input (el menú de muerte maneja todo)
+	# Si el jugador está muerto, no procesar ningún input
 	if not vivo:
 		return
 
 	# Detectar ESC para pausar el juego
-	if event.is_action_pressed("ui_cancel"):
+	var is_esc_key: bool = (event is InputEventKey
+		and (event as InputEventKey).pressed
+		and not (event as InputEventKey).echo
+		and ((event as InputEventKey).physical_keycode == KEY_ESCAPE
+			or (event as InputEventKey).keycode == KEY_ESCAPE))
+	var is_ui_cancel: bool = (InputMap.has_action("ui_cancel") and event.is_action_pressed("ui_cancel"))
+	if is_esc_key or is_ui_cancel:
+		print("🔵 ESC detectado! is_esc_key=", is_esc_key, " is_ui_cancel=", is_ui_cancel)
 		_toggle_pause_menu()
 		get_viewport().set_input_as_handled()
 		return
 
-	# Detectar cambio de arma por mouse - click derecho
+	# Detectar cambio de arma por mouse - click derecho o rueda
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			last_mouse_button_time = Time.get_ticks_msec()
@@ -466,6 +567,8 @@ func _unhandled_input(event):
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP or event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			if event.pressed:
 				switch_weapon()
+				get_viewport().set_input_as_handled()
+				return
 
 func _configure_mouse_combat_bindings():
 	"""Asegurar que click derecho esté asignado a switch_weapon."""
@@ -485,44 +588,70 @@ func _configure_mouse_combat_bindings():
 
 func _toggle_pause_menu():
 	"""Activa/desactiva el menú de pausa"""
-	# Buscar el MenusLayer
-	var menus_layer = get_tree().root.find_child("MenusLayer", true, false)
-	if not menus_layer:
-		print("⚠️ MenusLayer no encontrado")
+	# Buscar el PuseMenu por grupo (más robusto que buscar por nombre del nodo padre)
+	var pause_menus = get_tree().get_nodes_in_group("pause_menu_ui")
+	var pause_menu: Node = null
+	
+	# Si hay varios (level1 tiene dos instancias), preferir el que esté en un nodo llamado MenusLayer
+	for pm in pause_menus:
+		if pm.get_parent() and pm.get_parent().name == "MenusLayer":
+			pause_menu = pm
+			break
+	# Fallback: usar el primero que se encuentre
+	if not pause_menu and pause_menus.size() > 0:
+		pause_menu = pause_menus[0]
+	
+	if not pause_menu:
+		push_warning("⚠️ PuseMenu no encontrado en ningún nivel (falta instanciarlo en la escena)")
 		return
-
-	# Buscar los menús
-	var pause_menu = menus_layer.get_node_or_null("PuseMenu")
-	var death_menu = menus_layer.get_node_or_null("DeathMenu")
-
+	
+	# Obtener el DeathMenu del mismo padre para no pausar durante el game over
+	var menu_container = pause_menu.get_parent()
+	var death_menu = menu_container.get_node_or_null("DeathMenu") if menu_container else null
+	if not death_menu:
+		death_menu = get_tree().root.find_child("DeathMenu", true, false)
+	
 	# No permitir pausar si hay pantalla de muerte activa
 	if death_menu and death_menu.visible:
 		return
-
+	
 	# Alternar pausa
 	var is_paused = not get_tree().paused
 	get_tree().paused = is_paused
-
-	# Mostrar/ocultar menús
-	menus_layer.visible = is_paused
-	if pause_menu:
-		pause_menu.visible = is_paused
+	
+	# Mostrar/ocultar el contenedor (CanvasLayer / MenusLayer)
+	if menu_container:
+		menu_container.visible = is_paused
+	
+	# Mostrar/ocultar el menú
+	pause_menu.visible = is_paused
+	
+	# Ocultar el DeathMenu por si acaso
 	if death_menu:
 		death_menu.visible = false
-
+	
 	# Mostrar/ocultar cursor
 	if is_paused:
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	else:
 		Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 
+
 func _handle_input():
 	# Si el personaje está muerto, no procesar input
 	if not vivo:
+		print("🎮 _handle_input() - personaje muerto")
 		return
-
-	# Cambio de arma con click derecho (usando Input singleton, ignora si GUI consume el evento)
-	if Input.is_action_just_pressed("switch_weapon"):
+	
+	print("🎮 _handle_input() ejecutado - arma: %s (valor: %d, AXE=%d)" % [
+		"HACHA" if current_weapon == Weapon.AXE else "MANGUERA",
+		current_weapon,
+		Weapon.AXE
+	])
+	
+	# Intercambiar arma con Q
+	if Input.is_action_just_pressed("ui_focus_next"):
+		print("🎮 Q presionado - cambiando arma")
 		switch_weapon()
 
 	# Sistema de manguera (botón mantenido) - solo si está equipada
@@ -554,8 +683,16 @@ func _handle_input():
 	
 	# Sistema de ataque con hacha - solo si está equipada
 	if current_weapon == Weapon.AXE:
+		print("🎮 Estamos en modo HACHA")
 		if Input.is_action_just_pressed("attack"):
-			attack()  # El ataque ahora funciona como parry automático
+			print("⚔️ INPUT ATTACK DETECTADO")
+			attack()
+		else:
+			if Input.is_action_pressed("attack"):
+				print("⚔️ 'attack' presionado pero NO es just_pressed")
+	else:
+		if Input.is_action_just_pressed("attack"):
+			print("⚔️ Attack presionado pero estamos en MANGUERA, NO en hacha")
 
 	# Dash: usar la acción 'dash' (tecla Shift) exclusivamente
 	var dash_pressed := false
@@ -580,14 +717,22 @@ func _handle_input():
 
 func _update_weapon_orientation(delta: float):
 	"""Actualiza la posición y rotación de las armas hacia la posición del mouse"""
+	# No actualizar orientación si está en ataque especial
+	if is_performing_special_attack:
+		return
+	
 	# Obtener direccion objetivo hacia el mouse
 	var mouse_pos = get_global_mouse_position()
 	var to_mouse = mouse_pos - global_position
 	var target_direction = current_aim_direction
 	
 	# En zona cercana mantenemos la ultima direccion para evitar "temblores".
+	# Si está dentro del deadzone Y hay movimiento, usar la dirección del movimiento  
 	if to_mouse.length() >= aim_deadzone_px:
 		target_direction = to_mouse.normalized()
+	elif last_movement_direction != Vector2.ZERO:
+		# Si el mouse está quieto pero hay movimiento, girar hacia la dirección del movimiento
+		target_direction = last_movement_direction
 
 	# Suavizado exponencial estable por frame rate.
 	var blend = 1.0 - exp(-aim_smoothing_speed * delta)
@@ -613,44 +758,28 @@ func _update_weapon_orientation(delta: float):
 	if hose_sprite:
 		_orient_hose(direction, angle)
 
-func _orient_axe(direction: Vector2, angle: float):
-	"""Orienta el hacha según la dirección del mouse con volteo visual"""
-	var base_offset = 50.0  # Distancia desde el centro del personaje
-	
-	# Calcular posición del hacha alrededor del personaje
-	var axe_position = axe_pivot_base_position + direction * base_offset + Vector2(0, 10.0) + axe_pivot_extra_offset
-
+func _orient_axe(direction: Vector2, _angle: float):
+	"""Orienta el sprite del ataque sin rotar ni orbitar todo el personaje"""
+	# Mantenemos el pivote quieto en el centro
 	if axe_pivot:
-		axe_pivot.position = axe_position
-	
-	# Voltear el hacha por lado, pero corrigiendo el offset angular
-	# para que la punta siempre apunte al objetivo.
-	var facing_right := direction.x > 0.0
-	axe_sprite.scale.x = abs(axe_base_scale.x)
-	axe_sprite.scale.y = abs(axe_base_scale.y) * (1.0 if facing_right else -1.0)
-	
-	# El offset cambia según el espejo para mantener la punta alineada.
-	var angle_offset := PI / 2 if facing_right else -PI / 2
-	if axe_pivot:
-		axe_pivot.rotation = angle + angle_offset
-		axe_sprite.rotation = 0.0
-	else:
-		axe_sprite.rotation = angle + angle_offset
-	
-	# Mantener arma siempre delante del personaje para evitar cambios molestos de profundidad.
-	if axe_pivot:
-		axe_pivot.z_index = 0
-		axe_pivot.show_behind_parent = false
-	else:
-		axe_sprite.z_index = 0
-		axe_sprite.show_behind_parent = false
+		axe_pivot.position = axe_pivot_base_position
+		axe_pivot.rotation = 0
+		
+	if axe_sprite:
+		axe_sprite.rotation = 0
+		# Aseguramos que la escala sea siempre positiva (por si se invirtió en el editor)
+		axe_sprite.scale = Vector2(abs(axe_base_scale.x), abs(axe_base_scale.y))
+		
+		# Si apuntas a la derecha, flip es falso. Si apuntas a la izquierda, flip es verdadero.
+		if direction.x > 0:
+			axe_sprite.flip_h = false
+		else:
+			axe_sprite.flip_h = true
 
 func _orient_hose(direction: Vector2, angle: float):
 	"""Orienta la manguera según la dirección del mouse con volteo visual"""
-	var base_offset = 60.0  # Un poco más lejos que el hacha
-	
-	# Calcular posición de la manguera
-	var hose_position = hose_pivot_base_position + direction * base_offset + Vector2(0, 15.0) + hose_pivot_extra_offset
+	# Mantener pivote fijo cerca de la mano para que no "orbite" alrededor del cuerpo.
+	var hose_position = hose_pivot_base_position + hose_pivot_extra_offset
 
 	if hose_pivot:
 		hose_pivot.position = hose_position
@@ -676,10 +805,19 @@ func _orient_hose(direction: Vector2, angle: float):
 	
 	# Actualizar también la dirección de las partículas de agua si están activas
 	if water_particles:
-		# Posicionar las partículas en la punta de la manguera
-		var nozzle_offset = direction * (base_offset + 30.0)
+		# Posicionar las partículas en la punta real de la manguera segun rotacion actual.
+		var nozzle_offset = hose_nozzle_offset.rotated(angle)
 		water_particles.position = nozzle_offset
 		water_particles.direction = direction
+		
+		# Sincronizar sprite del agua para que siga la misma posición y rotación
+		if water_jet_sprite:
+			water_jet_sprite.position = nozzle_offset
+			# Sumar PI/2 para compensar la orientación natural del sprite (dibujado verticalmente)
+			water_jet_sprite.rotation = angle + PI/2
+			
+			# Usar flip_h para volteo horizontal según dirección del personaje
+			water_jet_sprite.flip_h = direction.x < 0
 
 # ============================================
 # SISTEMA DE INTERCAMBIO DE ARMAS
@@ -698,36 +836,33 @@ func mejorar_manguera() -> void:
 	print("💨 Resistencia pulmonar aumentada! Nueva vida máxima: ", vida_maxima)
 
 func switch_weapon():
-	"""Intercambia entre hacha y manguera"""
-	print("🔄 switch_weapon() called - current weapon: ", current_weapon)
-	# Desactivar manguera si está activa
-	if is_using_hose:
-		_deactivate_hose()
+	"""Alterna entre la Manguera y el Hacha"""
+	if current_weapon == Weapon.HOSE:
+		current_weapon = Weapon.AXE
+		# Si estaba disparando agua, la apagamos al guardar la manguera
+		if is_using_hose:
+			_deactivate_hose()
+		print("🪓 Arma cambiada a: HACHA")
+	else:
+		current_weapon = Weapon.HOSE
+		print("💧 Arma cambiada a: MANGUERA")
 	
-	# Cambiar arma
-	current_weapon = Weapon.HOSE if current_weapon == Weapon.AXE else Weapon.AXE
-	print("✓ Arma cambiada a: ", "MANGUERA" if current_weapon == Weapon.HOSE else "HACHA")
-	
-	# Actualizar visuales
 	_update_weapon_visuals()
-	
-	# Emitir señal
 	emit_signal("weapon_switched", current_weapon)
 
 func _update_weapon_visuals():
-	"""Actualiza los visuales según el arma equipada"""
-	var is_axe_equipped = (current_weapon == Weapon.AXE)
 	var is_hose_equipped = (current_weapon == Weapon.HOSE)
 	
+	# El sprite del ataque con hacha debe estar oculto por defecto
 	if axe_sprite:
-		axe_sprite.visible = is_axe_equipped
+		axe_sprite.visible = false
+		
 	if hose_sprite:
 		hose_sprite.visible = is_hose_equipped
 	if water_particles:
 		water_particles.visible = is_hose_equipped
 		if not is_hose_equipped:
 			water_particles.emitting = false
-
 # ============================================
 # SISTEMA DE MANGUERA
 # ============================================
@@ -770,6 +905,13 @@ func _activate_hose():
 	else:
 		print("ERROR: WaterParticles no encontrado!")
 	
+	# Activar sprite del agua y su animación
+	if water_jet_sprite:
+		water_jet_sprite.visible = true
+		water_jet_sprite.frame = 0  # Empezar desde el primer frame
+		water_jet_sprite.play("agua_inf")
+		print("✓ Animación de agua iniciada (se mantendrá en último frame)")
+	
 	print("Manguera activada - Carga: ", hose_charge, "%")
 
 func _deactivate_hose():
@@ -799,6 +941,12 @@ func _deactivate_hose():
 	# Desactivar partículas de agua
 	if water_particles:
 		water_particles.emitting = false
+	
+	# Desactivar sprite del agua
+	if water_jet_sprite:
+		water_jet_sprite.stop()
+		water_jet_sprite.frame = 0  # Resetear al primer frame
+		water_jet_sprite.visible = false
 
 func _update_hose(delta):
 	"""Actualiza el sistema de manguera mientras está activa"""
@@ -847,64 +995,77 @@ func _update_hose_direction():
 
 func _detect_and_extinguish_fire(water_amount: float):
 	"""Detecta y apaga el fuego en el área de la manguera"""
-	if not hose_area:
-		return
-	
 	# Obtener todas las áreas que están siendo alcanzadas por el agua
-	var overlapping_areas = hose_area.get_overlapping_areas()
-	var overlapping_bodies = hose_area.get_overlapping_bodies()
+	if hose_area:
+		var overlapping_areas = hose_area.get_overlapping_areas()
+		var overlapping_bodies = hose_area.get_overlapping_bodies()
+		
+		# Procesar áreas (fuego como Area2D)
+		for area in overlapping_areas:
+			_try_extinguish_fire(area, water_amount)
+		
+		# Procesar cuerpos (fuego como cuerpo físico)
+		for body in overlapping_bodies:
+			_try_extinguish_fire(body, water_amount)
 	
-	# Procesar áreas (fuego como Area2D)
-	for area in overlapping_areas:
-		_try_extinguish_fire(area, water_amount)
-	
-	# Procesar cuerpos (fuego como cuerpo físico)
-	for body in overlapping_bodies:
-		_try_extinguish_fire(body, water_amount)
+	# MÉTODO ADICIONAL: Búsqueda por distancia para el jefe
+	# Esto asegura que el agua detecte al jefe incluso si las colisiones no funcionan
+	var jefe = get_tree().current_scene.find_child("jefe", true, false)
+	if jefe and jefe != self:
+		var distancia = global_position.distance_to(jefe.global_position)
+		var rango_seguro = hose_range * tile_size if hose_range and tile_size else 300
+		
+		if distancia <= rango_seguro:
+			# Verificar que está en la dirección del apunte
+			var dir_al_jefe = (jefe.global_position - global_position).normalized()
+			var productos_punto = dir_al_jefe.dot(current_aim_direction.normalized())
+			
+			if productos_punto > 0.3:  # Dentro de ~70 grados del apunte
+				_try_extinguish_fire(jefe, water_amount)
 
 func _try_extinguish_fire(target, water_amount: float):
 	"""Intenta apagar un fuego"""
+	if not target:
+		return
+	
 	# IMPORTANTE: No atacar al propio jugador
 	if target == self or target.is_in_group("player") or target.is_in_group("player_main"):
 		return
 	
 	# Aplicar agua o daño a cualquier objetivo compatible (fuego, enemigos, etc.)
-	if target.has_method("apply_water") or target.has_method("take_damage") or target.is_in_group("Fire") or target.has_method("extinguish"):
-		# Si el objetivo acepta agua, pásale la cantidad de agua usada literalmente
-		if target.has_method("apply_water"):
-			target.apply_water(water_amount)
-		# Si recibe daño, usa el agua como daño directo: 1 agua = 1 daño
-		elif target.has_method("take_damage"):
-			target.take_damage(water_amount)
-		elif target.has_method("extinguish"):
-			target.extinguish()
-			target.extinguish()
-			emit_signal("fire_extinguished", target)
+	if target.has_method("apply_water"):
+		target.apply_water(water_amount)
+		print("💧 Agua aplicada a ", target.name, ": ", water_amount)
+	elif target.has_method("take_damage"):
+		target.take_damage(water_amount)
+		print("💧 Daño por agua a ", target.name, ": ", water_amount)
+	elif target.has_method("extinguish"):
+		target.extinguish()
+		print("🔥 Fuego extinguido: ", target.name)
+	elif target.is_in_group("Fire"):
+		if target.has_method("queue_free"):
+			target.queue_free()
+			print("🔥 Proyectil de fuego destruido")
+		else:
+			print("⚠️ Objetivo en grupo Fire pero sin métodos: ", target.name)
 
-# ============================================
-# SISTEMA DE MUERTE DEL JUGADOR
-# ============================================
-func take_damage(amount: float) -> void:
-	"""Recibe daño de enemigos - usa el sistema de vida heredado"""
-	# Usar el sistema de vida del padre (personaje_base) - ahora acepta float
-	recibir_dano(amount)
 
-func die() -> void:
-	# Detener el juego cuando la vida llega a 0
-	if is_dead:
+func perder_oxigeno(cantidad: float) -> void:
+	"""Pierde oxígeno sin disparar animación de daño - solo reduce vida"""
+	if not vivo:
 		return
-	is_dead = true
-	# Asegurar que este nodo siga recibiendo input durante la pausa (Godot 4)
-	process_mode = Node.PROCESS_MODE_WHEN_PAUSED
-	get_tree().paused = true
-	# Aquí podrías reproducir animación/sonido de muerte
-	print("💀 El Bombero ha muerto. Juego pausado.")
+	
+	vida_actual = max(0.0, vida_actual - cantidad)
+	emit_signal("vida_actualizada", vida_actual)
+	print("💨 Oxígeno: ", vida_actual)
 
 # ============================================
 # SISTEMA DE ATAQUE CON HACHA
 # ============================================
 func attack():
+	print("⚔️ ATTACK LLAMADO")
 	if can_attack and current_axe_state == AxeState.IDLE:
+		print("⚔️ Condiciones OK - iniciando ataque")
 		# Reproducir sonido de ataque de hacha secuencial (hachaataque1, hacha_ataque2)
 		_play_axe_attack_sound()
 		
@@ -914,8 +1075,22 @@ func attack():
 		if axe_hitbox:
 			axe_hitbox.monitoring = true
 
-		# Sin animación visual del personaje, solo daño físico del hacha.
-		if animation_player and animation_player.has_animation("axe_attack"):
+		# Mostrar y reproducir animación del ataque "AtaqueAxeDer"
+		if axe_sprite:
+			# Ocultar el sprite principal del personaje
+			if character_sprite:
+				character_sprite.visible = false
+			
+			axe_sprite.visible = true
+			# Aplicar flip si el personaje apunta hacia la izquierda
+			if axe_sprite_animated:
+				axe_sprite_animated.flip_h = last_direction.x < 0
+			
+			if axe_sprite_animated and axe_sprite_animated.sprite_frames and axe_sprite_animated.sprite_frames.has_animation("AtaqueAxeDer"):
+				axe_sprite_animated.play("AtaqueAxeDer")
+			else:
+				_animate_axe_swing()
+		elif animation_player and animation_player.has_animation("axe_attack"):
 			animation_player.play("axe_attack")
 		else:
 			_animate_axe_swing()
@@ -929,11 +1104,16 @@ func attack():
 		if axe_hitbox:
 			axe_hitbox.monitoring = false
 
-		# Volver a la animación base del hacha (idle) si existe
-		if axe_sprite and axe_sprite.sprite_frames and axe_sprite.sprite_frames.has_animation("hacha"):
-			axe_sprite.play("hacha")
-		elif axe_sprite and axe_sprite.has_method("stop"):
-			axe_sprite.stop()
+		# Ocultar el sprite del ataque y restaurar el personaje principal
+		if axe_sprite:
+			axe_sprite.visible = false
+			if axe_sprite_animated:
+				axe_sprite_animated.flip_h = false  # Resetear flip
+				axe_sprite_animated.stop()
+			
+			# Restaurar el sprite principal del personaje
+			if character_sprite:
+				character_sprite.visible = true
 
 		_reset_axe_position()
 		var safe_cooldown = attack_cooldown_time if attack_cooldown_time != null else 0.2
@@ -960,32 +1140,36 @@ func _reset_axe_position():
 	if axe_sprite:
 		axe_sprite.rotation_degrees = 0
 
+
 func _perform_axe_attack():
-	if not axe_hitbox:
-		return
+	print("🔪 Atacando con hacha - last_direction: %s" % last_direction)
 	
-	# Obtener todos los cuerpos en el área de ataque
-	# Si el Area2D está con monitoring desactivado, activarlo temporalmente para poder leer overlaps
-	var was_monitoring = true
-	if not axe_hitbox.monitoring:
-		was_monitoring = false
-		axe_hitbox.monitoring = true
-		# Esperar un frame de física para que el motor actualice las colisiones
-		await get_tree().process_frame
-
-	var overlapping_bodies = axe_hitbox.get_overlapping_bodies()
-	var overlapping_areas = axe_hitbox.get_overlapping_areas()
-
-	# Restaurar el estado de monitoring si estaba desactivado
-	if not was_monitoring:
-		axe_hitbox.monitoring = false
+	# Buscar todos los CharacterBody2D en el área cercana usando raycasting
+	var space_state = get_world_2d().direct_space_state
+	var query = PhysicsShapeQueryParameters2D.new()
 	
-	for body in overlapping_bodies:
-		_process_attack_target(body)
+	# Usar un círculo de detección
+	var circle = CircleShape2D.new()
+	circle.radius = 80  # Radio de detección
+	var attack_direction = Vector2(80 * (1 if last_direction.x >= 0 else -1), 0)
+	query.shape = circle
+	query.transform = global_transform.translated(attack_direction)
+	query.collision_mask = 2  # Capa 2 donde están los enemigos
 	
-	for area in overlapping_areas:
-		if area.get_parent():
-			_process_attack_target(area.get_parent())
+	var results = space_state.intersect_shape(query)
+	print("🔪 Detectados: %d enemigos" % results.size())
+	
+	for result in results:
+		var collider = result.collider
+		print("🔪 -> %s" % collider.name)
+		if collider != self and not collider.is_in_group("player"):
+			if collider.has_method("take_damage"):
+				var safe_axe_damage = axe_damage if axe_damage != null else 5
+				print("🔪 ¡DAÑO! %s recibe %f" % [collider.name, safe_axe_damage])
+				if collider.is_in_group("hellhound"):
+					collider.take_damage(safe_axe_damage, &"hacha")
+				else:
+					collider.take_damage(safe_axe_damage)
 
 func _process_attack_target(target):
 	# Si el hit llegó a un Area2D/child, intentar subir al dueño real del daño.
@@ -1180,17 +1364,17 @@ func _update_oxygen_system(delta):
 		oxygen_zero_timer -= delta
 		
 		# Si se acaba el tiempo sin oxígeno, morir
-		if oxygen_zero_timer <= 0.0 and not is_dead:
-			is_dead = true
+		if oxygen_zero_timer <= 0.0:
 			print("💀 ¡TIEMPO AGOTADO! Game Over sin oxígeno")
+			_vencer()
 		return
 	else:
 		# Resetear contador si hay oxígeno
 		oxygen_zero_timer = 0.0
 	
-	# Si hay enemigos o fuego: consumir oxígeno (-1 por segundo)
+	# Si hay enemigos o fuego: consumir oxígeno (-0.5 por segundo) SIN animación de daño
 	if has_enemies_or_fire:
-		recibir_dano(oxygen_loss_rate * delta)
+		perder_oxigeno(oxygen_loss_rate * delta)
 	else:
 		# Sin enemigos/fuego: recuperar oxígeno (+5 por segundo)
 		if vida_actual < vida_maxima:
