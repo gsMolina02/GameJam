@@ -496,6 +496,8 @@ radius = 132.00386
 [node name="jefe" type="CharacterBody2D"]
 position = Vector2(471, 268.99988)
 rotation = -0.00036524187
+collision_layer = 2
+collision_mask = 1
 script = ExtResource("1_l41yb")
 vida_maxima = 50
 
