@@ -375,6 +375,7 @@ func _update_animation_state() -> void:
 		_play_animation_if_exists(death_animation, idle_animation)
 		return
 
+	# Las animaciones bloqueadas (daño) tienen máxima prioridad
 	if _anim_lock_timer > 0.0 and _locked_animation != &"":
 		_play_animation_if_exists(_locked_animation, idle_animation)
 		return
@@ -472,14 +473,14 @@ func take_damage(amount: float, source: StringName = &"general") -> void:
 		&"agua", &"water":
 			_play_temporary_animation(hurt_water_animation, hurt_animation_time)
 			var health_percentage: int = int((_current_health / max_health) * 100)
-			print("HellHound recibiendo agua - Salud: ", health_percentage, "%")
+			print("🐕 Dañado por agua - Salud: %d%%" % health_percentage)
 		&"hacha", &"axe":
 			_play_temporary_animation(hurt_axe_animation, hurt_animation_time)
 		_:
 			_play_temporary_animation(hurt_general_animation, hurt_animation_time)
 	
 	if _current_health <= 0.0:
-		print("HellHound derrotado!")
+		print("🐕 HellHound derrotado!")
 		die()
 		return
 
