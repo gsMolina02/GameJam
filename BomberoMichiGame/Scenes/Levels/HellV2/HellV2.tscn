@@ -1,4 +1,4 @@
-[gd_scene load_steps=45 format=4 uid="uid://bq0xsjb3mbjwk"]
+[gd_scene load_steps=47 format=4 uid="uid://bq0xsjb3mbjwk"]
 
 [ext_resource type="Texture2D" uid="uid://birsve8umya61" path="res://Tiles/Tileset_sofocado_prueba_2.png" id="1_iu1tt"]
 [ext_resource type="PackedScene" uid="uid://bfra7nxi2wetn" path="res://personajes/personaje_principal/personaje_principal.tscn" id="1_l8nt6"]
@@ -12471,6 +12471,17 @@ texture = ExtResource("1_iu1tt")
 [sub_resource type="TileSet" id="TileSet_7dnm7"]
 sources/0 = SubResource("TileSetAtlasSource_vl3wf")
 
+[sub_resource type="Gradient" id="Gradient_suv00"]
+interpolation_color_space = 2
+offsets = PackedFloat32Array(0.023188407, 1)
+colors = PackedColorArray(0.3529412, 0.3529412, 0.3529412, 0.19215687, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_tlsmk"]
+gradient = SubResource("Gradient_suv00")
+use_hdr = true
+fill = 1
+fill_from = Vector2(0.491453, 0.42735043)
+
 [node name="HellV2" type="Node2D"]
 
 [node name="TileMapHell" type="Node2D" parent="."]
@@ -12612,3 +12623,15 @@ script = ExtResource("12_2o5ek")
 position = Vector2(-391.00006, 681)
 scale = Vector2(1.725, 1.725)
 teletransportar_al_terminar = true
+
+[node name="LuzAmbienteCentro" type="PointLight2D" parent="."]
+position = Vector2(2143.0002, 1135.0002)
+scale = Vector2(6.5411606, 3.7780843)
+color = Color(1, 0.88942164, 0.61782414, 1)
+energy = 19.95
+texture = SubResource("GradientTexture2D_tlsmk")
+texture_scale = 19.36
+height = 61.0
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.14901961, 0.14901961, 0.15294118, 1)
