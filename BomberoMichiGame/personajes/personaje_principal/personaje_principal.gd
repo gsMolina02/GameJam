@@ -472,73 +472,50 @@ func _setup_hose_system():
 			water_jet_sprite.rotation = 0.0
 
 func _physics_process(delta):
-	# No procesar física durante la pausa. El jugador tiene process_mode=ALWAYS 
-	# porque necesita recibir input para el menú de pausa, pero NO debe mover 
-	# ni animar el personaje mientras el juego está pausado.
 	if get_tree().paused:
 		return
-	# Si el personaje está muerto, no procesar nada
 	if not vivo:
 		return
 	
-	# Capturar dirección del movimiento actual para rotar armas dinámicamente
 	var input_vector = Input.get_vector("left", "right", "up", "down")
 	if input_vector != Vector2.ZERO:
 		last_movement_direction = input_vector.normalized()
 	
-	# Movimiento estándar (mover_personaje en la base maneja dash internamente)
-	mover_personaje(delta)
+	# 🚨 EL FIX: Si atacamos, frenamos y NO llamamos a mover_personaje 🚨
+	if current_axe_state == AxeState.ATTACKING or current_axe_state == AxeState.PARRYING:
+		# Frenar suavemente al personaje mientras ataca
+		velocity = velocity.move_toward(Vector2.ZERO, 1000 * delta)
+		move_and_slide()
+	else:
+		# Solo animar el movimiento si NO estamos atacando
+		mover_personaje(delta)
 
-	# Actualizar apuntado antes de procesar la manguera para usar una direccion consistente.
 	_update_weapon_orientation(delta)
 	
-	# Actualizar timer de parry
 	if current_axe_state == AxeState.PARRYING:
 		parry_timer -= delta
 		if parry_timer <= 0:
 			current_axe_state = AxeState.IDLE
 	
-	# Actualizar sistema de manguera
 	if is_using_hose:
 		_update_hose(delta)
 	
-	# Input de acciones
 	_handle_input()
-
-	# ========== SISTEMA DE RECARGA AUTOMÁTICA DE AGUA ==========
 	_update_water_recharge(delta)
-	
-	# ========== SISTEMA DE CONSUMO/RECUPERACIÓN DE OXÍGENO ==========
 	_update_oxygen_system(delta)
-	
-	# ========== SISTEMA DE PASOS ==========
 	_update_footsteps(delta)
 
-	# Limitar posición dentro del campo definido (SOLO si enforce_bounds está activo)
 	if enforce_bounds:
 		var minx = (min_x if min_x != null else -1000.0)
 		var maxx = (max_x if max_x != null else 1000.0)
 		var miny = (min_y if min_y != null else -1000.0)
 		var maxy = (max_y if max_y != null else 1000.0)
 		
-		# Aplicar clamp y actualizar posición
-		var clamped_x = clamp(global_position.x, float(minx), float(maxx))
-		var clamped_y = clamp(global_position.y, float(miny), float(maxy))
-		global_position = Vector2(clamped_x, clamped_y)
-		
-		# Debug solo si está activo el clamp
-		if abs(velocity.x) > 0 or abs(velocity.y) > 0:
-			print_debug("Player clamped -> pos:", global_position, "vel:", velocity)
+		global_position.x = clamp(global_position.x, float(minx), float(maxx))
+		global_position.y = clamp(global_position.y, float(miny), float(maxy))
 
-	# Este personaje ya tiene animaciones separadas de izquierda/derecha,
-	# por eso no usamos flip_h para evitar invertir visualmente el lado.
 	if character_sprite:
 		character_sprite.flip_h = false
-
-	# adicionalmente asegurar que el personaje no salga del viewport
-	# (no-op porque clamp_to_viewport está desactivado para el jugador)
-	# keep_in_viewport()
-
 func _unhandled_input(event):
 	# Si el jugador está muerto, no procesar ningún input
 	if not vivo:
@@ -649,9 +626,8 @@ func _handle_input():
 		Weapon.AXE
 	])
 	
-	# Intercambiar arma con Q
-	if Input.is_action_just_pressed("ui_focus_next"):
-		print("🎮 Q presionado - cambiando arma")
+	# Intercambiar arma con Q o CLICK DERECHO
+	if Input.is_action_just_pressed("ui_focus_next") or Input.is_action_just_pressed("switch_weapon"):
 		switch_weapon()
 
 	# Sistema de manguera (botón mantenido) - solo si está equipada
@@ -767,14 +743,14 @@ func _orient_axe(direction: Vector2, _angle: float):
 		
 	if axe_sprite:
 		axe_sprite.rotation = 0
-		# Aseguramos que la escala sea siempre positiva (por si se invirtió en el editor)
-		axe_sprite.scale = Vector2(abs(axe_base_scale.x), abs(axe_base_scale.y))
 		
-		# Si apuntas a la derecha, flip es falso. Si apuntas a la izquierda, flip es verdadero.
-		if direction.x > 0:
+		# USAMOS ESCALA PARA VOLTEAR (así el hitbox también rota físicamente)
+		var flip_factor = 1.0 if direction.x > 0 else -1.0
+		axe_sprite.scale = Vector2(abs(axe_base_scale.x) * flip_factor, abs(axe_base_scale.y))
+		
+		# Apagamos el flip_h para que no interfiera
+		if "flip_h" in axe_sprite:
 			axe_sprite.flip_h = false
-		else:
-			axe_sprite.flip_h = true
 
 func _orient_hose(direction: Vector2, angle: float):
 	"""Orienta la manguera según la dirección del mouse con volteo visual"""
@@ -1065,60 +1041,54 @@ func perder_oxigeno(cantidad: float) -> void:
 func attack():
 	print("⚔️ ATTACK LLAMADO")
 	if can_attack and current_axe_state == AxeState.IDLE:
-		print("⚔️ Condiciones OK - iniciando ataque")
-		# Reproducir sonido de ataque de hacha secuencial (hachaataque1, hacha_ataque2)
 		_play_axe_attack_sound()
 		
 		current_axe_state = AxeState.ATTACKING
+		is_performing_special_attack = true 
 		can_attack = false
 		
 		if axe_hitbox:
 			axe_hitbox.monitoring = true
 
-		# Mostrar y reproducir animación del ataque "AtaqueAxeDer"
-		if axe_sprite:
-			# Ocultar el sprite principal del personaje
-			if character_sprite:
-				character_sprite.visible = false
+		if character_sprite:
+			# 🚨 1. AQUÍ LO HACEMOS CRECER 🚨
+			# Cambia este 1.8 por el número que necesites (1.5, 2.0, etc.) hasta que cuadre.
+			character_sprite.scale = Vector2(0.4, 0.4) 
 			
-			axe_sprite.visible = true
-			# Aplicar flip si el personaje apunta hacia la izquierda
-			if axe_sprite_animated:
-				axe_sprite_animated.flip_h = last_direction.x < 0
+			var anim_name = "AtaqueAxeDer"
+			if current_aim_direction.x < 0 or last_direction.x < 0:
+				anim_name = "AtaqueAxeIzq"
 			
-			if axe_sprite_animated and axe_sprite_animated.sprite_frames and axe_sprite_animated.sprite_frames.has_animation("AtaqueAxeDer"):
-				axe_sprite_animated.play("AtaqueAxeDer")
-			else:
-				_animate_axe_swing()
-		elif animation_player and animation_player.has_animation("axe_attack"):
-			animation_player.play("axe_attack")
-		else:
-			_animate_axe_swing()
-		
+			if "sprite_frames" in character_sprite and character_sprite.sprite_frames:
+				if character_sprite.sprite_frames.has_animation(anim_name):
+					character_sprite.frame = 0
+					character_sprite.play(anim_name)
+				elif character_sprite.sprite_frames.has_animation("AtaqueAxeDer"):
+					character_sprite.frame = 0
+					character_sprite.play("AtaqueAxeDer")
+
 		emit_signal("attack_performed")
 		
-		await get_tree().create_timer(0.1).timeout
+		await get_tree().physics_frame
 		_perform_axe_attack()
 		
-		await get_tree().create_timer(0.2).timeout
+		await get_tree().create_timer(0.6).timeout
+		
 		if axe_hitbox:
 			axe_hitbox.monitoring = false
 
-		# Ocultar el sprite del ataque y restaurar el personaje principal
-		if axe_sprite:
-			axe_sprite.visible = false
-			if axe_sprite_animated:
-				axe_sprite_animated.flip_h = false  # Resetear flip
-				axe_sprite_animated.stop()
-			
-			# Restaurar el sprite principal del personaje
-			if character_sprite:
-				character_sprite.visible = true
-
 		_reset_axe_position()
+		
+		# 🚨 2. AQUÍ LO DEVOLVEMOS A LA NORMALIDAD 🚨
+		# Pon aquí la escala original (normalmente es 1.0, 1.0)
+		if character_sprite:
+			character_sprite.scale = Vector2(0.173, 0.173) 
+		
+		current_axe_state = AxeState.IDLE
+		is_performing_special_attack = false
+		
 		var safe_cooldown = attack_cooldown_time if attack_cooldown_time != null else 0.2
 		attack_cooldown_timer.start(safe_cooldown)
-
 func _animate_axe_swing():
 	if not axe_sprite:
 		return
@@ -1144,9 +1114,19 @@ func _reset_axe_position():
 func _perform_axe_attack():
 	print("🔪 Atacando con hacha - last_direction: %s" % last_direction)
 	
-	# Buscar todos los CharacterBody2D en el área cercana usando raycasting
-	var space_state = get_world_2d().direct_space_state
-	var query = PhysicsShapeQueryParameters2D.new()
+	var was_monitoring = true
+	if not axe_hitbox.monitoring:
+		was_monitoring = false
+		axe_hitbox.monitoring = true
+		# CRÍTICO: Godot 4 necesita physics_frame para actualizar colisiones
+		await get_tree().physics_frame
+
+	var overlapping_bodies = axe_hitbox.get_overlapping_bodies()
+	var overlapping_areas = axe_hitbox.get_overlapping_areas()
+
+	# Restaurar el estado de monitoring si estaba desactivado
+	if not was_monitoring:
+		axe_hitbox.monitoring = false
 	
 	# Usar un círculo de detección
 	var circle = CircleShape2D.new()
