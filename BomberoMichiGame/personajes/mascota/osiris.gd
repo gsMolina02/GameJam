@@ -182,42 +182,39 @@ func _iniciar_interaccion() -> void:
 	print("✅ Osiris ahora está siguiendo al jugador")
 
 func _mostrar_dialogo_habilidad() -> void:
-	"""Muestra el diálogo de habilidad adquirida CON ESTILO PERGAMINO (como nivel 1)"""
+	"""Muestra el diálogo de habilidad con el mismo estilo que los demás gatos (pergamino con portrait)"""
 	print("💬 Mostrando diálogo de habilidad")
-	
+
 	# Limpiar diálogos anteriores
 	var dialogos = get_tree().get_nodes_in_group("dialogo_habilidad")
 	for d in dialogos:
 		if d:
 			d.queue_free()
-	
-	# Crear CanvasLayer
+
 	var canvas_layer = CanvasLayer.new()
 	canvas_layer.name = "DialogoHabilidadLayer"
 	canvas_layer.layer = 100
 	canvas_layer.process_mode = Node.PROCESS_MODE_ALWAYS
 	canvas_layer.add_to_group("dialogo_habilidad")
-	
+
 	var control = Control.new()
 	control.set_anchors_preset(Control.PRESET_FULL_RECT)
 	canvas_layer.add_child(control)
-	
+
 	var vp = get_viewport().get_visible_rect().size
-	
-	# ESTILO PERGAMINO: Similar a gato_salvado.gd _mostrar_dialogo_rescate
-	const BOX_H      := 200.0
-	const BOX_W      := 680.0
-	const BANNER_H   := 40.0
-	var box_x       = (vp.x - BOX_W) * 0.5
-	
-	# Panel principal (pergamino)
+
+	const BOX_H      := 150.0
+	const BOX_W      := 620.0
+	const BANNER_H   := 28.0
+	const PORTRAIT_W := 90.0
+	var   box_x       = (vp.x - BOX_W) * 0.5
+
 	var box = Panel.new()
-	box.position = Vector2(box_x, vp.y - BOX_H - 40.0)
+	box.position = Vector2(box_x, vp.y - BOX_H - 10.0)
 	box.size     = Vector2(BOX_W, BOX_H)
-	
 	var pstyle = StyleBoxFlat.new()
-	pstyle.bg_color                   = Color(0.86, 0.77, 0.57, 0.97)  # Color pergamino
-	pstyle.border_color               = Color(0.42, 0.25, 0.07)  # Marrón borde
+	pstyle.bg_color                   = Color(0.86, 0.77, 0.57, 0.97)
+	pstyle.border_color               = Color(0.42, 0.25, 0.07)
 	pstyle.border_width_left          = 3
 	pstyle.border_width_right         = 3
 	pstyle.border_width_top           = 3
@@ -231,58 +228,72 @@ func _mostrar_dialogo_habilidad() -> void:
 	pstyle.shadow_offset = Vector2(2, 3)
 	box.add_theme_stylebox_override("panel", pstyle)
 	control.add_child(box)
-	
-	# Banner superior (título)
+
+	# Banner con nombre del gato
 	var banner = Panel.new()
 	banner.position = Vector2(0, 0)
 	banner.size     = Vector2(BOX_W, BANNER_H)
-	
 	var bstyle = StyleBoxFlat.new()
-	bstyle.bg_color                   = Color(0.22, 0.12, 0.03, 0.96)  # Marrón oscuro
+	bstyle.bg_color                   = Color(0.22, 0.12, 0.03, 0.96)
 	bstyle.corner_radius_top_left     = 10
 	bstyle.corner_radius_top_right    = 10
+	bstyle.corner_radius_bottom_left  = 0
+	bstyle.corner_radius_bottom_right = 0
 	banner.add_theme_stylebox_override("panel", bstyle)
 	box.add_child(banner)
-	
-	# Título en banner
-	var titulo_label = Label.new()
-	titulo_label.text = "✨ HABILIDAD ADQUIRIDA ✨"
-	titulo_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.2))  # Amarillo
-	titulo_label.add_theme_font_size_override("font_size", 20)
-	titulo_label.add_theme_font_size_override("font_outline_size", 2)
-	titulo_label.add_theme_color_override("font_outline_color", Color(0.3, 0.2, 0))
-	
-	var banner_container = CenterContainer.new()
-	banner_container.position = Vector2(0, 8)
-	banner_container.size = Vector2(BOX_W, BANNER_H - 16)
-	banner_container.add_child(titulo_label)
-	box.add_child(banner_container)
-	
-	# Contenedor para mensajes
-	var vbox = VBoxContainer.new()
-	vbox.position = Vector2(25, BANNER_H + 18)
-	vbox.custom_minimum_size = Vector2(BOX_W - 50, BOX_H - BANNER_H - 35)
-	vbox.add_theme_constant_override("separation", 18)
-	box.add_child(vbox)
-	
-	# Nombre del gato
-	var nombre_label = Label.new()
-	nombre_label.text = nombre_gato
-	nombre_label.add_theme_color_override("font_color", Color(0.42, 0.25, 0.07))  # Marrón
-	nombre_label.add_theme_font_size_override("font_size", 18)
-	vbox.add_child(nombre_label)
-	
-	# Mensaje de habilidades
-	var mensaje_label = Label.new()
-	mensaje_label.text = mensaje_habilidad
-	mensaje_label.add_theme_color_override("font_color", Color(0.1, 0.1, 0.1))  # Negro
-	mensaje_label.add_theme_font_size_override("font_size", 15)
-	mensaje_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	mensaje_label.custom_minimum_size.y = 0
-	vbox.add_child(mensaje_label)
-	
+
+	var lbl_name = Label.new()
+	lbl_name.text = "  " + nombre_gato
+	lbl_name.set_anchors_preset(Control.PRESET_FULL_RECT)
+	lbl_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl_name.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
+	lbl_name.add_theme_color_override("font_color", Color(1.0, 0.87, 0.45))
+	lbl_name.add_theme_font_size_override("font_size", 15)
+	banner.add_child(lbl_name)
+
+	# Portrait del gato
+	var portrait_rect = TextureRect.new()
+	portrait_rect.position     = Vector2(8, BANNER_H + 6)
+	portrait_rect.size         = Vector2(PORTRAIT_W, BOX_H - BANNER_H - 12)
+	portrait_rect.expand_mode  = TextureRect.EXPAND_IGNORE_SIZE
+	portrait_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	if portrait_texture:
+		portrait_rect.texture = portrait_texture
+	elif animated_sprite and animated_sprite.sprite_frames:
+		portrait_rect.texture = animated_sprite.sprite_frames.get_frame_texture(
+			animated_sprite.animation, 0)
+	box.add_child(portrait_rect)
+
+	# Área de mensaje a la derecha del portrait
+	var msg_x = PORTRAIT_W + 14
+	var msg_margin = MarginContainer.new()
+	msg_margin.position = Vector2(msg_x, BANNER_H)
+	msg_margin.size     = Vector2(BOX_W - msg_x - 6, BOX_H - BANNER_H)
+	msg_margin.add_theme_constant_override("margin_left",   8)
+	msg_margin.add_theme_constant_override("margin_right",  8)
+	msg_margin.add_theme_constant_override("margin_top",    10)
+	msg_margin.add_theme_constant_override("margin_bottom", 10)
+	box.add_child(msg_margin)
+
+	var lbl_msg = Label.new()
+	lbl_msg.text                = mensaje_habilidad
+	lbl_msg.autowrap_mode       = TextServer.AUTOWRAP_WORD_SMART
+	lbl_msg.vertical_alignment  = VERTICAL_ALIGNMENT_CENTER
+	lbl_msg.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	lbl_msg.add_theme_color_override("font_color", Color(0.14, 0.07, 0.02))
+	lbl_msg.add_theme_font_size_override("font_size", 14)
+	msg_margin.add_child(lbl_msg)
+
+	# Flecha indicadora abajo a la derecha
+	var arrow_lbl = Label.new()
+	arrow_lbl.text     = "▼"
+	arrow_lbl.position = Vector2(BOX_W - 24, BOX_H - 22)
+	arrow_lbl.add_theme_color_override("font_color", Color(0.42, 0.25, 0.07, 0.8))
+	arrow_lbl.add_theme_font_size_override("font_size", 13)
+	box.add_child(arrow_lbl)
+
 	get_tree().root.add_child(canvas_layer)
-	print("✅ Diálogo de habilidad mostrado con estilo pergamino")
+	print("✅ Diálogo de Osiris mostrado con estilo pergamino + portrait")
 
 func _iluminar_puerta() -> void:
 	"""Ilumina la puerta cuando se adquiere la habilidad - con animación suave"""
