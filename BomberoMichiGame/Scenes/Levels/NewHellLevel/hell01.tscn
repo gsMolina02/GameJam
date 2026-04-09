@@ -28187,7 +28187,7 @@ tile_set = SubResource("TileSet_lbsia")
 [node name="Hub" parent="." instance=ExtResource("15_yxvj5")]
 
 [node name="GatoGris" parent="." instance=ExtResource("16_4w1jx")]
-position = Vector2(-56.999996, -43.000004)
+position = Vector2(-69, -22.000006)
 scale = Vector2(1.55, 1.55)
 teletransportar_al_terminar = true
 escena_destino = "uid://bq0xsjb3mbjwk"
