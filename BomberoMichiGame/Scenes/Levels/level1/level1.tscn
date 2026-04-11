@@ -222,7 +222,7 @@ visible = false
 [node name="DeathMenu" parent="MenusLayer" instance=ExtResource("11_gkcdr")]
 
 [node name="LuzAmbienteCentro" type="PointLight2D" parent="."]
-position = Vector2(772, 452.50003)
+position = Vector2(756, 434.99997)
 scale = Vector2(2.9765625, 1.7558595)
 color = Color(1, 0.88942164, 0.61782414, 1)
 energy = 19.95
