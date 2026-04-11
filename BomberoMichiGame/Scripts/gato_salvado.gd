@@ -473,10 +473,10 @@ func _mostrar_notificacion_pantalla(texto: String) -> void:
 	root_ctrl.modulate = Color(1, 1, 1, 0)
 	cl.add_child(root_ctrl)
 
-	# Contenedor: centrado horizontalmente, justo debajo del HUD (top-center)
+	# Contenedor: centrado exacto en pantalla
 	var container = VBoxContainer.new()
 	container.custom_minimum_size = Vector2(pw, 0)
-	container.position = Vector2((vp.x - pw) * 0.5, 20.0)
+	container.position = Vector2((vp.x - pw) * 0.5, vp.y * 0.5)
 	root_ctrl.add_child(container)
 
 	# --- Borde dorado exterior (Panel que envuelve todo el VBox) ---
@@ -550,9 +550,9 @@ func _mostrar_notificacion_pantalla(texto: String) -> void:
 
 	get_tree().root.add_child(cl)
 
-	# Fade in → esperar → fade out → eliminar
+	# Fade in → fade out progresivo continuo → eliminar
 	var tw = cl.create_tween()
 	tw.tween_property(root_ctrl, "modulate", Color(1, 1, 1, 1), 0.5).set_ease(Tween.EASE_OUT)
-	tw.tween_interval(3.5)
-	tw.tween_property(root_ctrl, "modulate", Color(1, 1, 1, 0), 0.6)
+	tw.tween_interval(1.5)
+	tw.tween_property(root_ctrl, "modulate", Color(1, 1, 1, 0), 2.5).set_ease(Tween.EASE_IN)
 	tw.tween_callback(cl.queue_free)
