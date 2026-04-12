@@ -207,6 +207,10 @@ func _on_btnCreditos_pressed() -> void:
 
 func _cerrar_creditos() -> void:
 	if capa_creditos:
+		# Desconectar el signal para evitar duplicados
+		if reproductor_creditos and reproductor_creditos.finished.is_connected(_cerrar_creditos):
+			reproductor_creditos.finished.disconnect(_cerrar_creditos)
+		
 		capa_creditos.queue_free()
 		capa_creditos = null
 		reproductor_creditos = null
@@ -214,6 +218,9 @@ func _cerrar_creditos() -> void:
 		# --- AQUÍ REANUDAMOS TU MÚSICA ---
 		if has_node("AudioStreamPlayer2D"):
 			$AudioStreamPlayer2D.stream_paused = false
+		
+		# Asegurar que el menú es visible nuevamente
+		visible = true
 
 
 func _input(event: InputEvent) -> void:

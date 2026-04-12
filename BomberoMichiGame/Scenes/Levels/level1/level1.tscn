@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3 uid="uid://dgooxxoch0lkq"]
+[gd_scene format=3 uid="uid://dgooxxoch0lkq"]
 
 [ext_resource type="Texture2D" uid="uid://dlw1sx2lnemu1" path="res://Scenes/Levels/level1/unnamed.jpg" id="1_5rljr"]
 [ext_resource type="PackedScene" uid="uid://b4cinnlduff6a" path="res://Scenes/Entities/gato_gris.tscn" id="2_2yhdf"]
@@ -59,74 +59,73 @@ use_hdr = true
 fill = 1
 fill_from = Vector2(0.491453, 0.42735043)
 
-[node name="FondoSala" type="Node2D"]
+[node name="FondoSala" type="Node2D" unique_id=800879211]
 
-[node name="CanvasModulate" type="CanvasModulate" parent="."]
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=2056467448]
 color = Color(0.14901961, 0.14901961, 0.15294118, 1)
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=41192980]
 position = Vector2(766.25, 451)
 scale = Vector2(2.0649796, 1.6505576)
 texture = ExtResource("1_5rljr")
 
-[node name="Wall_top" type="StaticBody2D" parent="."]
+[node name="Wall_top" type="StaticBody2D" parent="." unique_id=795310916]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_top"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_top" unique_id=28729563]
 position = Vector2(1197, 95.5)
 shape = SubResource("RectangleShape2D_7103a")
 
-[node name="Wall_right" type="StaticBody2D" parent="."]
+[node name="Wall_right" type="StaticBody2D" parent="." unique_id=483430143]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_right"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_right" unique_id=32778487]
 position = Vector2(67, 546)
 shape = SubResource("RectangleShape2D_fdvuu")
 
-[node name="Wall_top2" type="StaticBody2D" parent="."]
+[node name="Wall_top2" type="StaticBody2D" parent="." unique_id=818450233]
 
-[node name="Wall_right2" type="StaticBody2D" parent="."]
+[node name="Wall_right2" type="StaticBody2D" parent="." unique_id=358218388]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_right2"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_right2" unique_id=119773086]
 position = Vector2(1470.5, 544.5)
 rotation = -0.0023522556
 shape = SubResource("RectangleShape2D_5rljr")
 
-[node name="Wall_righ_above" type="StaticBody2D" parent="."]
+[node name="Wall_righ_above" type="StaticBody2D" parent="." unique_id=449755744]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above" unique_id=691864447]
 position = Vector2(368.12, 94.04787)
 rotation = -0.008894312
 scale = Vector2(0.9999997, 0.9999997)
 shape = SubResource("RectangleShape2D_bpvnq")
 
-[node name="Wall_righ_above2" type="StaticBody2D" parent="."]
+[node name="Wall_righ_above2" type="StaticBody2D" parent="." unique_id=311964292]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above2"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above2" unique_id=644770654]
 position = Vector2(1046.5, 879.5)
 shape = SubResource("RectangleShape2D_opdyy")
 
-[node name="GatoGris" parent="Wall_righ_above2" instance=ExtResource("2_2yhdf")]
+[node name="GatoGris" parent="Wall_righ_above2" unique_id=945280435 instance=ExtResource("2_2yhdf")]
 position = Vector2(-56.999996, -43.000004)
 scale = Vector2(1.55, 1.55)
 
-[node name="Wall_righ_above3" type="StaticBody2D" parent="."]
+[node name="Wall_righ_above3" type="StaticBody2D" parent="." unique_id=1896011470]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above3"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above3" unique_id=1012004556]
 position = Vector2(797, 28)
 shape = SubResource("RectangleShape2D_xfvig")
 
-[node name="Wall_righ_above4" type="StaticBody2D" parent="."]
+[node name="Wall_righ_above4" type="StaticBody2D" parent="." unique_id=1197284553]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above4"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall_righ_above4" unique_id=1692537531]
 position = Vector2(422.5, 872)
 shape = SubResource("RectangleShape2D_a4g0f")
 
-[node name="MundoGrisLayer" type="CanvasLayer" parent="."]
-visible = false
+[node name="MundoGrisLayer" type="CanvasLayer" parent="." unique_id=1866997027]
 script = ExtResource("14_suv00")
 oxygen_threshold_start = 40.0
 sfx_volume_db = 10.0
 
-[node name="OverlaySupervivencia" type="ColorRect" parent="MundoGrisLayer"]
+[node name="OverlaySupervivencia" type="ColorRect" parent="MundoGrisLayer" unique_id=670500413]
 material = SubResource("ShaderMaterial_6le7m")
 anchors_preset = 15
 anchor_right = 1.0
@@ -134,94 +133,94 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="PersonajesYFuegoLayer" type="Node2D" parent="."]
+[node name="PersonajesYFuegoLayer" type="Node2D" parent="." unique_id=445444568]
 z_index = 10
 
-[node name="personajePrincipal" parent="PersonajesYFuegoLayer" instance=ExtResource("2_5rljr")]
+[node name="personajePrincipal" parent="PersonajesYFuegoLayer" unique_id=1974598396 instance=ExtResource("2_5rljr")]
 position = Vector2(792, 207.99994)
 
-[node name="Camera2D" type="Camera2D" parent="PersonajesYFuegoLayer/personajePrincipal"]
+[node name="Camera2D" type="Camera2D" parent="PersonajesYFuegoLayer/personajePrincipal" unique_id=667674092]
 
-[node name="Fuego" parent="PersonajesYFuegoLayer" instance=ExtResource("3_xfvig")]
+[node name="Fuego" parent="PersonajesYFuegoLayer" unique_id=1701294625 instance=ExtResource("3_xfvig")]
 position = Vector2(214, 421)
 
-[node name="Fuego2" parent="PersonajesYFuegoLayer" instance=ExtResource("3_xfvig")]
+[node name="Fuego2" parent="PersonajesYFuegoLayer" unique_id=588427676 instance=ExtResource("3_xfvig")]
 position = Vector2(177, 442)
 
-[node name="Fuego3" parent="PersonajesYFuegoLayer" instance=ExtResource("3_xfvig")]
+[node name="Fuego3" parent="PersonajesYFuegoLayer" unique_id=1846605514 instance=ExtResource("3_xfvig")]
 position = Vector2(156, 174)
 
-[node name="Fuego4" parent="PersonajesYFuegoLayer" instance=ExtResource("3_xfvig")]
+[node name="Fuego4" parent="PersonajesYFuegoLayer" unique_id=189455386 instance=ExtResource("3_xfvig")]
 position = Vector2(127, 150)
 
-[node name="Fuego5" parent="PersonajesYFuegoLayer" instance=ExtResource("3_xfvig")]
+[node name="Fuego5" parent="PersonajesYFuegoLayer" unique_id=1844362008 instance=ExtResource("3_xfvig")]
 position = Vector2(686, 362)
 
-[node name="Fuego6" parent="PersonajesYFuegoLayer" instance=ExtResource("3_xfvig")]
+[node name="Fuego6" parent="PersonajesYFuegoLayer" unique_id=1496442882 instance=ExtResource("3_xfvig")]
 position = Vector2(587, 158)
 
-[node name="minions" parent="PersonajesYFuegoLayer" instance=ExtResource("4_fdvuu")]
+[node name="minions" parent="PersonajesYFuegoLayer" unique_id=991655490 instance=ExtResource("4_fdvuu")]
 position = Vector2(1290.9999, 513)
 speed = 300.0
 
-[node name="minions2" parent="PersonajesYFuegoLayer" instance=ExtResource("4_fdvuu")]
+[node name="minions2" parent="PersonajesYFuegoLayer" unique_id=1321489891 instance=ExtResource("4_fdvuu")]
 position = Vector2(288, 717)
 speed = 300.0
 
-[node name="Box" parent="PersonajesYFuegoLayer" instance=ExtResource("7_4aogg")]
+[node name="Box" parent="PersonajesYFuegoLayer" unique_id=1124473550 instance=ExtResource("7_4aogg")]
 position = Vector2(989, -15)
 
-[node name="RoomManager" type="Node" parent="PersonajesYFuegoLayer"]
+[node name="RoomManager" type="Node" parent="PersonajesYFuegoLayer" unique_id=1173940957]
 script = ExtResource("6_nrrqw")
 enemigos_requeridos = 2
 fuegos_requeridos = 6
 
-[node name="Puerta" parent="PersonajesYFuegoLayer" instance=ExtResource("7_gkcdr")]
+[node name="Puerta" parent="PersonajesYFuegoLayer" unique_id=182559802 instance=ExtResource("7_gkcdr")]
 position = Vector2(608, 684)
 escena_destino = "uid://b14whoaid4kvx"
 nombre_puerta_destino = "Puerta nivel 2"
 
-[node name="Hub" parent="PersonajesYFuegoLayer" instance=ExtResource("5_a4g0f")]
+[node name="Hub" parent="PersonajesYFuegoLayer" unique_id=594098520 instance=ExtResource("5_a4g0f")]
 
-[node name="HUD" parent="PersonajesYFuegoLayer" instance=ExtResource("6_w2im6")]
+[node name="HUD" parent="PersonajesYFuegoLayer" unique_id=1940253560 instance=ExtResource("6_w2im6")]
 layer = 20
 
-[node name="mascota" parent="PersonajesYFuegoLayer" instance=ExtResource("13_70f7q")]
+[node name="mascota" parent="PersonajesYFuegoLayer" unique_id=1219770579 instance=ExtResource("13_70f7q")]
 position = Vector2(777, 231)
 objetivo = NodePath("../personajePrincipal")
 vida_maxima = 100.0
 
-[node name="Calaca" type="Sprite2D" parent="PersonajesYFuegoLayer"]
+[node name="Calaca" type="Sprite2D" parent="PersonajesYFuegoLayer" unique_id=2106620043]
 position = Vector2(1301, 812)
 scale = Vector2(0.07314821, 0.058333375)
 texture = ExtResource("14_3cji1")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=389797979]
 visible = false
 
-[node name="PuseMenu" parent="CanvasLayer" instance=ExtResource("10_2j1q4")]
+[node name="PuseMenu" parent="CanvasLayer" unique_id=1819477820 instance=ExtResource("10_2j1q4")]
 
-[node name="DeathMenu" parent="CanvasLayer" instance=ExtResource("11_gkcdr")]
+[node name="DeathMenu" parent="CanvasLayer" unique_id=1151257525 instance=ExtResource("11_gkcdr")]
 
-[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="." unique_id=1247393968]
 position = Vector2(7, 0)
 stream = ExtResource("14_2f65u")
 volume_db = -17.301
 script = ExtResource("14_music_loop")
 
-[node name="EfectoPantallaLayer" type="CanvasLayer" parent="."]
+[node name="EfectoPantallaLayer" type="CanvasLayer" parent="." unique_id=241527429]
 layer = 20
 
-[node name="MenusLayer" type="CanvasLayer" parent="."]
+[node name="MenusLayer" type="CanvasLayer" parent="." unique_id=2007716468]
 process_mode = 3
 layer = 30
 visible = false
 
-[node name="PuseMenu" parent="MenusLayer" instance=ExtResource("10_2j1q4")]
+[node name="PuseMenu" parent="MenusLayer" unique_id=1835083474 instance=ExtResource("10_2j1q4")]
 
-[node name="DeathMenu" parent="MenusLayer" instance=ExtResource("11_gkcdr")]
+[node name="DeathMenu" parent="MenusLayer" unique_id=195789491 instance=ExtResource("11_gkcdr")]
 
-[node name="LuzAmbienteCentro" type="PointLight2D" parent="."]
+[node name="LuzAmbienteCentro" type="PointLight2D" parent="." unique_id=994175812]
 position = Vector2(756, 434.99997)
 scale = Vector2(2.9765625, 1.7558595)
 color = Color(1, 0.88942164, 0.61782414, 1)

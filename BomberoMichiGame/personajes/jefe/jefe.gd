@@ -415,7 +415,7 @@ func _flash_damage() -> void:
 
 
 func die() -> void:
-	"""Muerte del jefe"""
+	"""Muerte del jefe - limpia la escena y muestra créditos"""
 	print("💀 ¡¡¡ JEFE DEL CASINO DERROTADO !!!")
 	print("🎊 Victoria alcanzada después de una batalla épica")
 	print("¡Jefe derrotado!")
@@ -423,7 +423,138 @@ func die() -> void:
 	if "nodos_destruidos" in GameManager:
 		GameManager.registrar_nodo_destruido(str(get_path()))
 
-		
+	# Limpiar la escena: apagar fuego y eliminar enemigos
+	_cleanup_level()
+	
+	# Pausar el juego
+	get_tree().paused = true
+	
+	# Mostrar los créditos de victoria
+	_show_victory_screen()
+
+
+func _cleanup_level() -> void:
+	"""Limpia toda la escena: apaga fuego, elimina enemigos, etc."""
+	var scene = get_tree().current_scene
+	if not scene:
+		return
+	
+	print("🧹 Limpiando la escena...")
+	
+	# Apagar/eliminar todo el fuego
+	var fires = scene.find_children("*", "Area2D", true, false)
+	for fire in fires:
+		if fire.is_in_group("Fire") or fire.name.contains("Fire") or fire.name.contains("fuego"):
+			if fire.is_inside_tree():
+				print("  🔥 Apagando fuego: ", fire.name)
+				fire.queue_free()
+	
+	# Eliminar todos los minions
+	var minions = scene.get_tree().get_nodes_in_group("minion")
+	for minion in minions:
+		if minion.is_inside_tree():
+			print("  👹 Eliminando minion: ", minion.name)
+			minion.queue_free()
+	
+	# Eliminar todos los Hellhounds
+	var hellhounds = scene.get_tree().get_nodes_in_group("hellhound")
+	for hound in hellhounds:
+		if hound.is_inside_tree():
+			print("  🐕 Eliminando Hellhound: ", hound.name)
+			hound.queue_free()
+	
+	# Eliminar todas las bolas de fuego del jefe (si quedan algunas)
+	for fb in orbit_fireballs:
+		if fb and fb.is_inside_tree():
+			print("  🔴 Eliminando bola de fuego orbital: ", fb.name)
+			fb.queue_free()
+	orbit_fireballs.clear()
+	orbit_angles.clear()
+	
+	# Eliminar todas las bolas de fuego sueltas en la escena
+	var fireballs = scene.find_children("*", "Node2D", true, false)
+	for fb in fireballs:
+		if fb.is_in_group("fireball") or (fb.script and fb.script.resource_path.contains("fireball")):
+			if fb.is_inside_tree():
+				print("  💥 Eliminando fireball: ", fb.name)
+				fb.queue_free()
+	
+	print("✅ Limpieza completada")
+
+
+func _show_victory_screen() -> void:
+	"""Muestra la pantalla de victoria con los créditos"""
+	print("🏆 Mostrando pantalla de victoria con créditos...")
+	
+	var video_layer = CanvasLayer.new()
+	video_layer.layer = 128
+	video_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	get_tree().root.add_child(video_layer)
+
+	var bg = ColorRect.new()
+	bg.color = Color.BLACK
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	video_layer.add_child(bg)
+
+	var video_player = VideoStreamPlayer.new()
+	var ruta_video = "res://Assets/creditos/creditosFInal.ogv"
+	
+	video_player.stream = load(ruta_video)
+	video_player.expand = true
+	video_player.set_anchors_preset(Control.PRESET_FULL_RECT)
+	video_player.process_mode = Node.PROCESS_MODE_ALWAYS
+	
+	# Valores iniciales para el Fade In
+	video_player.volume_db = -40.0
+	video_player.modulate.a = 0.0
+	
+	video_layer.add_child(video_player)
+	video_player.play()
+
+	# Tween para la transición suave
+	var tween = create_tween()
+	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	
+	tween.tween_property(video_player, "volume_db", -10.0, 1.5)
+	tween.parallel().tween_property(video_player, "modulate:a", 1.0, 1.5)
+
+	# Esperar a que termine el video
+	_wait_for_video_end(video_player, video_layer)
+
+
+func _wait_for_video_end(video_player: VideoStreamPlayer, video_layer: CanvasLayer) -> void:
+	"""Espera a que el video termine y luego cambia de escena"""
+	print("⏱️ Esperando a que termine el video...")
+	
+	# Crear un timer con timeout de fallback (4 segundos)
+	var timer = get_tree().create_timer(4.0, false, true)
+	
+	# Conectar el signal finished del video
+	var finished_signal = video_player.finished
+	
+	# Esperar a que termine el video o al timeout
+	var completed = false
+	var finish_callback = func():
+		print("✅ Video finished signal recibido")
+		completed = true
+	
+	finished_signal.connect(finish_callback, CONNECT_ONE_SHOT)
+	
+	# Esperar al timeout
+	await timer.timeout
+	
+	if not completed:
+		print("⏱️ Timeout después de 4 segundos, forzando cambio de escena")
+	
+	# Limpiar y cambiar de escena
+	print("🎬 Fin de créditos, volviendo al menú principal")
+	if video_layer and video_layer.is_inside_tree():
+		video_layer.queue_free()
+	
+	if get_tree() != null:
+		get_tree().paused = false
+		await get_tree().process_frame
+		get_tree().change_scene_to_file("res://Interfaces/main_menu.tscn")
 
 
 func _on_hit_area_area_entered(area: Node) -> void:
