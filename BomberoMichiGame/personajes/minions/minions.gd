@@ -61,7 +61,7 @@ func _ready():
 	if anim_player:
 		_setup_animation_frames()
 	# Ensure this node is recognized as an enemy for collisions/filters
-	add_to_group("enemy")
+	add_to_group("enemigos")
 	add_to_group("minion")
 	
 	# Conectar señales de colisión si tiene Area2D
