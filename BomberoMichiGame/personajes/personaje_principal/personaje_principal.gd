@@ -66,8 +66,6 @@ var hose_charge = 100.0
 var is_using_hose = false
 var current_weapon = Weapon.HOSE  # Iniciar con MANGUERA equipada
 var hacha_desbloqueada: bool = true  # Siempre disponible desde el inicio
-var apuntador = null
-var apuntador_offset = Vector2(130, 30)
 var current_aim_direction: Vector2 = Vector2.RIGHT
 var last_movement_direction: Vector2 = Vector2.RIGHT  # Dirección del último movimiento para rotar armas dinámicamente
 var is_dead: bool = false
@@ -216,18 +214,14 @@ func _ready():
 	# Add to player group for collision filtering
 	add_to_group("player")
 
-	# Ocultar el cursor del sistema (Windows)
-	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
-
-	# Instanciar apuntador visual
-	var apuntador_scene = preload("res://Assets/Objetos/apuntador.tscn")
-	apuntador = apuntador_scene.instantiate()
-	apuntador.name = "Apuntador"
-	add_child(apuntador)
-	apuntador.z_index = 100 # Asegura que esté encima
-	apuntador.visible = true
-	# Offset para la punta de la manguera
-	apuntador_offset = hose_nozzle_offset if hose_nozzle_offset != null else Vector2(130, 30)
+	# Configurar cursor personalizado como mira (escalar para hacerla más pequeña)
+	var cursor_texture = preload("res://Assets/Objetos/apuntador.png")
+	var cursor_image = cursor_texture.get_image()
+	var scale_factor = 0.05  # Cambia este valor: 0.5 = 50% del tamaño, 0.3 = 30%, etc.
+	cursor_image.resize(int(cursor_image.get_size().x * scale_factor), int(cursor_image.get_size().y * scale_factor))
+	var scaled_texture = ImageTexture.create_from_image(cursor_image)
+	var hotspot = Vector2(scaled_texture.get_size().x / 2.0, scaled_texture.get_size().y / 2.0)
+	Input.set_custom_mouse_cursor(scaled_texture, Input.CURSOR_ARROW, hotspot)
 
 	# Desactivar clamp al viewport para el jugador (una sola vez)
 	clamp_to_viewport = false
@@ -706,10 +700,7 @@ func _update_weapon_orientation(delta: float):
 	# Calcular el ángulo de la dirección
 	var angle = direction.angle()
 
-	# Actualizar posición y rotación del apuntador visual
-	if apuntador:
-		apuntador.global_position = global_position + direction * 80.0 + apuntador_offset.rotated(angle)
-		apuntador.rotation = angle
+	# El cursor del mouse es ahora la mira, se actualiza automáticamente
 	
 	# Actualizar orientación del hacha
 	if axe_sprite:

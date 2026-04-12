@@ -42,6 +42,14 @@ extends CharacterBody2D
 @export var vision_ray_count: int = 7
 @export var vision_debug: bool = false
 
+# Sonidos del perro
+@export var sound_grunido_1: AudioStream = preload("res://Assets/SFX/Perro/Perro_grunido_1.ogg")
+@export var sound_grunido_2: AudioStream = preload("res://Assets/SFX/Perro/Perro_grunido_2.ogg")
+@export var sound_ladrido_1: AudioStream = preload("res://Assets/SFX/Perro/Perro_ladrido_1.ogg")
+@export var sound_ladrido_2: AudioStream = preload("res://Assets/SFX/Perro/Perro_ladrido_2.ogg")
+@export var sound_volume_db: float = 0.0
+@export var sound_cooldown: float = 2.0  # Tiempo mínimo entre sonidos
+
 var _wander_direction: Vector2 = Vector2.ZERO
 var _wander_timer: float = 0.0
 var _search_state: String = "idle"
@@ -65,6 +73,9 @@ var _is_attacking: bool = false
 var _last_attack_type: String = "general"  # "general" o "jump"
 var _attack_state: String = "idle"  # idle | windup | executing | recovery
 var _health_bar_timer: float = 0.0
+var _sound_timer: float = 0.0
+var _last_sound_type: String = "grunido"  # Para intercalar entre grunido y ladrido
+var _audio_player: AudioStreamPlayer2D = null
 
 
 func _physics_process(delta: float) -> void:
@@ -96,6 +107,10 @@ func _physics_process(delta: float) -> void:
 		_health_bar_timer -= delta
 		if _health_bar_timer <= 0.0 and not _is_dead:
 			health_bar.visible = false
+
+	# Timer de sonidos
+	if _sound_timer > 0.0:
+		_sound_timer -= delta
 
 	# Sistema de busqueda mejorado CON visión de cono
 	if target == null or not is_instance_valid(target):
@@ -132,6 +147,7 @@ func _physics_process(delta: float) -> void:
 			velocity = dir.normalized() * speed
 			_search_state = "chasing"
 			_last_known_direction = dir.normalized()
+			_play_dog_sound_chance(0.3)  # Sonido ocasional mientras persigue
 		else:
 			velocity = Vector2.ZERO
 			_search_state = "idle"
@@ -150,6 +166,7 @@ func _on_detection_body_entered(body: Node) -> void:
 	"""El personaje entró al área de detección"""
 	if body is Node2D and _is_player(body):
 		target = body as Node2D
+		_play_dog_sound_chance(0.8)  # Mayor probabilidad al detectar
 		if vision_debug:
 			print("🔔 Personaje ENTRÓ al área - detectado!")
 
@@ -321,6 +338,7 @@ func _ready() -> void:
 	_play_animation_if_exists(idle_animation, run_animation)
 	target = _find_player()
 	_update_facing_direction()
+	_setup_audio_player()
 func _sync_detection_shape() -> void:
 	var shape_node := detection_area.get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if shape_node == null:
@@ -468,6 +486,7 @@ func take_damage(amount: float, source: StringName = &"general") -> void:
 
 	_current_health -= amount
 	_refresh_health_bar(true)
+	_play_dog_sound_chance(0.7)  # Sonido al recibir daño
 	
 	match source:
 		&"agua", &"water":
@@ -491,6 +510,7 @@ func _trigger_random_attack() -> void:
 
 	_is_attacking = true
 	_attack_state = "windup"
+	_play_dog_sound_chance(0.9)  # Sonido al atacar
 
 	var jump_chance: float = 0.35
 	if _is_phase_two():
@@ -626,3 +646,46 @@ func _update_facing() -> void:
 		sprite.flip_h = velocity.x < 0.0
 	else:
 		sprite.flip_h = velocity.x > 0.0
+
+# ============================================
+# SISTEMA DE SONIDOS
+# ============================================
+func _setup_audio_player() -> void:
+	"""Crea el AudioStreamPlayer2D para los sonidos del perro"""
+	if _audio_player != null:
+		return
+	
+	_audio_player = AudioStreamPlayer2D.new()
+	_audio_player.bus = &"Master"
+	_audio_player.volume_db = sound_volume_db
+	add_child(_audio_player)
+
+func _play_dog_sound() -> void:
+	"""Reproduce un sonido alternando entre gruñido y ladrido"""
+	if _audio_player == null or _is_dead:
+		return
+	
+	if _sound_timer > 0.0:
+		return  # Aún en cooldown
+	
+	var sound_to_play: AudioStream = null
+	
+	# Intercalar entre gruñido y ladrido
+	if _last_sound_type == "grunido":
+		# Próximo sonido será ladrido
+		sound_to_play = [sound_ladrido_1, sound_ladrido_2].pick_random()
+		_last_sound_type = "ladrido"
+	else:
+		# Próximo sonido será gruñido
+		sound_to_play = [sound_grunido_1, sound_grunido_2].pick_random()
+		_last_sound_type = "grunido"
+	
+	if sound_to_play:
+		_audio_player.stream = sound_to_play
+		_audio_player.play()
+		_sound_timer = sound_cooldown
+
+func _play_dog_sound_chance(chance: float = 0.6) -> void:
+	"""Reproduce un sonido con cierta probabilidad"""
+	if randf() < chance:
+		_play_dog_sound()

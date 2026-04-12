@@ -2,8 +2,14 @@ extends CharacterBody2D
 # Script para Osiris en el nivel Osiris
 # Se queda quieto hasta que interactúes → muestra diálogo → ilumina puerta → comienza a seguir
 
+func _t(key: String) -> String:
+	if has_node("/root/Localization"):
+		return get_node("/root/Localization").translate(key)
+	return key
+
 @export var nombre_gato: String = "Osiris"
 @export var mensaje_habilidad: String = "¡Habilidades Adquiridas:\n• Agua Recargable\n• Mejor Capacidad Pulmonar!"
+@export var mensaje_habilidad_key: String = "cat.ability_message"
 @export var portrait_texture: Texture2D = null
 @export var velocidad_movimiento: float = 400.0
 @export var distancia_minima_seguimiento: float = 80.0
@@ -30,6 +36,7 @@ signal habilidad_adquirida
 func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	add_to_group("mascota")
+	add_to_group("localizable")
 	
 	# Buscar el AnimatedSprite2D
 	if has_node("AnimatedSprite2D"):
@@ -96,6 +103,11 @@ func _buscar_puerta() -> void:
 			print("✅ Puerta encontrada:", puerta_nodo.name)
 		else:
 			print("⚠️ Puerta no encontrada en la escena")
+
+func update_texts() -> void:
+	"""Actualiza los textos cuando cambia el idioma"""
+	if label_interactuar:
+		label_interactuar.text = "[E] " + _t("npc.talk").substr(4)
 
 func _physics_process(delta: float) -> void:
 	# Detectar proximidad del jugador
@@ -276,7 +288,7 @@ func _mostrar_dialogo_habilidad() -> void:
 	box.add_child(msg_margin)
 
 	var lbl_msg = Label.new()
-	lbl_msg.text                = mensaje_habilidad
+	lbl_msg.text                = _t(mensaje_habilidad_key)
 	lbl_msg.autowrap_mode       = TextServer.AUTOWRAP_WORD_SMART
 	lbl_msg.vertical_alignment  = VERTICAL_ALIGNMENT_CENTER
 	lbl_msg.size_flags_vertical = Control.SIZE_EXPAND_FILL
