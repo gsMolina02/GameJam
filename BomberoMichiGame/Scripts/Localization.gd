@@ -22,9 +22,13 @@ var translations = {
 		# Story intro
 		"story.continue_hint": "Presiona cualquier P para saltar y enter para continuar...",
 		"story.page": "Página",
-		"story.page_1": "Kala, un pueblo acunado por el fuego cerca del Ecuador, producto de ser el destino preferido para los pirómanos, tenía en las llamas su himno eterno.",
-		"story.page_2": "Sus noches, teñidas de humo y reflejos amaranjados, habían visto arder templos, mercados y sueños. En esa tierra devorada por el calor, solo los bomberos podían hacer la diferencia.",
-		"story.page_3": "Y en esa tierra de fuego, surge un héroe. Un gato bombero, valiente y decidido, listo para enfrentarse a las llamas y salvar a quien sea necesario.",
+		"story.page_1": "Aiden fue durante años uno de los mejores bomberos de su ciudad, salvando a cientos de personas de incendios devastadores.",
+		"story.page_2": "Sin embargo, muchos de esos siniestros tenían un origen sobrenatural provocado por Lucifer, quien buscaba extender su fuego hacia el mundo humano.",
+		"story.page_3": "Al ver sus planes frustrados constantemente por Aiden, Lucifer decide eliminarlo provocando un incendio imposible de controlar en su propia casa.",
+		"story.page_4": "En medio del caos, el demonio secuestra a las dos hijas de Aiden y las arrastra al inframundo.",
+		"story.page_5": "Aiden, junto a su gato Osiris, es arrastrado también hacia el infierno.",
+		"story.page_6": "Aquí, en las profundidades del infierno, deberá enfrentar sus propios traumas para rescatar a su familia de las garras de Lucifer.",
+		"story.page_7": "Apaga el fuego y derrota a los enemigos para poder pasar de nivel y no morir sofocado",
 		
 		# Pausa
 		"pause.title": "PAUSA",
@@ -48,6 +52,7 @@ var translations = {
 		"cat.rescue_message": "¡Miauu! ¡Lo lograste! Apagaste el fuego y derrotaste a todos los enemigos... ¡gracias a ti estoy a salvo, héroe!",
 			"cat.gift_message_resistencia_pulmonar": "¡Gracias a ti pude respirar de nuevo, héroe! Como muestra de gratitud, ¡te transfiero parte de mi fuerza! Tu resistencia pulmonar aumentó un 5%.",
 		"cat.gift_message_capacidad_manguera": "¡Purr... toma mi energía, bombero! La presión de tu manguera mejoró: ahora consumirá un 10% menos de agua.",
+		"cat.ability_message": "¡Habilidades Adquiridas:\n• Agua Recargable\n• Mejor Capacidad Pulmonar!",
 		
 		# HUD
 		"hud.life": "Vida",
@@ -88,9 +93,13 @@ var translations = {
 		# Story intro
 		"story.continue_hint": "Press P to skip and Enter to continue...",
 		"story.page": "Page",
-		"story.page_1": "Kala, a town cradled by fire near the Equator, was the preferred destination for arsonists. The flames were its eternal anthem.",
-		"story.page_2": "Its nights, tinged with smoke and orange reflections, had witnessed temples, markets and dreams burn. In that land devoured by heat, only firefighters could make a difference.",
-		"story.page_3": "And in that land of fire, a hero emerges. A firefighter cat, brave and determined, ready to face the flames and save whoever is necessary.",
+		"story.page_1": "Aiden was for years one of the best firefighters in his city, saving hundreds of people from devastating fires.",
+		"story.page_2": "However, many of these disasters had a supernatural origin caused by Lucifer, who sought to extend his fire to the human world.",
+		"story.page_3": "Seeing his plans constantly frustrated by Aiden, Lucifer decides to eliminate him by causing an uncontrollable fire in his own house.",
+		"story.page_4": "In the midst of chaos, the demon kidnaps Aiden's two daughters and drags them to the underworld.",
+		"story.page_5": "Aiden, together with his cat Osiris, is also dragged to hell.",
+		"story.page_6": "Here, in the depths of hell, he must face his own traumas to rescue his family from Lucifer's claws.",
+		"story.page_7": "Put out the fire and defeat the enemies to move on and not die suffocated",
 		
 		# Pausa
 		"pause.title": "PAUSE",
@@ -114,6 +123,7 @@ var translations = {
 		"cat.rescue_message": "Meow! You did it! You put out the fire and defeated all the enemies... thanks to you I'm safe, hero!",
 			"cat.gift_message_resistencia_pulmonar": "Thanks to you I could breathe again, hero! As a token of gratitude, I transfer part of my strength to you! Your lung resistance increased by 5%.",
 			"cat.gift_message_capacidad_manguera": "Purr... take my energy, firefighter! Your hose pressure improved: it will now consume 10% less water.",
+		"cat.ability_message": "Abilities Acquired:\n• Rechargeable Water\n• Better Lung Capacity!",
 		
 		# HUD
 		"hud.life": "Life",
@@ -154,9 +164,13 @@ var translations = {
 		# Story intro
 		"story.continue_hint": "Pressione P para pular e Enter para continuar...",
 		"story.page": "Página",
-		"story.page_1": "Kala, uma cidade acunada pelo fogo perto do Equador, era o destino preferido dos piromaníacos. As chamas eram seu hino eterno.",
-		"story.page_2": "Suas noites, tingidas de fumaça e reflexos laranja, haviam testemunhado templos, mercados e sonhos queimarem. Naquela terra devorada pelo calor, apenas os bombeiros poderiam fazer diferença.",
-		"story.page_3": "E naquela terra de fogo, emerge um herói. Um gato bombeiro, valente e determinado, pronto para enfrentar as chamas e salvar quem for necessário.",
+		"story.page_1": "Aiden foi por anos um dos melhores bombeiros de sua cidade, salvando centenas de pessoas de incêndios devastadores.",
+		"story.page_2": "No entanto, muitos desses desastres tinham origem sobrenatural causada por Lúcifer, que buscava estender seu fogo para o mundo humano.",
+		"story.page_3": "Vendo seus planos constantemente frustrados por Aiden, Lúcifer decide eliminá-lo provocando um incêndio incontrolável em sua própria casa.",
+		"story.page_4": "Em meio ao caos, o demônio sequestra as duas filhas de Aiden e as arrasta para o submundo.",
+		"story.page_5": "Aiden, junto com seu gato Osiris, também é arrastado para o inferno.",
+		"story.page_6": "Aqui, nas profundezas do inferno, ele deve enfrentar seus próprios traumas para resgatar sua família das garras de Lúcifer.",
+		"story.page_7": "Apague o fogo e derrote os inimigos para passar de nível e não morrer sufocado",
 		
 		# Pausa
 		"pause.title": "PAUSA",
@@ -180,6 +194,7 @@ var translations = {
 		"cat.rescue_message": "Miau! Você conseguiu! Apagou o fogo e derrotou todos os inimigos... graças a você estou a salvo, herói!",
 			"cat.gift_message_resistencia_pulmonar": "Graças a você pude respirar de novo, herói! Como prova de gratidão, transfiro parte da minha força para você! Sua resistência pulmonar aumentou 5%.",
 			"cat.gift_message_capacidad_manguera": "Purr... pegue minha energia, bombeiro! A pressão da sua mangueira melhorou: consumirá 10% menos de água.",
+		"cat.ability_message": "Habilidades Adquiridas:\n• Água Recarregável\n• Melhor Capacidade Pulmonar!",
 		
 		# HUD
 		"hud.life": "Vida",

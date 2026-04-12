@@ -58,6 +58,7 @@ script = ExtResource("1_geexe")
 nombre_gato = "Pelusa"
 mensaje_agradecimiento = "¡Purr... creí que no lo lograría! Las llamas me tenían acorralada... ¡eres increíble, bombero! Nunca olvidaré esto."
 tipo_poder = "capacidad_manguera"
+mostrar_advertencia_casino = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(426, 209.00002)
