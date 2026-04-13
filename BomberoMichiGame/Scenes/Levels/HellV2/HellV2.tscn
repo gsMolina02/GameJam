@@ -12476,7 +12476,7 @@ tile_set = SubResource("TileSet_o2vp6")
 
 [node name="personajePrincipal" parent="TileMapLayers" unique_id=1183490500 instance=ExtResource("1_l8nt6")]
 position = Vector2(102.5, 101.865)
-scale = Vector2(0.152, 0.16)
+scale = Vector2(0.2, 0.21)
 
 [node name="Camera2D" type="Camera2D" parent="TileMapLayers/personajePrincipal" unique_id=1895647796]
 zoom = Vector2(2, 2)

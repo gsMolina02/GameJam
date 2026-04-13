@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://d1fjm5w0rsqqs"]
+[gd_scene format=3 uid="uid://d1fjm5w0rsqqs"]
 
 [ext_resource type="VideoStream" uid="uid://bpdtncvdcektn" path="res://Assets/creditos/creditosFInal.ogv" id="1_ewbnq"]
 [ext_resource type="Script" uid="uid://cdy00cox314ok" path="res://Interfaces/escenacreditos.gd" id="2_dlcpq"]
