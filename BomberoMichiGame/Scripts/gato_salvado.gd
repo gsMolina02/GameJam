@@ -805,7 +805,7 @@ func _mostrar_notificacion_pantalla(texto: String) -> void:
 
 	# Título
 	var title_lbl = Label.new()
-	title_lbl.text = "— PODER OBTENIDO —"
+	title_lbl.text = _t("cat.power_title")
 	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_lbl.add_theme_color_override("font_color", Color(1.0, 0.88, 0.25))
 	title_lbl.add_theme_color_override("font_outline_color", Color(0.2, 0.10, 0.0, 1.0))
