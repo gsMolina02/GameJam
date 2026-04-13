@@ -53,7 +53,14 @@ var translations = {
 			"cat.gift_message_resistencia_pulmonar": "¡Gracias a ti pude respirar de nuevo, héroe! Como muestra de gratitud, ¡te transfiero parte de mi fuerza! Tu resistencia pulmonar aumentó un 5%.",
 		"cat.gift_message_capacidad_manguera": "¡Purr... toma mi energía, bombero! La presión de tu manguera mejoró: ahora consumirá un 10% menos de agua.",
 		"cat.ability_message": "¡Habilidades Adquiridas:\n• Agua Recargable\n• Mejor Capacidad Pulmonar!",
-		
+		"cat.rescue_go_to_light": "¡Dirígete a la luz que acaba de aparecer para ir al siguiente nivel!",
+		"cat.power_lung": "Capacidad Pulmonar Aumentada\n+5% de resistencia",
+		"cat.power_hose": "Capacidad de Manguera Mejorada\n+20 de capacidad",
+		"cat.power_generic": "Poder Obtenido",
+		"cat.power_title": "— PODER OBTENIDO —",
+		"cat.casino_warning": "Aiden ten cuidado el siguiente nivel [b][color=#8B0000]\"El casino\"[/color][/b] es uno de los incendios que no pudiste apagarlo junto con el Alma que no pudiste salvar ten cuidado.",
+		"exit.press_f": "Presiona F para bajar al siguiente nivel",
+
 		# HUD
 		"hud.life": "Vida",
 		"hud.water": "Agua",
@@ -124,7 +131,14 @@ var translations = {
 			"cat.gift_message_resistencia_pulmonar": "Thanks to you I could breathe again, hero! As a token of gratitude, I transfer part of my strength to you! Your lung resistance increased by 5%.",
 			"cat.gift_message_capacidad_manguera": "Purr... take my energy, firefighter! Your hose pressure improved: it will now consume 10% less water.",
 		"cat.ability_message": "Abilities Acquired:\n• Rechargeable Water\n• Better Lung Capacity!",
-		
+		"cat.rescue_go_to_light": "Head to the light that just appeared to go to the next level!",
+		"cat.power_lung": "Lung Capacity Increased\n+5% resistance",
+		"cat.power_hose": "Hose Capacity Improved\n+20 capacity",
+		"cat.power_generic": "Power Obtained",
+		"cat.power_title": "— POWER OBTAINED —",
+		"cat.casino_warning": "Aiden be careful, the next level [b][color=#8B0000]\"The Casino\"[/color][/b] is one of the fires you couldn't put out along with the Soul you couldn't save, be careful.",
+		"exit.press_f": "Press F to go to the next level",
+
 		# HUD
 		"hud.life": "Life",
 		"hud.water": "Water",
@@ -195,7 +209,14 @@ var translations = {
 			"cat.gift_message_resistencia_pulmonar": "Graças a você pude respirar de novo, herói! Como prova de gratidão, transfiro parte da minha força para você! Sua resistência pulmonar aumentou 5%.",
 			"cat.gift_message_capacidad_manguera": "Purr... pegue minha energia, bombeiro! A pressão da sua mangueira melhorou: consumirá 10% menos de água.",
 		"cat.ability_message": "Habilidades Adquiridas:\n• Água Recarregável\n• Melhor Capacidade Pulmonar!",
-		
+		"cat.rescue_go_to_light": "Vá até a luz que acabou de aparecer para ir ao próximo nível!",
+		"cat.power_lung": "Capacidade Pulmonar Aumentada\n+5% de resistência",
+		"cat.power_hose": "Capacidade da Mangueira Melhorada\n+20 de capacidade",
+		"cat.power_generic": "Poder Obtido",
+		"cat.power_title": "— PODER OBTIDO —",
+		"cat.casino_warning": "Aiden tome cuidado, o próximo nível [b][color=#8B0000]\"O Casino\"[/color][/b] é um dos incêndios que você não conseguiu apagar junto com a Alma que não pôde salvar, tome cuidado.",
+		"exit.press_f": "Pressione F para ir ao próximo nível",
+
 		# HUD
 		"hud.life": "Vida",
 		"hud.water": "Água",
