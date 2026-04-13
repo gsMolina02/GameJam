@@ -481,81 +481,40 @@ func _cleanup_level() -> void:
 	
 	print("✅ Limpieza completada")
 
-
 func _show_victory_screen() -> void:
-	"""Muestra la pantalla de victoria con los créditos"""
-	print("🏆 Mostrando pantalla de victoria con créditos...")
+	get_tree().paused = false
 	
-	var video_layer = CanvasLayer.new()
-	video_layer.layer = 128
-	video_layer.process_mode = Node.PROCESS_MODE_ALWAYS
-	get_tree().root.add_child(video_layer)
+	# 2. CURA MILAGROSA (Engañamos al Autoload para que se apague solo)
+	for efecto in get_tree().get_nodes_in_group("efecto_asfixia"):
+		# Le enviamos 100 de oxígeno para que su propio script apague todo
+		if efecto.has_method("update_oxygen"):
+			efecto.update_oxygen(100.0)
+		
+		# IMPORTANTE: Al curarlo, tu script activa el sonido de recuperación (is_playing_recovery). 
+		# Lo apagamos a la fuerza aquí mismo para que no suene el suspiro de alivio en los créditos.
+		efecto.is_playing_recovery = false
+		efecto.is_asphyxia_active = false
+		
+		# Saboteamos los timers poniéndolos en números altísimos
+		efecto.cough_timer = 999.0 
+		efecto.recovery_timer = 999.0
+		
+		# Detenemos el audio si estaba a la mitad de una tos
+		if "audio_player" in efecto and efecto.audio_player:
+			efecto.audio_player.stop()
 
-	var bg = ColorRect.new()
-	bg.color = Color.BLACK
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	video_layer.add_child(bg)
+	# 3. APAGÓN DE AUDIO NUCLEAR:
+	for audio in get_tree().root.find_children("*", "AudioStreamPlayer", true, false):
+		audio.stop()
+	for audio2d in get_tree().root.find_children("*", "AudioStreamPlayer2D", true, false):
+		audio2d.stop()
+		
+	# 4. APAGÓN DE INTERFACES (HUD):
+	for canvas in get_tree().root.find_children("*", "CanvasLayer", true, false):
+		canvas.visible = false
 
-	var video_player = VideoStreamPlayer.new()
-	var ruta_video = "res://Assets/creditos/creditosFInal.ogv"
-	
-	video_player.stream = load(ruta_video)
-	video_player.expand = true
-	video_player.set_anchors_preset(Control.PRESET_FULL_RECT)
-	video_player.process_mode = Node.PROCESS_MODE_ALWAYS
-	
-	# Valores iniciales para el Fade In
-	video_player.volume_db = -40.0
-	video_player.modulate.a = 0.0
-	
-	video_layer.add_child(video_player)
-	video_player.play()
-
-	# Tween para la transición suave
-	var tween = create_tween()
-	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	
-	tween.tween_property(video_player, "volume_db", -10.0, 1.5)
-	tween.parallel().tween_property(video_player, "modulate:a", 1.0, 1.5)
-
-	# Esperar a que termine el video
-	_wait_for_video_end(video_player, video_layer)
-
-
-func _wait_for_video_end(video_player: VideoStreamPlayer, video_layer: CanvasLayer) -> void:
-	"""Espera a que el video termine y luego cambia de escena"""
-	print("⏱️ Esperando a que termine el video...")
-	
-	# Crear un timer con timeout de fallback (4 segundos)
-	var timer = get_tree().create_timer(4.0, false, true)
-	
-	# Conectar el signal finished del video
-	var finished_signal = video_player.finished
-	
-	# Esperar a que termine el video o al timeout
-	var completed = false
-	var finish_callback = func():
-		print("✅ Video finished signal recibido")
-		completed = true
-	
-	finished_signal.connect(finish_callback, CONNECT_ONE_SHOT)
-	
-	# Esperar al timeout
-	await timer.timeout
-	
-	if not completed:
-		print("⏱️ Timeout después de 4 segundos, forzando cambio de escena")
-	
-	# Limpiar y cambiar de escena
-	print("🎬 Fin de créditos, volviendo al menú principal")
-	if video_layer and video_layer.is_inside_tree():
-		video_layer.queue_free()
-	
-	if get_tree() != null:
-		get_tree().paused = false
-		await get_tree().process_frame
-		get_tree().change_scene_to_file("res://Interfaces/main_menu.tscn")
-
+	# 5. Cambio seguro
+	get_tree().call_deferred("change_scene_to_file", "res://Interfaces/escenacreditos.tscn")
 
 func _on_hit_area_area_entered(area: Node) -> void:
 	"""Cuando el HitArea del jefe detecta un Area2D (como el Hitbox del jugador)"""
