@@ -64,7 +64,7 @@ func _ready():
 	
 	# Crear label de interacción
 	label_interactuar = Label.new()
-	label_interactuar.text = "[E] Hablar"
+	label_interactuar.text = "[E] " + _t("npc.talk").substr(4)
 	label_interactuar.visible = false
 	label_interactuar.add_theme_color_override("font_color", Color.YELLOW)
 	label_interactuar.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))

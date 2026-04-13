@@ -406,7 +406,7 @@ func _mostrar_dialogo_rescate() -> void:
 	box.add_child(msg_margin)
 
 	var lbl_msg = Label.new()
-	lbl_msg.text                = mensaje_agradecimiento
+	lbl_msg.text                = _t(mensaje_agradecimiento_key)
 	lbl_msg.autowrap_mode       = TextServer.AUTOWRAP_WORD_SMART
 	lbl_msg.vertical_alignment  = VERTICAL_ALIGNMENT_CENTER
 	lbl_msg.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -528,7 +528,7 @@ func _mostrar_dialogo_rescate_segunda_parte() -> void:
 	box.add_child(msg_margin)
 
 	var lbl_msg = Label.new()
-	lbl_msg.text                = mensaje_rescate
+	lbl_msg.text                = _t("cat.rescue_go_to_light")
 	lbl_msg.autowrap_mode       = TextServer.AUTOWRAP_WORD_SMART
 	lbl_msg.vertical_alignment  = VERTICAL_ALIGNMENT_CENTER
 	lbl_msg.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -563,12 +563,12 @@ func _mostrar_dialogo_rescate_segunda_parte() -> void:
 			var mensaje_poder = ""
 			match tipo_poder:
 				"resistencia_pulmonar":
-					mensaje_poder = "Capacidad Pulmonar Aumentada\n+5% de resistencia"
+					mensaje_poder = _t("cat.power_lung")
 				"capacidad_manguera":
-					mensaje_poder = "Capacidad de Manguera Mejorada\n+20 de capacidad"
+					mensaje_poder = _t("cat.power_hose")
 				_:
-					mensaje_poder = "Poder Obtenido"
-			
+					mensaje_poder = _t("cat.power_generic")
+
 			_mostrar_notificacion_pantalla(mensaje_poder)
 	)
 
@@ -664,10 +664,9 @@ func _mostrar_dialogo_rescate_tercera_parte() -> void:
 	msg_margin.add_theme_constant_override("margin_bottom", 10)
 	box.add_child(msg_margin)
 
-	# Usar RichTextLabel para poder formatear "El casino" en rojo oscuro y bold
+	# Usar RichTextLabel para poder formatear el nombre del casino en rojo oscuro y bold
 	var lbl_msg = RichTextLabel.new()
-	# Mensaje con BBCode para "El casino" en rojo oscuro (#8B0000) y bold
-	lbl_msg.text = "Aiden ten cuidado el siguiente nivel [b][color=#8B0000]\"El casino\"[/color][/b] es uno de los incendios que no pudiste apagarlo junto con el Alma que no pudiste salvar ten cuidado."
+	lbl_msg.text = _t("cat.casino_warning")
 	lbl_msg.bbcode_enabled = true
 	lbl_msg.autowrap_mode       = TextServer.AUTOWRAP_WORD_SMART
 	lbl_msg.vertical_alignment  = VERTICAL_ALIGNMENT_CENTER
@@ -702,11 +701,11 @@ func _mostrar_dialogo_rescate_tercera_parte() -> void:
 		var mensaje_poder = ""
 		match tipo_poder:
 			"resistencia_pulmonar":
-				mensaje_poder = "Capacidad Pulmonar Aumentada\n+5% de resistencia"
+				mensaje_poder = _t("cat.power_lung")
 			"capacidad_manguera":
-				mensaje_poder = "Capacidad de Manguera Mejorada\n+20 de capacidad"
+				mensaje_poder = _t("cat.power_hose")
 			_:
-				mensaje_poder = "Poder Obtenido"
+				mensaje_poder = _t("cat.power_generic")
 		
 		_mostrar_notificacion_pantalla(mensaje_poder)
 	)
