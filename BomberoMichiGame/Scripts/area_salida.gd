@@ -4,11 +4,15 @@ extends Area2D
 
 @export var escena_destino: String = "res://Scenes/Levels/HellV2/HellV2.tscn"
 @export var nombre_gato_requerido: String = "Osiris"
-@export var texto_hint: String = "Presiona F para bajar al siguiente nivel"
 
 var jugador_adentro: bool = false
 var mensaje_visible: Label = null
 var luz_salida: PointLight2D = null
+
+func _t(key: String) -> String:
+	if has_node("/root/Localization"):
+		return get_node("/root/Localization").translate(key)
+	return key
 
 func _ready():
 	print("🚪 Inicializando área de salida...")
@@ -131,7 +135,7 @@ func _mostrar_mensaje() -> void:
 	if mensaje_visible:
 		return
 	
-	print("📝 Mostrando mensaje de salida:", texto_hint)
+	print("📝 Mostrando mensaje de salida")
 	
 	# Crear un CanvasLayer para asegurar que se vea encima
 	var canvas_layer = CanvasLayer.new()
@@ -170,7 +174,7 @@ func _mostrar_mensaje() -> void:
 	
 	# ===== TEXTO DEL MENSAJE =====
 	mensaje_visible = Label.new()
-	mensaje_visible.text = texto_hint
+	mensaje_visible.text = _t("exit.press_f")
 	mensaje_visible.add_theme_color_override("font_color", Color.YELLOW)
 	mensaje_visible.add_theme_color_override("font_outline_color", Color.BLACK)
 	mensaje_visible.add_theme_constant_override("outline_size", 4)
