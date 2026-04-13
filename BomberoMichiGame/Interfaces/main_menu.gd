@@ -90,6 +90,20 @@ func _ready() -> void:
 	
 	update_texts()
 	btn_credits.pressed.connect(_on_btnCreditos_pressed)
+    # Asegurarnos de que el HUD de asfixia esté curado, oculto y callado al entrar al menú
+	for efecto in get_tree().get_nodes_in_group("efecto_asfixia"):
+		if efecto.has_method("update_oxygen"):
+			efecto.update_oxygen(100.0) # Esto baja la intensidad a 0 y lo oculta
+		
+		efecto.is_asphyxia_active = false
+		efecto.is_playing_recovery = false
+		
+		if "audio_player" in efecto and efecto.audio_player:
+			efecto.audio_player.stop()
+			
+	# Asegurarnos de que el resto de interfaces vuelvan a ser visibles (por el apagón nuclear)
+	for canvas in get_tree().root.find_children("*", "CanvasLayer", true, false):
+		canvas.visible = true
 
 func _setup_continue_button() -> void:
 	"""Crea el botón Continuar solo si existe un archivo de guardado."""
