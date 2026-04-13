@@ -198,7 +198,7 @@ func _on_btnCreditos_pressed() -> void:
 	capa_creditos.add_child(bg)
 
 	# 2. Cargar el video
-	var video_stream = load("res://Assets/creditos/creditosFInal.ogv")
+	var video_stream = load("res://Assets/creditos/video_creditos.ogv")
 	if video_stream == null:
 		print("❌ ERROR: No se encontró el video.")
 		_cerrar_creditos() # Cerramos todo para no quedar en pantalla negra

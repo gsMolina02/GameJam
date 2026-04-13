@@ -1,7 +1,7 @@
-[gd_scene format=3 uid="uid://d1fjm5w0rsqqs"]
+[gd_scene load_steps=3 format=3 uid="uid://d1fjm5w0rsqqs"]
 
-[ext_resource type="VideoStream" uid="uid://bpdtncvdcektn" path="res://Assets/creditos/creditosFInal.ogv" id="1_ewbnq"]
 [ext_resource type="Script" uid="uid://cdy00cox314ok" path="res://Interfaces/escenacreditos.gd" id="2_dlcpq"]
+[ext_resource type="VideoStream" uid="uid://cbblwolwnx401" path="res://Assets/creditos/video_creditos.ogv" id="2_ewbnq"]
 
 [node name="EscenaCreditos" type="Control"]
 layout_mode = 3
@@ -17,6 +17,6 @@ clip_contents = true
 layout_mode = 0
 offset_right = 1500.0
 offset_bottom = 906.0
-stream = ExtResource("1_ewbnq")
+stream = ExtResource("2_ewbnq")
 autoplay = true
 expand = true
