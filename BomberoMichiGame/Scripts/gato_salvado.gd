@@ -100,6 +100,9 @@ func _physics_process(_delta: float) -> void:
 		# ✅ Marcar como rescatado apenas se completan las condiciones
 		GameManager.marcar_gato_rescatado(nombre_gato)
 		print("✅ ¡GATO RESCATADO! Flecha mostrada, espera interacción")
+		if escena_destino != "":
+			print("🕵️‍♂️ [CARGA SECRETA] El nivel fue superado. Empezando a cargar en la RAM: ", escena_destino)
+			ResourceLoader.load_threaded_request(escena_destino)
 
 	# Detectar proximidad del jugador por distancia (no depende del Area2D)
 	var ref_pos = animated_sprite.global_position if animated_sprite else global_position
@@ -228,6 +231,7 @@ func _crear_dialogo_ui() -> void:
 		if is_instance_valid(canvas_layer):
 			_cerrar_dialogo(canvas_layer)
 	)
+	
 
 func _limpiar_dialogos_anteriores() -> void:
 	"""Elimina cualquier diálogo anterior que pueda estar en la escena"""
@@ -846,29 +850,24 @@ func _activar_salida_nivel() -> void:
 	"""Activa la luz de salida y el área de salida cuando el gato es rescatado"""
 	print("🔍 Buscando área de salida...")
 	
-	# Buscar el área de salida en la escena
 	var area_salida = null
-	
-	# Método 1: Buscar desde la raíz
-	var root = get_tree().root.get_child(0)  # Primer hijo de root que es el nivel actual
+	var root = get_tree().root.get_child(0)
 	if root:
 		area_salida = root.find_child("area salida", false, false)
 	
-	# Método 2: Si no la encuentra, buscar en todo el árbol
 	if not area_salida:
-		area_salida = get_tree().root.find_child("area salida", true, false)  # Búsqueda recursiva
+		area_salida = get_tree().root.find_child("area salida", true, false)
 	
 	if not area_salida:
 		push_warning("⚠️ No se encontró el nodo 'area salida' en el nivel")
-		print("❌ FALLO: No se pudo localizar 'area salida'")
 		return
 	
 	print("✅ Área de salida encontrada:", area_salida.name)
 	
-	# Verificar que tenga el script area_salida.gd
+	# ⚡ NUEVO: Le pasamos la escena_destino al área de salida para que sepa a dónde ir
 	if area_salida.has_method("activar_salida"):
-		area_salida.activar_salida()
-		print("✨ Área de salida activada exitosamente")
+		# Le enviamos la ruta que hemos estado cargando en secreto
+		area_salida.activar_salida(escena_destino)
+		print("✨ Área de salida activada exitosamente con destino: ", escena_destino)
 	else:
 		push_warning("⚠️ El nodo 'area salida' no tiene el método 'activar_salida'")
-		print("❌ FALLO: El método 'activar_salida' no existe")

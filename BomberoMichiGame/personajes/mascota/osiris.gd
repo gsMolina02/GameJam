@@ -81,11 +81,21 @@ func _ready():
 	# Buscar la puerta
 	_buscar_puerta()
 	
-	# Crear flecha de interacción inmediatamente (verde animada)
+	# Crear flecha de interacción inmediatamente
 	_crear_flecha_interaccion()
 	
 	print("🐱 Osiris listo en nivel Osiris - ESPERANDO INTERACCIÓN")
+	
+	# 🚀 LA MAGIA DE LA CARGA OCULTA:
+	# Como en este nivel no hay que apagar fuego, apenas empieza el nivel
+	# le decimos a Godot que empiece a cargar el siguiente (NewHellLevel) en secreto.
+	if puerta_nodo and "escena_destino" in puerta_nodo and puerta_nodo.escena_destino != "":
+		print("🕵️‍♂️ [CARGA SECRETA] Iniciando precarga de: ", puerta_nodo.escena_destino)
+		ResourceLoader.load_threaded_request(puerta_nodo.escena_destino)
+	else:
+		print("⚠️ [CARGA SECRETA] No se pudo encontrar la ruta destino en la puerta.")
 
+		
 func _buscar_puerta() -> void:
 	"""Busca la puerta en la escena para iluminarla después"""
 	var scene = get_tree().current_scene

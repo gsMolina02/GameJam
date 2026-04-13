@@ -123,8 +123,31 @@ func _on_body_exited(body: Node2D) -> void:
 	pass
 
 func _cambiar_escena(jugador: Node2D) -> void:
-	"""Cambia a la siguiente escena"""
-	print("🚪 Cambiando de escena...")
-	GameManager.guardar_estado_jugador(jugador)
-	GameManager.offset_spawn = offset_spawn
-	get_tree().call_deferred("change_scene_to_file", escena_destino)
+	"""Cambia a la siguiente escena aprovechando la carga en segundo plano"""
+	print("🚪 Cambiando de escena hacia: ", escena_destino)
+	
+	# Desactivar colisiones para evitar múltiples toques
+	set_deferred("monitoring", false)
+	
+	# Guardar estado del jugador
+	if GameManager.has_method("guardar_estado_jugador"):
+		GameManager.guardar_estado_jugador(jugador)
+	if "offset_spawn" in GameManager:
+		GameManager.offset_spawn = offset_spawn
+	
+	# 🚀 EL VIAJE ULTRA-RÁPIDO:
+	# Le preguntamos a Godot si ya terminó la tarea que Osiris le mandó al principio del nivel
+	var status = ResourceLoader.load_threaded_get_status(escena_destino)
+	
+	if status == ResourceLoader.THREAD_LOAD_LOADED:
+		print("⚡ [CARGA INSTANTÁNEA] El nivel ya estaba en RAM. ¡Viaje rápido!")
+		var escena_lista = ResourceLoader.load_threaded_get(escena_destino)
+		get_tree().call_deferred("change_scene_to_packed", escena_lista)
+		
+	elif status == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+		print("⏳ [CARGA NORMAL] El jugador fue muy rápido. Aún cargando, congelando juego...")
+		get_tree().call_deferred("change_scene_to_file", escena_destino)
+		
+	else:
+		print("⚠️ [CARGA CLÁSICA] No había carga en segundo plano o falló. Usando método normal.")
+		get_tree().call_deferred("change_scene_to_file", escena_destino)

@@ -54,12 +54,17 @@ func _ready():
 	if has_node("CollisionShape2D"):
 		print("  - CollisionShape encontrado en:", $CollisionShape2D.position)
 
-func activar_salida() -> void:
+func activar_salida(ruta_destino_cargada: String = "") -> void:
 	"""Activa el área de salida y enciende la luz"""
 	print("\n==================================================")
 	print("✨ ¡ACTIVANDO SALIDA DEL NIVEL!")
 	print("==================================================")
 	
+	# ⚡ NUEVO: Si el gato nos pasó una ruta, la actualizamos para ir a ella
+	if ruta_destino_cargada != "":
+		escena_destino = ruta_destino_cargada
+		print("  → El Gato actualizó el destino a: ", escena_destino)
+
 	# Encender la luz
 	if luz_salida:
 		print("  → Encendiendo luz de salida...")
@@ -127,7 +132,10 @@ func _on_area_exited(area: Area2D) -> void:
 
 func _physics_process(_delta: float) -> void:
 	"""Detecta cuando el jugador presiona F dentro del área"""
-	if jugador_adentro and Input.is_action_just_pressed("interact"):
+	# Añadimos not get_tree().paused para evitar problemas y call_deferred para mayor seguridad
+	if jugador_adentro and Input.is_action_just_pressed("interact") and not get_tree().paused:
+		# Evitamos que el jugador presione F varias veces mientras carga
+		set_physics_process(false) 
 		_cambiar_escena()
 
 func _mostrar_mensaje() -> void:
@@ -200,12 +208,30 @@ func _ocultar_mensaje() -> void:
 		print("📝 Mensaje de salida ocultado")
 
 func _cambiar_escena() -> void:
-	"""Cambia a la siguiente escena"""
-	print("🚪 Cambiando a:", escena_destino)
+	"""Cambia a la siguiente escena aprovechando la carga en segundo plano"""
+	print("🚪 Solicitando viaje a:", escena_destino)
+	
+	# Ocultar mensaje visual por si acaso
+	_ocultar_mensaje()
 	
 	# Guardar estado del jugador si es necesario
 	var jugador = get_tree().get_first_node_in_group("player_main")
-	if jugador and GameManager:
+	if jugador and GameManager.has_method("guardar_estado_jugador"):
 		GameManager.guardar_estado_jugador(jugador)
 	
-	get_tree().call_deferred("change_scene_to_file", escena_destino)
+	# 🚀 LA MAGIA DE LA CARGA RÁPIDA:
+	# Le preguntamos a Godot si ya terminó la tarea que le mandó el Gato
+	var status = ResourceLoader.load_threaded_get_status(escena_destino)
+	
+	if status == ResourceLoader.THREAD_LOAD_LOADED:
+		print("⚡ [CARGA INSTANTÁNEA] El nivel ya estaba en RAM. ¡Viaje rápido!")
+		var escena_lista = ResourceLoader.load_threaded_get(escena_destino)
+		get_tree().call_deferred("change_scene_to_packed", escena_lista)
+		
+	elif status == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+		print("⏳ [CARGA NORMAL] El jugador fue muy rápido. Aún cargando, congelando juego...")
+		get_tree().call_deferred("change_scene_to_file", escena_destino)
+		
+	else:
+		print("⚠️ [CARGA CLÁSICA] No había carga en segundo plano o falló. Usando método normal.")
+		get_tree().call_deferred("change_scene_to_file", escena_destino)
