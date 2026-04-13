@@ -18,4 +18,4 @@ func _ready():
 		# Posicionar en la puerta correcta (puedes implementar lógica por nombre de cuarto)
 		GameManager.posicionar_jugador_en_puerta(jugador, self)
 	else:
-		push_warning("⚠️ No se encontró jugador en Cuarto1")
+		push_warning(" No se encontró jugador en Cuarto1")
