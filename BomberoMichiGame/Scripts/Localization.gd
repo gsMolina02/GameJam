@@ -57,7 +57,9 @@ var translations = {
 		"cat.power_lung": "Capacidad Pulmonar Aumentada\n+5% de resistencia",
 		"cat.power_hose": "Capacidad de Manguera Mejorada\n+20 de capacidad",
 		"cat.power_generic": "Poder Obtenido",
+		"cat.power_title": "— PODER OBTENIDO —",
 		"cat.casino_warning": "Aiden ten cuidado el siguiente nivel [b][color=#8B0000]\"El casino\"[/color][/b] es uno de los incendios que no pudiste apagarlo junto con el Alma que no pudiste salvar ten cuidado.",
+		"exit.press_f": "Presiona F para bajar al siguiente nivel",
 
 		# HUD
 		"hud.life": "Vida",
@@ -133,7 +135,9 @@ var translations = {
 		"cat.power_lung": "Lung Capacity Increased\n+5% resistance",
 		"cat.power_hose": "Hose Capacity Improved\n+20 capacity",
 		"cat.power_generic": "Power Obtained",
+		"cat.power_title": "— POWER OBTAINED —",
 		"cat.casino_warning": "Aiden be careful, the next level [b][color=#8B0000]\"The Casino\"[/color][/b] is one of the fires you couldn't put out along with the Soul you couldn't save, be careful.",
+		"exit.press_f": "Press F to go to the next level",
 
 		# HUD
 		"hud.life": "Life",
@@ -209,7 +213,9 @@ var translations = {
 		"cat.power_lung": "Capacidade Pulmonar Aumentada\n+5% de resistência",
 		"cat.power_hose": "Capacidade da Mangueira Melhorada\n+20 de capacidade",
 		"cat.power_generic": "Poder Obtido",
+		"cat.power_title": "— PODER OBTIDO —",
 		"cat.casino_warning": "Aiden tome cuidado, o próximo nível [b][color=#8B0000]\"O Casino\"[/color][/b] é um dos incêndios que você não conseguiu apagar junto com a Alma que não pôde salvar, tome cuidado.",
+		"exit.press_f": "Pressione F para ir ao próximo nível",
 
 		# HUD
 		"hud.life": "Vida",
