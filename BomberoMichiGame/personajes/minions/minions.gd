@@ -59,7 +59,8 @@ func _ready():
 	$AttackTimer.timeout.connect(_on_AttackTimer_timeout)
 	anim_player = $AnimatedSprite2D
 	if anim_player:
-		_setup_animation_frames()
+		pass
+		#_setup_animation_frames()
 	# Ensure this node is recognized as an enemy for collisions/filters
 	add_to_group("enemigos")
 	add_to_group("minion")

@@ -1,7 +1,7 @@
 extends Node
 
 # Estado del jugador entre escenas
-var vida_jugador: int = 3
+var vida_jugador: float = 100.0
 var agua_jugador: float = 100.0
 var vida_maxima_jugador: float = 100.0  # Para restaurar poderes del gato
 var hose_drain_rate_jugador: float = 4.0  # Para restaurar poder de manguera
