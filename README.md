@@ -11,6 +11,10 @@
 
 **SOFOCADO** es un **Action-Roguelike de terror psicológico** creado en Godot. Encarnas a **Aiden**, un bombero de élite atrapado en el inframundo tras perder a su familia en un incendio sobrenatural. Para encontrar la redención, deberá enfrentar las almas de quienes no pudo salvar y sobrevivir al colapso de su propia mente.
 
+<p align="center">
+	<img src="BomberoMichiGame/Images/SofocadoCaps/06.jpg" alt="SOFOCADO captura 06" width="900" />
+</p>
+
 ## Descripción
 
 Enfréntate a tus traumas, rescata a los guardianes y sobrevive al humo antes de que el colapso sea definitivo.
@@ -81,9 +85,6 @@ La habitación pierde vida con el tiempo, así que cada decisión importa.
 	<img src="BomberoMichiGame/Images/SofocadoCaps/04.png" alt="SOFOCADO captura 04" width="900" />
 </p>
 
-<p align="center">
-	<img src="BomberoMichiGame/Images/SofocadoCaps/06.jpg" alt="SOFOCADO captura 06" width="900" />
-</p>
 
 ## Tecnología
 
