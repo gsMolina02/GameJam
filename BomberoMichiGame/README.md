@@ -1,5 +1,12 @@
 # SOFOCADO
 
+![Godot](https://img.shields.io/badge/Engine-Godot%204.5-478CBF?logo=godotengine&logoColor=white)
+![GDScript](https://img.shields.io/badge/Language-GDScript-355570?logo=godotengine&logoColor=white)
+![Platform](https://img.shields.io/badge/Platform-PC-5C2D91)
+![Genre](https://img.shields.io/badge/Genre-Action--Roguelike-8B0000)
+![Theme](https://img.shields.io/badge/Theme-Psychological%20Horror-1F1F1F)
+![Status](https://img.shields.io/badge/Status-Game%20Jam%20Build-F97316)
+
 > In Hell, you don't put out fires with water... you extinguish them with acceptance.
 
 **SOFOCADO** es un **Action-Roguelike de terror psicológico** creado en Godot. Encarnas a **Aiden**, un bombero de élite atrapado en el inframundo tras perder a su familia en un incendio sobrenatural. Para encontrar la redención, deberá enfrentar las almas de quienes no pudo salvar y sobrevivir al colapso de su propia mente.
@@ -55,6 +62,28 @@ La habitación pierde vida con el tiempo, así que cada decisión importa.
 | Interactuar / abrir puertas | F |
 
 > En el tutorial del juego puedes ver los controles completos según la pantalla actual.
+
+## Capturas / Screenshots
+
+<p align="center">
+  <img src="Images/SofocadoCaps/01.png" alt="SOFOCADO captura 01" width="900" />
+</p>
+
+<p align="center">
+  <img src="Images/SofocadoCaps/02.png" alt="SOFOCADO captura 02" width="900" />
+</p>
+
+<p align="center">
+  <img src="Images/SofocadoCaps/03.png" alt="SOFOCADO captura 03" width="900" />
+</p>
+
+<p align="center">
+  <img src="Images/SofocadoCaps/04.png" alt="SOFOCADO captura 04" width="900" />
+</p>
+
+<p align="center">
+  <img src="Images/SofocadoCaps/06.jpg" alt="SOFOCADO captura 06" width="900" />
+</p>
 
 ## Tecnología
 
